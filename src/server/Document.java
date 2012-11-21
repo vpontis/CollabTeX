@@ -49,7 +49,7 @@ public class Document {
 		Set<String> paragraphKeys = paragraphs.keySet();
 		for (String paragraphKey : paragraphKeys) {
 			Paragraph paragraph = paragraphs.get(paragraphKey);
-			documentText.append(paragraph.toString());
+			documentText.append(paragraph.toString()).append("\n");
 		}
 		return documentText.toString();
 	}

@@ -29,6 +29,10 @@ public class Paragraph {
 		return paragraphText;
 	}
 	
+	public void setParagraphText(String newParagraphText) {
+		paragraphText = newParagraphText;
+	}
+	
 	@Override
 	public String toString() {
 		return paragraphText;
