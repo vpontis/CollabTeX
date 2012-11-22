@@ -71,6 +71,12 @@ public class EtherpadServer {
     	
     }
     
+    /**
+     * Method that returns a User object representing the user of the current client
+     * @param socket Socket corresponding to the current client
+     * @return An object of the User class, that represents the user of the current client
+     * @throws IOException
+     */
     private User getUser(Socket socket) throws IOException {
     	BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -141,7 +147,6 @@ public class EtherpadServer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
 
 }
