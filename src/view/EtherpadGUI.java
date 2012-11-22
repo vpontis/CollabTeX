@@ -1,5 +1,14 @@
 package view;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,9 +25,19 @@ public class EtherpadGUI extends JFrame {
 	private JLabel userNameLabel;
 	private JLabel passwordLabel;
 	
-	public EtherpadGUI() {
+	private JLabel resultLabel;
+	
+	private Socket socket;
+	private BufferedReader in;
+	private PrintWriter out;
+	
+	public EtherpadGUI() throws UnknownHostException, IOException {
 		super("Etherpad GUI");
 		
+		socket = new Socket("127.0.0.1",4444);
+		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        out = new PrintWriter(socket.getOutputStream(), true);
+
 		//Initializing the login button
 		loginButton = new JButton();
 		loginButton.setName("newLoginButton");
@@ -45,6 +64,11 @@ public class EtherpadGUI extends JFrame {
 		passwordLabel.setName("userNameLabel");
 		passwordLabel.setText("Password : ");
 		
+		resultLabel = new JLabel();
+		resultLabel.setName("resultLabel");
+		
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
 		GroupLayout completeLayout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(completeLayout);
 		
@@ -53,6 +77,10 @@ public class EtherpadGUI extends JFrame {
 		
 		completeLayout.setHorizontalGroup(completeLayout
 				.createParallelGroup()
+				.addGroup(
+						completeLayout.createSequentialGroup()
+						.addComponent(resultLabel)
+						)
 				.addGroup(
 						completeLayout.createSequentialGroup()
 						.addComponent(userNameLabel)
@@ -74,6 +102,10 @@ public class EtherpadGUI extends JFrame {
 		completeLayout.setVerticalGroup(completeLayout
 				.createSequentialGroup()
 				.addGroup(
+						completeLayout.createParallelGroup()
+						.addComponent(resultLabel)
+						)
+				.addGroup(
 						completeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
 						.addComponent(userNameLabel)
 						.addComponent(userName)
@@ -90,14 +122,60 @@ public class EtherpadGUI extends JFrame {
 						)
 			);
 		
+		//Action listener for the new login button
+		loginButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String name = userName.getText();
+				String passwordname = password.getText();
+				String output = "login " + name + " " + passwordname;
+				out.println(output);
+				
+				try {
+					String response = in.readLine();
+					resultLabel.setText(response);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				
+				userName.setText("");
+				password.setText("");
+			}
+		});
+		
+		//Action listener for the new logon button
+		logonButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String name = userName.getText();
+				String passwordname = password.getText();
+				String output = "logon " + name + " " + passwordname;
+				out.println(output);
+				
+				try {
+					String response = in.readLine();
+					resultLabel.setText(response);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				
+				userName.setText("");
+				password.setText("");
+			}
+		});
+		
 	}
 	
 	public static void main(final String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				EtherpadGUI main = new EtherpadGUI();
-
-				main.setVisible(true);
+				EtherpadGUI main;
+				try {
+					main = new EtherpadGUI();
+					main.setVisible(true);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}	
 			}
 		});
 	}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
+	@SuppressWarnings("unused")
 	private String userName;
 	private String password;
 	
