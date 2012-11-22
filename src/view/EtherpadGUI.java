@@ -57,7 +57,6 @@ public class EtherpadGUI {
 			throw new RuntimeException("IO Exception caught while setting up the GUI");
 		}
 		
-		//main.setupLoginUI();
 		Thread newThread = new Thread(new Runnable() {
 			@Override
 			public void run() {

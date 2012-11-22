@@ -18,12 +18,21 @@ public class EtherpadServer {
 	private final ServerSocket serverSocket;
 	private Map<String, User> name_userMappings;
 	
+	/**
+	 * Initializes the EtherpadServer with the default port number
+	 * @throws IOException If there is an error creating the server socket
+	 */
 	public EtherpadServer() throws IOException {
 		this.currentDocuments = new ArrayList<Document> ();
 		this.serverSocket = new ServerSocket(port);
 		this.name_userMappings = new HashMap<String,User> ();
 	}
 	
+	/**
+	 * Initializes the EtherpadServer with the given port number
+	 * @param port The port number to which the server publishes messages
+	 * @throws IOException If there is an error creating the server socket
+	 */
 	public EtherpadServer(int port) throws IOException {
 		this.port = port;
 		this.currentDocuments = new ArrayList<Document> ();
@@ -94,6 +103,11 @@ public class EtherpadServer {
         throw new RuntimeException("Should not reach here");
     }
     
+    /**
+     * Handles the client logging in
+     * @param input Message sent from the client to the server
+     * @return A String representing the response of the server to the client
+     */
     private String handleLogin(String input) {
     	if (input.startsWith("login")) {
 			String[] tokens = input.split(" ");
@@ -132,14 +146,26 @@ public class EtherpadServer {
         }
 	}
 	
+	/**
+	 * Adds a new Document to the list of currently active documents
+	 * @param newDocument The document object of the new document being added to the collection
+	 */
 	public void addDocument(Document newDocument) {
 		currentDocuments.add(newDocument);
 	}
 	
+	/**
+	 * Returns the list of documents that are stored in the server
+	 * @return A List of document objects that are stored in the server
+	 */
 	public List<Document> getDocumentNames(String userName) {
 		return currentDocuments;
 	}
 	
+	/**
+	 * Starts the etherpad server
+	 * @param args Unused
+	 */
 	public static void main(String[] args) {
 		try {
 			EtherpadServer etherpadServer = new EtherpadServer();
