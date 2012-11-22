@@ -26,5 +26,9 @@ public class User {
 	public List<String> getDocuments() {
 		return documents;
 	}
+	
+	public boolean passwordMatch(String givenPassword) {
+		return password.equals(givenPassword);
+	}
 
 }

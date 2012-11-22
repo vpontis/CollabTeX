@@ -16,19 +16,19 @@ public class EtherpadServer {
 	private List<Document> currentDocuments;
 	private int port = 4444;
 	private final ServerSocket serverSocket;
-	private Map<String, String> user_passwordMappings;
+	private Map<String, User> name_userMappings;
 	
 	public EtherpadServer() throws IOException {
 		this.currentDocuments = new ArrayList<Document> ();
 		this.serverSocket = new ServerSocket(port);
-		this.user_passwordMappings = new HashMap<String,String> ();
+		this.name_userMappings = new HashMap<String,User> ();
 	}
 	
 	public EtherpadServer(int port) throws IOException {
 		this.port = port;
 		this.currentDocuments = new ArrayList<Document> ();
 		this.serverSocket = new ServerSocket(port);
-		this.user_passwordMappings = new HashMap<String, String> ();
+		this.name_userMappings = new HashMap<String, User> ();
 	}
 	
 	/**
@@ -41,43 +41,62 @@ public class EtherpadServer {
         while (true) {
             // block until a client connects
             Socket socket = serverSocket.accept();
-            Thread socketThread = new Thread(new RunnableMines(socket));
+            User user = getUser(socket);
+            System.out.println("Ready to start a new thread now!");
+            Thread socketThread = new Thread(new RunnableMines(socket, user));
             socketThread.start();
         }
     }
     
     /**
      * Class defined to help start a new thread every time a new client connects to the server
-     * @author Deepak
-     *
      */
     private class RunnableMines implements Runnable {
     	Socket socket;
+    	User user;
     	
-    	public RunnableMines(Socket socket) {
+    	public RunnableMines(Socket socket, User user) {
     		this.socket = socket;
+    		this.user = user;
     	}
     	
 		@Override
 		public void run() {
 			try {
-				handleConnection(socket);
+				handleConnection(socket, user);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}			
 		}
     	
     }
-	
-	private String handleRequest(String input) {
-		if (input.startsWith("login")) {
+    
+    private User getUser(Socket socket) throws IOException {
+    	BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+        
+        for (String line = in.readLine(); line!=null; line=in.readLine()) {
+            String output = handleLogin(line);
+            out.println(output);
+            if (output.startsWith("Success")) {
+            	String[] outputTokens = output.split(" ");
+            	String userName = outputTokens[1];
+            	return name_userMappings.get(userName);
+            }
+        }
+        
+        throw new RuntimeException("Should not reach here");
+    }
+    
+    private String handleLogin(String input) {
+    	if (input.startsWith("login")) {
 			String[] tokens = input.split(" ");
 			String userName = tokens[1];
 			String password = tokens[2];
-			if (user_passwordMappings.containsKey(userName)) {
-				String expectedPassword = user_passwordMappings.get(userName);
-				if (password.equals(expectedPassword)) {
-					return "Login success";
+			if (name_userMappings.containsKey(userName)) {
+				User user = name_userMappings.get(userName);
+				if (user.passwordMatch(password)) {
+					return "Success " + userName;
 				}
 				return "Wrong password";
 			}
@@ -86,20 +105,24 @@ public class EtherpadServer {
 			String[] tokens = input.split(" ");
 			String userName = tokens[1];
 			String password = tokens[2];
-			user_passwordMappings.put(userName, password);
+			User newUser = new User(userName, password);
+			name_userMappings.put(userName, newUser);
 			return "Logon success";
 		}
+    	throw new RuntimeException("Should not reach here");
+    }
+	
+	private String handleRequest(String input, User user) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void handleConnection(Socket socket) throws IOException {
+	public void handleConnection(Socket socket, User user) throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
         
         for (String line = in.readLine(); line!=null; line=in.readLine()) {
-            String output = handleRequest(line);
-            out.print(output);
-            out.flush();
+            String output = handleRequest(line, user);
+            out.println(output);
         }
 	}
 	
@@ -109,6 +132,16 @@ public class EtherpadServer {
 	
 	public List<Document> getDocumentNames(String userName) {
 		return currentDocuments;
+	}
+	
+	public static void main(String[] args) {
+		try {
+			EtherpadServer etherpadServer = new EtherpadServer();
+			etherpadServer.serve();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 }
