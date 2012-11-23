@@ -1,6 +1,9 @@
 package view;
 
+import java.io.PrintWriter;
+
 import javax.swing.GroupLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -13,10 +16,14 @@ public class TableGUI extends JFrame{
 	
 	private JTable documentTable;
 	private DefaultTableModel tableModel;
+	private JButton newDocumentButton;
 	
-	public TableGUI () {
-		
+	private PrintWriter out;
+	
+	public TableGUI (PrintWriter outputStream) {
 		super("Etherpad");
+		
+		out = outputStream;
 		
 		tableLabel = new JLabel();
 		tableLabel.setName("tableLabel");
@@ -31,6 +38,10 @@ public class TableGUI extends JFrame{
 		//Table that contains all of the user's documents
 		documentTable = new JTable(tableModel);
 		documentTable.setName("documentTable");
+		
+		newDocumentButton = new JButton();
+		newDocumentButton.setName("newDocumentButton");
+		newDocumentButton.setText("New Document");
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
@@ -49,6 +60,10 @@ public class TableGUI extends JFrame{
                 		)
                 .addGroup(
                 		completeLayout.createSequentialGroup()
+                		.addComponent(newDocumentButton)
+                		)
+                .addGroup(
+                		completeLayout.createSequentialGroup()
                 		.addComponent(documentTable)
                 		)               
 			);
@@ -56,13 +71,18 @@ public class TableGUI extends JFrame{
 		completeLayout.setVerticalGroup(completeLayout
 				.createSequentialGroup()
 				.addGroup(
-						completeLayout.createParallelGroup()
+						completeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
 						.addComponent(tableLabel)
 						)
 				.addGroup(
-						completeLayout.createParallelGroup()
+						completeLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+						.addComponent(newDocumentButton)
+						)
+				.addGroup(
+						completeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
 						.addComponent(documentTable)
 						)
 			);
 	}
+	
 }

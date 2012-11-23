@@ -2,9 +2,7 @@ package view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.UnknownHostException;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -25,7 +23,7 @@ public class LoginGUI extends JFrame{
 	
 	private PrintWriter out;
 
-	public LoginGUI(PrintWriter outputStream) throws UnknownHostException, IOException {
+	public LoginGUI(PrintWriter outputStream) {
 		super("Etherpad GUI");
 		out = outputStream;
 		

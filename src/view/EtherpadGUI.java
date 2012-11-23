@@ -22,7 +22,7 @@ public class EtherpadGUI {
 		serverOutput = new PrintWriter(serverSocket.getOutputStream(), true);
 		
 		this.loginGUI = new LoginGUI(serverOutput);
-		this.tableGUI = new TableGUI();
+		this.tableGUI = new TableGUI(serverOutput);
 	}
 	
 	public void setupLoginUI() {
