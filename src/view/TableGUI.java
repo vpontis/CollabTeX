@@ -83,6 +83,12 @@ public class TableGUI extends JFrame{
 						.addComponent(documentTable)
 						)
 			);
+		
+		this.pack();
 	}
 	
+	public static void main(String[] args){
+	    TableGUI main = new TableGUI(new PrintWriter(System.out));
+	    main.setVisible(true);
+	}
 }
