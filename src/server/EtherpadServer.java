@@ -132,7 +132,17 @@ public class EtherpadServer {
     	throw new RuntimeException("Should not reach here");
     }
 	
+    //Complete writing this method
 	private String handleRequest(String input, User user) {
+		String output = "";
+		if (input.equals("table")) {
+			for (Document document : currentDocuments) {
+				output += document.getDocumentName();
+				output += "\t";
+				return output;
+			}
+		}
+		
 		throw new UnsupportedOperationException();
 	}
 	
