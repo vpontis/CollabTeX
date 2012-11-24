@@ -127,6 +127,7 @@ public class LoginGUI extends JFrame{
 			}
 		});
 		
+		this.pack();
 	}
 	
 	private void login() {
@@ -153,5 +154,10 @@ public class LoginGUI extends JFrame{
 	
 	public synchronized void resetPassword() {
 		password.setText("");
+	}
+	
+	public static void main(String[] args){
+	    LoginGUI main = new LoginGUI(new PrintWriter(System.out));
+	    main.setVisible(true);
 	}
 }
