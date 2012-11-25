@@ -1,12 +1,10 @@
 package view;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.PrintWriter;
 
-import javax.swing.GroupLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 @SuppressWarnings("serial")
@@ -16,12 +14,17 @@ public class DocTable extends JFrame{
 	
 	private JTable documentTable;
 	private DefaultTableModel tableModel;
+	private JScrollPane tableScroll;
+	
 	private JButton newDocumentButton;
+	private JTextField newDocumentName;
+	
+	private JButton logoutButton;
 	
 	private PrintWriter out;
 	
 	public DocTable (PrintWriter outputStream) {
-		super("Etherpad");
+		super("Document List");
 		
 		out = outputStream;
 		
@@ -29,19 +32,22 @@ public class DocTable extends JFrame{
 		tableLabel.setName("tableLabel");
 		tableLabel.setText("Document table");
 		
-		//Table model that contains data within the Document table
-		tableModel = new DefaultTableModel();
-		tableModel.addColumn("DocumentName");
-		tableModel.addColumn("LastDateModified");
-		tableModel.addColumn("Collaborators");
-		
 		//Table that contains all of the user's documents
-		documentTable = new JTable(tableModel);
+		String[] columnNames = new String[]{"Name", "Last Modified", "Collab"};
+		tableModel = new DefaultTableModel(null, columnNames);
+		documentTable = new JTable();
 		documentTable.setName("documentTable");
+		documentTable.setModel(tableModel);
+		tableScroll = new JScrollPane(documentTable);
 		
 		newDocumentButton = new JButton();
 		newDocumentButton.setName("newDocumentButton");
 		newDocumentButton.setText("New Document");
+		
+		newDocumentName = new JTextField();
+		newDocumentName.setName("newDocumentName");
+		
+		logoutButton = new JButton("Logout");
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
@@ -51,40 +57,64 @@ public class DocTable extends JFrame{
 		
 		completeLayout.setAutoCreateGaps(true);
         completeLayout.setAutoCreateContainerGaps(true);
-		
+        
 		completeLayout.setHorizontalGroup(completeLayout
 				.createParallelGroup()
 				.addGroup(
                 		completeLayout.createSequentialGroup()
-                		.addComponent(tableLabel)
+                			.addComponent(newDocumentName)
+                			.addComponent(newDocumentButton)
+                			.addComponent(logoutButton)
+                		)
+                .addGroup(
+                		completeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                			.addComponent(tableLabel)
                 		)
                 .addGroup(
                 		completeLayout.createSequentialGroup()
-                		.addComponent(newDocumentButton)
-                		)
-                .addGroup(
-                		completeLayout.createSequentialGroup()
-                		.addComponent(documentTable)
+                			.addComponent(tableScroll)
                 		)               
 			);
 		
 		completeLayout.setVerticalGroup(completeLayout
 				.createSequentialGroup()
 				.addGroup(
-						completeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(tableLabel)
-						)
-				.addGroup(
-						completeLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-						.addComponent(newDocumentButton)
+						completeLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            			.addComponent(newDocumentName)
+	            			.addComponent(newDocumentButton)
+	            			.addComponent(logoutButton)
 						)
 				.addGroup(
 						completeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(documentTable)
+							.addComponent(tableLabel)
+						)
+				.addGroup(
+						completeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
+							.addComponent(tableScroll)
 						)
 			);
+				
+		newDocumentName.addActionListener( new ActionListener() {
+		    @Override 
+		    public void actionPerformed(ActionEvent e){
+	            newDocument();
+		    }
+		});
+		
+		newDocumentButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e){
+				newDocument();	
+			}
+		});
 		
 		this.pack();
+	}
+	
+	private void newDocument(){
+		//TODO: Implement
+		String name = newDocumentName.getText();
+		System.out.println("New document with name " + name + " created!");
 	}
 	
 	public static void main(String[] args){
