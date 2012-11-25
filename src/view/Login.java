@@ -13,13 +13,11 @@ import javax.swing.JTextField;
 @SuppressWarnings("serial")
 public class Login extends JFrame{
 	private JButton loginButton;
-	private JButton logonButton;
 	private JTextField userName;
 	private JTextField password;
 	private JLabel userNameLabel;
-	private JLabel passwordLabel;
 	
-	private JLabel resultLabel;
+	private JLabel messageLabel;
 	
 	private PrintWriter out;
 
@@ -31,30 +29,16 @@ public class Login extends JFrame{
 		loginButton = new JButton();
 		loginButton.setName("newLoginButton");
 		loginButton.setText("Login");
-		
-		//Initializing the logon button
-		logonButton = new JButton();
-		logonButton.setName("newLogonButton");
-		logonButton.setText("Logon");
-		
+				
 		//Initializing the username text field
 		userName = new JTextField();
 		userName.setName("userNameField");
 		
-		//Initializing the password text field
-		password = new JTextField();
-		password.setName("passwordField");
-		
 		userNameLabel = new JLabel();
 		userNameLabel.setName("userNameLabel");
-		userNameLabel.setText("User Name : ");
-		
-		passwordLabel = new JLabel();
-		passwordLabel.setName("userNameLabel");
-		passwordLabel.setText("Password : ");
-		
-		resultLabel = new JLabel();
-		resultLabel.setName("resultLabel");
+		userNameLabel.setText("Username: ");
+
+		messageLabel = new JLabel("Hello there, enter a username and login.");
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
@@ -65,25 +49,19 @@ public class Login extends JFrame{
         completeLayout.setAutoCreateContainerGaps(true);
 		
 		completeLayout.setHorizontalGroup(completeLayout
-				.createParallelGroup()
+				.createParallelGroup(GroupLayout.Alignment.CENTER)
 				.addGroup(
 						completeLayout.createSequentialGroup()
-						.addComponent(resultLabel)
+							.addComponent(messageLabel)
 						)
 				.addGroup(
 						completeLayout.createSequentialGroup()
-						.addComponent(userNameLabel)
-                        .addComponent(userName)
+							.addComponent(userNameLabel)
+	                        .addComponent(userName)
                         )
                 .addGroup(
-                		completeLayout.createSequentialGroup()
-                		.addComponent(passwordLabel)
-                		.addComponent(password)
-                		)
-                .addGroup(
-                		completeLayout.createSequentialGroup()
-                		.addComponent(loginButton)
-                		.addComponent(logonButton)
+                		completeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                			.addComponent(loginButton, GroupLayout.Alignment.CENTER)
                 		)
                 
 			);
@@ -92,22 +70,16 @@ public class Login extends JFrame{
 				.createSequentialGroup()
 				.addGroup(
 						completeLayout.createParallelGroup()
-						.addComponent(resultLabel)
+							.addComponent(messageLabel)
 						)
 				.addGroup(
 						completeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(userNameLabel)
-						.addComponent(userName)
-						)
-				.addGroup(
-						completeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(passwordLabel)
-						.addComponent(password)
+							.addComponent(userNameLabel)
+							.addComponent(userName)
 						)
 				.addGroup(
 						completeLayout.createParallelGroup()
-						.addComponent(loginButton)
-						.addComponent(logonButton)
+							.addComponent(loginButton)
 						)
 			);
 		
@@ -118,36 +90,16 @@ public class Login extends JFrame{
 				login();
 			}
 		});
-		
-		//Action listener for the new logon button
-		logonButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				logon();
-			}
-		});
-		
+				
 		this.pack();
 	}
 	
 	private void login() {
 		String name = userName.getText();
-		String passwordname = password.getText();
-		String output = "login " + name + " " + passwordname;
+		String output = "login " + name + " ";
 		out.println(output);
 	}
-	
-	private void logon() {
-		String name = userName.getText();
-		String passwordname = password.getText();
-		String output = "logon " + name + " " + passwordname;
-		out.println(output);
-	}
-	
-	public synchronized void setResult(String result) {
-		resultLabel.setText(result);
-	}
-	
+			
 	public synchronized void resetName() {
 		userName.setText("");
 	}

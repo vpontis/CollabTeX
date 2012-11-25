@@ -7,22 +7,22 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class EtherpadGUI {
-	private LoginGUI loginGUI;
-	private TableGUI tableGUI;
+public class Controller {
+	private Login loginGUI;
+	private DocTable tableGUI;
 	
 	private Socket serverSocket;
 	
 	private BufferedReader serverInput;
 	private PrintWriter serverOutput;
 
-	public EtherpadGUI() throws UnknownHostException, IOException {
+	public Controller() throws UnknownHostException, IOException {
 		this.serverSocket = new Socket("127.0.0.1",4444);
 		this.serverInput = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
 		this.serverOutput = new PrintWriter(serverSocket.getOutputStream(), true);
 		
-		this.loginGUI = new LoginGUI(serverOutput);
-		this.tableGUI = new TableGUI(serverOutput);
+		this.loginGUI = new Login(serverOutput);
+		this.tableGUI = new DocTable(serverOutput);
 	}
 	
 	public void setupLoginUI() {
@@ -39,7 +39,6 @@ public class EtherpadGUI {
 					return;
 				} else {
 					System.out.println("Here");
-					loginGUI.setResult(line);
 					loginGUI.resetName();
 					loginGUI.resetPassword();
 				}
@@ -50,9 +49,9 @@ public class EtherpadGUI {
 	}
 
 	public static void main(final String[] args) {
-		final EtherpadGUI main;
+		final Controller main;
 		try {
-			main = new EtherpadGUI();
+			main = new Controller();
 		} catch (IOException e) {
 			throw new RuntimeException("IO Exception caught while setting up the GUI");
 		}
