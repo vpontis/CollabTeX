@@ -40,7 +40,7 @@ public class Document {
 	 * Returns the name of the document
 	 * @return String representing the name of the document
 	 */
-	public String getDocumentName() {
+	public String getName() {
 		return documentName;
 	}
 	
@@ -70,7 +70,7 @@ public class Document {
 	/**
 	 * @return String representation of the time of the last edit of the document
 	 */
-	public String getLastEditDateTime() {
+	public String getDate() {
 		String AM_PM = lastEditDateTime.get(Calendar.AM_PM) == 0 ? "AM" : "PM";
 		String currentHour = String.valueOf(lastEditDateTime.get(Calendar.HOUR));
 		String currentMinute = String.valueOf(lastEditDateTime.get(Calendar.MINUTE));
@@ -80,6 +80,7 @@ public class Document {
 		String date = currentHour + ":" + currentMinute + " " + AM_PM + " , " + currentMonth + "/" + currentDay;
 		return date;
 	}
+	
 	
 	/**
 	 * Method that adds the name of a new collaborator to the list of currently online
@@ -97,6 +98,10 @@ public class Document {
 	 */
 	public void removeCollaborator(String collaborator) {
 		onlineCollaborators.remove(collaborator);
+	}
+	
+	public List<String> getCollab(){
+		return onlineCollaborators;
 	}
 	
 	@Override

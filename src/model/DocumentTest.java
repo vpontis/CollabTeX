@@ -30,7 +30,7 @@ public class DocumentTest {
 		Document testingDocument = new Document("123", "Test3"); //Initialize a new document with a fake document ID
 		
 		testingDocument.setLastEditDateTime();
-		System.out.println(testingDocument.getLastEditDateTime());
+		System.out.println(testingDocument.getDate());
 		
 	}
 
