@@ -77,7 +77,7 @@ public class Document {
 		String currentMonth = String.valueOf(lastEditDateTime.get(Calendar.MONTH) + 1);
 		String currentDay = String.valueOf(lastEditDateTime.get(Calendar.DAY_OF_MONTH));
 		
-		String date = currentHour + ":" + currentMinute + " " + AM_PM + " , " + currentMonth + "/" + currentDay;
+		String date = currentHour + ":" + currentMinute +  AM_PM + ", " + currentMonth + "/" + currentDay;
 		return date;
 	}
 	
