@@ -42,6 +42,7 @@ public class Login extends JFrame{
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
+		
 		GroupLayout completeLayout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(completeLayout);
 		
@@ -96,20 +97,22 @@ public class Login extends JFrame{
 	
 	private void login() {
 		String name = userName.getText();
-		String output = "login " + name + " ";
+		String output = "login " + name;
 		out.println(output);
 	}
 			
-	public synchronized void resetName() {
+	synchronized void resetName() {
 		userName.setText("");
 	}
-	
-	public synchronized void resetPassword() {
-		password.setText("");
+
+	void failedLogin() {
+		resetName();
+		messageLabel.setText("Error: try a different name");
 	}
-	
+		
 	public static void main(String[] args){
 	    Login main = new Login(new PrintWriter(System.out));
 	    main.setVisible(true);
 	}
+
 }

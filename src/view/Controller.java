@@ -9,12 +9,15 @@ import java.net.UnknownHostException;
 
 public class Controller {
 	private Login loginGUI;
-	private DocTable tableGUI;
+	private DocTable docTableGUI = null;
 	
 	private Socket serverSocket;
 	
 	private BufferedReader serverInput;
 	private PrintWriter serverOutput;
+	private String userName;
+	
+	private DocEdit currentDoc = null;
 
 	public Controller() throws UnknownHostException, IOException {
 		this.serverSocket = new Socket("127.0.0.1",4444);
@@ -22,30 +25,113 @@ public class Controller {
 		this.serverOutput = new PrintWriter(serverSocket.getOutputStream(), true);
 		
 		this.loginGUI = new Login(serverOutput);
-		this.tableGUI = new DocTable(serverOutput);
 	}
-	
-	public void setupLoginUI() {
-		loginGUI.setVisible(true);
-	}
-	
-	public void runLoginUI() {
+		
+	private void runLogin() {
 		loginGUI.setVisible(true);
 		try {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
-				if (line.startsWith("Success")) {
-					loginGUI.setVisible(false);
-					tableGUI.setVisible(true);
+				if (line.startsWith("loggedin")) {
+					String[] lineSplit = line.split(" ");
+					this.userName = lineSplit[1];
+					
+					this.docTableGUI = new DocTable(serverOutput, userName);
+					Thread newThread = new Thread(new Runnable() {
+						@Override
+						public void run() {
+							runDocTable();
+						}
+					});
+					newThread.start();
 					return;
-				} else {
-					System.out.println("Here");
-					loginGUI.resetName();
-					loginGUI.resetPassword();
+				} else if (line.startsWith("notloggedin")){
+					loginGUI.failedLogin();
 				}
 	        }
 		} catch (IOException e) {
 			throw new RuntimeException("IO Exception encountered");
 		}
+	}
+	
+
+	private void runDocTable() {
+		loginGUI.setVisible(false);
+		if (currentDoc != null)
+			currentDoc.setVisible(false);
+		docTableGUI.setVisible(true);
+		try {
+			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
+				if (line.startsWith("created")) {
+					String[] lineSplit = line.split(" ");
+					if (lineSplit.length == 3){
+						String userName = lineSplit[1];
+						String docName = lineSplit[2];
+						if(this.userName.equals(userName)){
+							this.currentDoc = new DocEdit(serverOutput, docName, userName);
+							
+							Thread newThread = new Thread(new Runnable() {
+								@Override
+								public void run() {
+									runDocEdit();
+								}
+							});
+							newThread.start();
+							return;
+						}
+					}else{
+						throw new RuntimeException("Invalid format");
+					}					
+				} 
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("IO Exception encountered");
+		}
+	}
+	
+	private void runDocEdit() {
+		docTableGUI.setVisible(false);
+		currentDoc.setVisible(true);
+		try {
+			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
+				if (line.startsWith("exiteddoc ")) {
+					String[] lineSplit = line.split(" ");
+					if (lineSplit.length == 3){
+						String userName = lineSplit[1];
+						String docName = lineSplit[2];
+						if(this.userName.equals(userName)){							
+							Thread newThread = new Thread(new Runnable() {
+								@Override
+								public void run() {
+									runDocTable();
+								}
+							});
+							newThread.start();
+						}
+					}else{
+						throw new RuntimeException("Invalid format");
+					}					
+				}  else if(line.startsWith("exiteddoc")){
+					String[] lineSplit = line.split(" ");
+					if (lineSplit.length == 3){
+						String userName = lineSplit[1];
+						String docName = lineSplit[2];
+						if(this.userName.equals(userName) && currentDoc.getName().equals(docName)){							
+							Thread newThread = new Thread(new Runnable() {
+								@Override
+								public void run() {
+									runDocTable();
+								}
+							});
+							newThread.start();
+							return;
+						}
+					}
+				}
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("IO Exception encountered");
+		}
+
 	}
 
 	public static void main(final String[] args) {
@@ -59,7 +145,7 @@ public class Controller {
 		Thread newThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				main.runLoginUI();
+				main.runLogin();
 			}
 		});
 		newThread.start();

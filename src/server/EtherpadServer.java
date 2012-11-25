@@ -55,7 +55,7 @@ public class EtherpadServer {
             Socket socket = serverSocket.accept();
             User user = getUser(socket);
             System.out.println("Ready to start a new thread now!");
-            Thread socketThread = new Thread(new RunnableMines(socket, user));
+            Thread socketThread = new Thread(new RunnableServer(socket, user));
             socketThread.start();
         }
     }
@@ -63,11 +63,11 @@ public class EtherpadServer {
     /**
      * Class defined to help start a new thread every time a new client connects to the server
      */
-    private class RunnableMines implements Runnable {
+    private class RunnableServer implements Runnable {
     	Socket socket;
     	User user;
     	
-    	public RunnableMines(Socket socket, User user) {
+    	public RunnableServer(Socket socket, User user) {
     		this.socket = socket;
     		this.user = user;
     	}
@@ -96,11 +96,11 @@ public class EtherpadServer {
         for (String line = in.readLine(); line!=null; line=in.readLine()) {
             String output = handleLogin(line);
             out.println(output);
-            if (output.startsWith("Success")) {
+            if (output.startsWith("loggedin")) {
             	String[] outputTokens = output.split(" ");
             	String userName = outputTokens[1];
             	return name_userMappings.get(userName);
-            }
+            } 
         }
         
         throw new RuntimeException("Should not reach here");
@@ -114,24 +114,14 @@ public class EtherpadServer {
     private String handleLogin(String input) {
     	if (input.startsWith("login")) {
 			String[] tokens = input.split(" ");
-			String userName = tokens[1];
-			String password = tokens[2];
+			String userName = tokens[1].trim();
 			if (name_userMappings.containsKey(userName)) {
-				User user = name_userMappings.get(userName);
-				if (user.passwordMatch(password)) {
-					return "Success " + userName;
-				}
-				return "Wrong password";
+				return "notloggedin";
+			} else {
+				name_userMappings.put("username", new User(userName, ""));
+				return "loggedin " + userName;
 			}
-			return "Username does not exist";
-		} else if (input.startsWith("logon")) {
-			String[] tokens = input.split(" ");
-			String userName = tokens[1];
-			String password = tokens[2];
-			User newUser = new User(userName, password);
-			name_userMappings.put(userName, newUser);
-			return "Logon success";
-		}
+		} 
     	throw new RuntimeException("Should not reach here");
     }
 	
@@ -144,6 +134,30 @@ public class EtherpadServer {
 				output += "\t";
 				return output;
 			}
+		} else if (input.startsWith("NEWDOC")){
+			String[] inputSplit = input.split(" ");
+			if(inputSplit.length == 3){
+				String userName = inputSplit[1];
+				String docName = inputSplit[2];
+				//TODO create new document in the mapping
+				return "created " + userName + " " + docName; 
+			}else{
+				throw new RuntimeException("Invalid formatted newdoc request");
+			}
+		} else if (input.startsWith("OPENDOC")){
+			
+		} else if (input.startsWith("CHANGE")){
+			
+		} else if (input.startsWith("EXITDOC")){
+			String[] inputSplit = input.split(" ");
+			String userName = inputSplit[1];
+			String docName = inputSplit[2];
+			return "exiteddoc " + userName + " " + docName;
+		} else if (input.startsWith("LOGOUT")){
+			String[] inputSplit = input.split(" ");
+			String userName = inputSplit[1];
+			name_userMappings.remove(userName);
+			return "loggedout " + userName;
 		}
 		
 		throw new UnsupportedOperationException();

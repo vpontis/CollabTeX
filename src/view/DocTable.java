@@ -2,10 +2,16 @@ package view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+
+import model.Document;
 
 @SuppressWarnings("serial")
 public class DocTable extends JFrame{
@@ -23,9 +29,12 @@ public class DocTable extends JFrame{
 	
 	private PrintWriter out;
 	
-	public DocTable (PrintWriter outputStream) {
+	private String userName;
+	
+	public DocTable (PrintWriter outputStream, String userName) {
 		super("Document List");
 		
+		this.userName = userName;
 		out = outputStream;
 		
 		tableLabel = new JLabel();
@@ -108,17 +117,50 @@ public class DocTable extends JFrame{
 			}
 		});
 		
+		logoutButton.addActionListener(new ActionListener() {
+			@Override 
+			public void actionPerformed(ActionEvent e){
+				logout();
+			}
+		});
+		
+		documentTable.addMouseListener(new MouseAdapter() {
+			  public void mouseClicked(MouseEvent e) {
+			    if (e.getClickCount() == 2) {
+			      JTable target = (JTable)e.getSource();
+			      int row = target.getSelectedRow();
+			      int column = target.getSelectedColumn();
+			      // do some action if appropriate column
+			      openDocument();
+			    }
+			  }
+			});
+
+		
 		this.pack();
 	}
 	
+	void openDocument() {
+		// TODO Auto-generated method stub
+		String docName = "???";
+		out.println("OPENDOC " + userName + " " + docName);
+	}
+
+	void updateTable(List<Document> documentList){
+		//TODO implement
+	}
+	
+	private void logout() {
+		out.println("LOGOUT " + userName);
+	}
+
 	private void newDocument(){
-		//TODO: Implement
-		String name = newDocumentName.getText();
-		System.out.println("New document with name " + name + " created!");
+		String docName = newDocumentName.getText();
+		out.println("NEWDOC " + userName + " " + docName);
 	}
 	
 	public static void main(String[] args){
-	    DocTable main = new DocTable(new PrintWriter(System.out));
+	    DocTable main = new DocTable(new PrintWriter(System.out), "victor");
 	    main.setVisible(true);
 	}
 }
