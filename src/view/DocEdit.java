@@ -31,8 +31,8 @@ public class DocEdit extends JFrame {
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 
-		GroupLayout.ParallelGroup hParallelGroup = layout.createParallelGroup();
-		hParallelGroup.addGroup(
+		GroupLayout.ParallelGroup hGroup = layout.createParallelGroup();
+		hGroup.addGroup(
 				layout.createParallelGroup()
 					.addGroup(layout.createSequentialGroup()
 							.addComponent(collabLabel)
@@ -40,12 +40,12 @@ public class DocEdit extends JFrame {
 							)
 					.addComponent(messageLabel)
 					);
-		hParallelGroup.addGroup(
+		hGroup.addGroup(
 				layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
 					.addComponent(exitButton)
 					.addComponent(scrollText)
 					);
-		layout.setHorizontalGroup(hParallelGroup);
+		layout.setHorizontalGroup(hGroup);
 		
 		GroupLayout.SequentialGroup vGroup = layout.createSequentialGroup();
 		vGroup.addGroup(
