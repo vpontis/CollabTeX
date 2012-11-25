@@ -17,9 +17,9 @@ public class EtherpadGUI {
 	private PrintWriter serverOutput;
 
 	public EtherpadGUI() throws UnknownHostException, IOException {
-		serverSocket = new Socket("127.0.0.1",4444);
-		serverInput = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
-		serverOutput = new PrintWriter(serverSocket.getOutputStream(), true);
+		this.serverSocket = new Socket("127.0.0.1",4444);
+		this.serverInput = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
+		this.serverOutput = new PrintWriter(serverSocket.getOutputStream(), true);
 		
 		this.loginGUI = new LoginGUI(serverOutput);
 		this.tableGUI = new TableGUI(serverOutput);
