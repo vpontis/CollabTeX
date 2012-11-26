@@ -146,8 +146,18 @@ public class DocTable extends JFrame{
 		out.println("OPENDOC " + userName + " " + docName);
 	}
 
-	void updateTable(List<Document> documentList){
-		//TODO implement
+	void updateTable(List<String[]> documentList){
+	    int numRows = documentTable.getRowCount();
+	    for (int i = numRows - 1; i >= 0; i--){
+	        tableModel.removeRow(i);
+	    }
+	    for (String[] documentInfo: documentList){
+	    	String docName = documentInfo[0];
+	    	String docDate = documentInfo[1];
+	    	String docCollab = documentInfo[2];
+	    	String[] rowData = new String[]{docName, docDate, docCollab};
+	    	tableModel.addRow(rowData);
+	    }
 	}
 	
 	private void logout() {

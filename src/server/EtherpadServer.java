@@ -26,9 +26,9 @@ public class EtherpadServer {
 	 * @throws IOException If there is an error creating the server socket
 	 */
 	public EtherpadServer() throws IOException {
-		this.currentDocuments = new ArrayList<Document> ();
-		this.serverSocket = new ServerSocket(port);
-		this.name_userMappings = new HashMap<String,User> ();
+		currentDocuments = new ArrayList<Document>();
+		name_userMappings = new HashMap<String,User>();
+		serverSocket = new ServerSocket(port);
 	}
 	
 	/**
@@ -38,9 +38,9 @@ public class EtherpadServer {
 	 */
 	public EtherpadServer(int port) throws IOException {
 		this.port = port;
-		this.currentDocuments = new ArrayList<Document> ();
 		this.serverSocket = new ServerSocket(port);
-		this.name_userMappings = new HashMap<String, User> ();
+		currentDocuments = new ArrayList<Document> ();
+		name_userMappings = new HashMap<String, User> ();
 	}
 	
 	/**
@@ -119,48 +119,74 @@ public class EtherpadServer {
 				return "notloggedin";
 			} else {
 				name_userMappings.put("username", new User(userName, ""));
-				return "loggedin " + userName;
+				StringBuilder stringBuilder = new StringBuilder("loggedin " + userName);
+				stringBuilder.append("\n");
+				for (Document document : currentDocuments){
+					stringBuilder.append(document.getName());
+					stringBuilder.append("\t");
+					stringBuilder.append(document.getDate());
+					stringBuilder.append("\t");
+					stringBuilder.append(document.getCollab());
+					stringBuilder.append("\n");
+				}
+				stringBuilder.append("enddocinfo");
+				return stringBuilder.toString();
 			}
 		} 
     	throw new RuntimeException("Should not reach here");
     }
 	
-    //Complete writing this method
-	private String handleRequest(String input, User user) {
+    private String handleRequest(String input, User user) {
 		String output = "";
 		if (input.equals("table")) {
 			for (Document document : currentDocuments) {
-				output += document.getDocumentName();
+				output += document.getName();
 				output += "\t";
 				return output;
 			}
-		} else if (input.startsWith("NEWDOC")){
+		} 
+		else if (input.startsWith("NEWDOC")){
 			String[] inputSplit = input.split(" ");
 			if(inputSplit.length == 3){
 				String userName = inputSplit[1];
 				String docName = inputSplit[2];
-				//TODO create new document in the mapping
+				currentDocuments.add(new Document("asdf", docName));
 				return "created " + userName + " " + docName; 
 			}else{
 				throw new RuntimeException("Invalid formatted newdoc request");
 			}
-		} else if (input.startsWith("OPENDOC")){
+		} 
+		else if (input.startsWith("OPENDOC")){
 			
-		} else if (input.startsWith("CHANGE")){
+		} 
+		else if (input.startsWith("CHANGE")){
 			
-		} else if (input.startsWith("EXITDOC")){
+		} 
+		else if (input.startsWith("EXITDOC")){
 			String[] inputSplit = input.split(" ");
 			String userName = inputSplit[1];
 			String docName = inputSplit[2];
-			return "exiteddoc " + userName + " " + docName;
-		} else if (input.startsWith("LOGOUT")){
+			StringBuilder stringBuilder = new StringBuilder("exiteddoc " + userName + " " + docName);
+			stringBuilder.append("\n");
+			for (Document document : currentDocuments){
+				stringBuilder.append(document.getName());
+				stringBuilder.append("\t");
+				stringBuilder.append(document.getDate());
+				stringBuilder.append("\t");
+				stringBuilder.append(document.getCollab());
+				stringBuilder.append("\n");
+			}
+			stringBuilder.append("enddocinfo");
+			return stringBuilder.toString();
+		} 
+		else if (input.startsWith("LOGOUT")){
 			String[] inputSplit = input.split(" ");
 			String userName = inputSplit[1];
 			name_userMappings.remove(userName);
 			return "loggedout " + userName;
 		}
 		
-		throw new UnsupportedOperationException();
+		throw new UnsupportedOperationException(input);
 	}
 	
 	public void handleConnection(Socket socket, User user) throws IOException {
@@ -185,7 +211,7 @@ public class EtherpadServer {
 	 * Returns the list of documents that are stored in the server
 	 * @return A List of document objects that are stored in the server
 	 */
-	public List<Document> getDocumentNames(String userName) {
+	public List<Document> getDocuments() {
 		return currentDocuments;
 	}
 	

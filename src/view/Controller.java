@@ -6,6 +6,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+
+import model.Document;
+
+import server.EtherpadServer;
 
 public class Controller {
 	private Login loginGUI;
@@ -34,8 +40,9 @@ public class Controller {
 				if (line.startsWith("loggedin")) {
 					String[] lineSplit = line.split(" ");
 					this.userName = lineSplit[1];
-					
 					this.docTableGUI = new DocTable(serverOutput, userName);
+					updateDocTable();
+					
 					Thread newThread = new Thread(new Runnable() {
 						@Override
 						public void run() {
@@ -54,6 +61,27 @@ public class Controller {
 	}
 	
 
+	private void updateDocTable() {
+		try{
+			List<String[]> documentInfo = new ArrayList<String[]>();
+			for (String line = serverInput.readLine(); line!= null; line=serverInput.readLine()){
+				if (line.startsWith("enddocinfo")){
+					docTableGUI.updateTable(documentInfo);
+					break;
+				}
+				else{
+					String[] lineSplit = line.split("\t");
+					String docName = lineSplit[0];
+					String docDate = lineSplit[1];
+					String docCollab = lineSplit[2];
+					documentInfo.add(new String[]{docName, docDate, docCollab});
+				}
+			}
+		} catch(IOException e){
+			throw new RuntimeException();
+		}
+	}
+
 	private void runDocTable() {
 		loginGUI.setVisible(false);
 		if (currentDoc != null)
@@ -67,8 +95,7 @@ public class Controller {
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
 						if(this.userName.equals(userName)){
-							this.currentDoc = new DocEdit(serverOutput, docName, userName);
-							
+							this.currentDoc = new DocEdit(serverOutput, docName, userName);							
 							Thread newThread = new Thread(new Runnable() {
 								@Override
 								public void run() {
@@ -98,6 +125,7 @@ public class Controller {
 					if (lineSplit.length == 3){
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
+						updateDocTable();
 						if(this.userName.equals(userName)){							
 							Thread newThread = new Thread(new Runnable() {
 								@Override
