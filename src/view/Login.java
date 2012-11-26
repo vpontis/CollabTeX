@@ -91,6 +91,13 @@ public class Login extends JFrame{
 				login();
 			}
 		});
+		
+		userName.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				login();
+			}
+		});
 				
 		this.pack();
 	}

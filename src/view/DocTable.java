@@ -130,7 +130,7 @@ public class DocTable extends JFrame{
 			      JTable target = (JTable)e.getSource();
 			      int row = target.getSelectedRow();
 			      int column = target.getSelectedColumn();
-			      // do some action if appropriate column
+			      System.out.println("Open document");
 			      openDocument();
 			    }
 			  }
@@ -147,10 +147,7 @@ public class DocTable extends JFrame{
 	}
 
 	void updateTable(List<String[]> documentList){
-	    int numRows = documentTable.getRowCount();
-	    for (int i = numRows - 1; i >= 0; i--){
-	        tableModel.removeRow(i);
-	    }
+	    tableModel.setNumRows(0);
 	    for (String[] documentInfo: documentList){
 	    	String docName = documentInfo[0];
 	    	String docDate = documentInfo[1];
