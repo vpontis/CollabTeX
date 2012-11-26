@@ -5,6 +5,10 @@ import java.awt.event.ActionListener;
 import java.io.PrintWriter;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 
 @SuppressWarnings("serial")
 public class DocEdit extends JFrame {
@@ -19,14 +23,18 @@ public class DocEdit extends JFrame {
 	private PrintWriter out;
 	private String docName;
 	private String userName;
+	private String docContent;
 	
-	public DocEdit(PrintWriter outputStream, String documentName, String userName){
+	private Document textDocument;
+	
+	public DocEdit(PrintWriter outputStream, String documentName, String userName, String content){
 		super(documentName);
 		
 		out = outputStream;
 		this.docName = documentName;
 		this.userName = userName;
-		
+		this.docContent = content;
+
 		messageLabel = new JLabel("Welcome!");
 		exitButton = new JButton("Exit Doc");
 		
@@ -35,6 +43,8 @@ public class DocEdit extends JFrame {
 		
 		textArea = new JTextArea(20, 50);
 		scrollText = new JScrollPane(textArea);
+		textArea.setText(docContent);
+		textDocument = textArea.getDocument();
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -85,6 +95,46 @@ public class DocEdit extends JFrame {
 			}
 		});
 		
+		textDocument.addDocumentListener(new DocumentListener() {
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				int length = textDocument.getLength();
+				try {
+					System.out.println(docContent);
+					docContent = textDocument.getText(0, length);
+				} catch (BadLocationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				int length = textDocument.getLength();
+				try {
+					System.out.println(docContent);
+					docContent = textDocument.getText(0, length);
+				} catch (BadLocationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				int length = textDocument.getLength();
+				try {
+					System.out.println(docContent);
+					docContent = textDocument.getText(0, length);
+				} catch (BadLocationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+		
 		this.pack();
 	}
 	
@@ -97,7 +147,7 @@ public class DocEdit extends JFrame {
 	}
 
 	public static void main(String[] args){
-		DocEdit main = new DocEdit(new PrintWriter(System.out), "Document name", "victor");
+		DocEdit main = new DocEdit(new PrintWriter(System.out), "Document name", "victor", "");
 		main.setVisible(true);
 	}
 	

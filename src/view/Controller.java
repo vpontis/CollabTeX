@@ -89,13 +89,14 @@ public class Controller {
 		docTableGUI.setVisible(true);
 		try {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
-				if (line.startsWith("created") || line.startsWith("opened")) {
+				System.out.println(line);
+				if (line.startsWith("created")) {
 					String[] lineSplit = line.split(" ");
 					if (lineSplit.length == 3){
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
 						if(this.userName.equals(userName)){
-							this.currentDoc = new DocEdit(serverOutput, docName, userName);							
+							this.currentDoc = new DocEdit(serverOutput, docName, userName, "");							
 							Thread newThread = new Thread(new Runnable() {
 								@Override
 								public void run() {
@@ -108,7 +109,27 @@ public class Controller {
 					}else{
 						throw new RuntimeException("Invalid format");
 					}					
-				} 
+				} else if (line.startsWith("opened")) {
+					String[] lineSplit = line.split("|");
+					if (lineSplit.length == 4){
+						String userName = lineSplit[1];
+						String docName = lineSplit[2];
+						String docContent = lineSplit[3];
+						if(this.userName.equals(userName)){
+							this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent);							
+							Thread newThread = new Thread(new Runnable() {
+								@Override
+								public void run() {
+									runDocEdit();
+								}
+							});
+							newThread.start();
+							return;
+						}
+					}else{
+						throw new RuntimeException("Invalid format");
+					}					
+				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("IO Exception encountered");

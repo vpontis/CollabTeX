@@ -162,7 +162,9 @@ public class EtherpadServer {
 			if(inputSplit.length == 3){
 				String userName = inputSplit[1];
 				String docName = inputSplit[2];
-				return "opened " + userName + " " + docName; 
+				Document currentDocument = getDoc(docName);
+				String docContent = currentDocument.toString();
+				return "opened|" + userName + "|" + docName + "|" + docContent; 
 			}else{
 				throw new RuntimeException("Invalid formatted newdoc request");
 			}
@@ -221,6 +223,16 @@ public class EtherpadServer {
 	 */
 	public List<Document> getDocuments() {
 		return currentDocuments;
+	}
+	
+	private Document getDoc(String docName) {
+		for (Document document: currentDocuments) {
+			String name = document.getName();
+			if (docName.equals(name)) {
+				return document;
+			}
+		}
+		throw new RuntimeException("Document not found");
 	}
 	
 	/**
