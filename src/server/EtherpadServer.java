@@ -157,7 +157,15 @@ public class EtherpadServer {
 			}
 		} 
 		else if (input.startsWith("OPENDOC")){
-			
+			String[] inputSplit = input.split(" ");
+			System.out.println(inputSplit.length);
+			if(inputSplit.length == 3){
+				String userName = inputSplit[1];
+				String docName = inputSplit[2];
+				return "opened " + userName + " " + docName; 
+			}else{
+				throw new RuntimeException("Invalid formatted newdoc request");
+			}
 		} 
 		else if (input.startsWith("CHANGE")){
 			

@@ -125,16 +125,19 @@ public class DocTable extends JFrame{
 		});
 		
 		documentTable.addMouseListener(new MouseAdapter() {
-			  public void mouseClicked(MouseEvent e) {
-			    if (e.getClickCount() == 2) {
-			      JTable target = (JTable)e.getSource();
-			      int row = target.getSelectedRow();
-			      int column = target.getSelectedColumn();
-			      System.out.println("Open document");
-			      openDocument();
-			    }
-			  }
-			});
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
+				if (e.getClickCount() == 1) {
+					JTable target = (JTable)e.getSource();
+					int row = target.getSelectedRow();
+					int column = target.getSelectedColumn();
+					System.out.println("Open document");
+					String docName = (String) tableModel.getValueAt(row, 0);
+					openDocument(docName);
+				}
+			}
+		});
 
 		
 		this.pack();
@@ -143,6 +146,10 @@ public class DocTable extends JFrame{
 	void openDocument() {
 		// TODO Auto-generated method stub
 		String docName = "???";
+		out.println("OPENDOC " + userName + " " + docName);
+	}
+	
+	void openDocument(String docName) {
 		out.println("OPENDOC " + userName + " " + docName);
 	}
 

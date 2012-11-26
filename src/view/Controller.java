@@ -89,7 +89,7 @@ public class Controller {
 		docTableGUI.setVisible(true);
 		try {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
-				if (line.startsWith("created")) {
+				if (line.startsWith("created") || line.startsWith("opened")) {
 					String[] lineSplit = line.split(" ");
 					if (lineSplit.length == 3){
 						String userName = lineSplit[1];
