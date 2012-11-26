@@ -73,7 +73,8 @@ public class Document {
 	public String getDate() {
 		String AM_PM = lastEditDateTime.get(Calendar.AM_PM) == 0 ? "AM" : "PM";
 		String currentHour = String.valueOf(lastEditDateTime.get(Calendar.HOUR));
-		String currentMinute = String.valueOf(lastEditDateTime.get(Calendar.MINUTE));
+		int integerMinute = lastEditDateTime.get(Calendar.MINUTE);
+		String currentMinute = integerMinute < 10 ? "0" + String.valueOf(integerMinute) : String.valueOf(integerMinute);
 		String currentMonth = String.valueOf(lastEditDateTime.get(Calendar.MONTH) + 1);
 		String currentDay = String.valueOf(lastEditDateTime.get(Calendar.DAY_OF_MONTH));
 		
