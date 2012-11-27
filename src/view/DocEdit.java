@@ -100,7 +100,7 @@ public class DocEdit extends JFrame {
 			public void changedUpdate(DocumentEvent e) {
 				int length = textDocument.getLength();
 				try {
-					System.out.println(docContent);
+					//System.out.println(docContent);
 					out.println("CHANGE|" + docName + "|" + docContent);
 					docContent = textDocument.getText(0, length);
 				} catch (BadLocationException e1) {
@@ -112,7 +112,7 @@ public class DocEdit extends JFrame {
 			public void insertUpdate(DocumentEvent arg0) {
 				int length = textDocument.getLength();
 				try {
-					System.out.println(docContent);
+					//System.out.println(docContent);
 					out.println("CHANGE|" + docName + "|" + docContent);
 					docContent = textDocument.getText(0, length);
 				} catch (BadLocationException e1) {
@@ -125,7 +125,7 @@ public class DocEdit extends JFrame {
 			public void removeUpdate(DocumentEvent arg0) {
 				int length = textDocument.getLength();
 				try {
-					System.out.println(docContent);
+					//System.out.println(docContent);
 					out.println("CHANGE|" + docName + "|" + docContent);
 					docContent = textDocument.getText(0, length);
 				} catch (BadLocationException e1) {

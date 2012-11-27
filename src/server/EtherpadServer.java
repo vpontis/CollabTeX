@@ -54,7 +54,6 @@ public class EtherpadServer {
             // block until a client connects
             Socket socket = serverSocket.accept();
             User user = getUser(socket);
-            System.out.println("Ready to start a new thread now!");
             Thread socketThread = new Thread(new RunnableServer(socket, user));
             socketThread.start();
         }
@@ -165,7 +164,7 @@ public class EtherpadServer {
 				String docName = inputSplit[2];
 				Document currentDocument = getDoc(docName);
 				String docContent = currentDocument.toString();
-				System.out.println(docContent);
+				//System.out.println(docContent);
 				return "opened|" + userName + "|" + docName + "|" + docContent; 
 			}else{
 				throw new RuntimeException("Invalid formatted opendoc request");
@@ -173,14 +172,14 @@ public class EtherpadServer {
 		} 
 		else if (input.startsWith("CHANGE")){
 			String[] inputSplit = input.split("\\|");
-			System.out.println(inputSplit.length);
+			//System.out.println(inputSplit.length);
 			if(inputSplit.length == 3){
 				String docName = inputSplit[1];
 				String content = inputSplit[2];
 				Document currentDocument = getDoc(docName);
 				currentDocument.updateContent(content);
 				String docContent = currentDocument.toString();
-				System.out.println(docContent);
+				//System.out.println(docContent);
 				return "changed|" + docName + "|" + docContent; 
 			} else if (inputSplit.length == 2) {
 				String docName = inputSplit[1];
@@ -188,7 +187,7 @@ public class EtherpadServer {
 				Document currentDocument = getDoc(docName);
 				currentDocument.updateContent(content);
 				String docContent = currentDocument.toString();
-				System.out.println(docContent);
+				//System.out.println(docContent);
 				return "changed|" + docName + "|" + docContent; 
 			}
 			else{
@@ -226,9 +225,14 @@ public class EtherpadServer {
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
         
-        for (String line = in.readLine(); line!=null; line=in.readLine()) {
-            String output = handleRequest(line, user);
-            out.println(output);
+        try {
+	        for (String line = in.readLine(); line!=null; line=in.readLine()) {
+	            String output = handleRequest(line, user);
+	            out.println(output);
+	        }
+        } finally {
+        	out.close();
+        	in.close();
         }
 	}
 	

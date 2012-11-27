@@ -89,7 +89,7 @@ public class Controller {
 		docTableGUI.setVisible(true);
 		try {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
-				System.out.println(line);
+				//System.out.println(line);
 				if (line.startsWith("created")) {
 					String[] lineSplit = line.split(" ");
 					if (lineSplit.length == 3){
