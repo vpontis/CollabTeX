@@ -110,11 +110,30 @@ public class Controller {
 						throw new RuntimeException("Invalid format");
 					}					
 				} else if (line.startsWith("opened")) {
-					String[] lineSplit = line.split("|");
+					String[] lineSplit = line.split("\\|");
 					if (lineSplit.length == 4){
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
 						String docContent = lineSplit[3];
+						if(this.userName.equals(userName)){
+							this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent);							
+							Thread newThread = new Thread(new Runnable() {
+								@Override
+								public void run() {
+									runDocEdit();
+								}
+							});
+							newThread.start();
+							return;
+						}
+					}else{
+						throw new RuntimeException("Invalid format");
+					}					
+				}  else if (line.startsWith("changed")) {
+					String[] lineSplit = line.split("\\|");
+					if (lineSplit.length == 3){
+						String docName = lineSplit[1];
+						String docContent = lineSplit[2];
 						if(this.userName.equals(userName)){
 							this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent);							
 							Thread newThread = new Thread(new Runnable() {
@@ -175,6 +194,9 @@ public class Controller {
 							return;
 						}
 					}
+				} else if (line.startsWith("changed")) {
+					String[] lineSplit = line.split(" ");
+					System.out.println(line);
 				}
 			}
 		} catch (IOException e) {

@@ -101,10 +101,10 @@ public class DocEdit extends JFrame {
 				int length = textDocument.getLength();
 				try {
 					System.out.println(docContent);
+					out.println("CHANGE|" + docName + "|" + docContent);
 					docContent = textDocument.getText(0, length);
 				} catch (BadLocationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					throw new UnsupportedOperationException();
 				}
 			}
 
@@ -113,10 +113,10 @@ public class DocEdit extends JFrame {
 				int length = textDocument.getLength();
 				try {
 					System.out.println(docContent);
+					out.println("CHANGE|" + docName + "|" + docContent);
 					docContent = textDocument.getText(0, length);
 				} catch (BadLocationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					throw new UnsupportedOperationException();
 				}
 				
 			}
@@ -126,10 +126,10 @@ public class DocEdit extends JFrame {
 				int length = textDocument.getLength();
 				try {
 					System.out.println(docContent);
+					out.println("CHANGE|" + docName + "|" + docContent);
 					docContent = textDocument.getText(0, length);
 				} catch (BadLocationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					throw new UnsupportedOperationException();
 				}
 				
 			}

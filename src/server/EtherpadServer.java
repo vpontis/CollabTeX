@@ -138,6 +138,7 @@ public class EtherpadServer {
 	
     private String handleRequest(String input, User user) {
 		String output = "";
+		System.out.println(input);
 		if (input.equals("table")) {
 			for (Document document : currentDocuments) {
 				output += document.getName();
@@ -158,19 +159,41 @@ public class EtherpadServer {
 		} 
 		else if (input.startsWith("OPENDOC")){
 			String[] inputSplit = input.split(" ");
-			System.out.println(inputSplit.length);
+
 			if(inputSplit.length == 3){
 				String userName = inputSplit[1];
 				String docName = inputSplit[2];
 				Document currentDocument = getDoc(docName);
 				String docContent = currentDocument.toString();
+				System.out.println(docContent);
 				return "opened|" + userName + "|" + docName + "|" + docContent; 
 			}else{
-				throw new RuntimeException("Invalid formatted newdoc request");
+				throw new RuntimeException("Invalid formatted opendoc request");
 			}
 		} 
 		else if (input.startsWith("CHANGE")){
-			
+			String[] inputSplit = input.split("\\|");
+			System.out.println(inputSplit.length);
+			if(inputSplit.length == 3){
+				String docName = inputSplit[1];
+				String content = inputSplit[2];
+				Document currentDocument = getDoc(docName);
+				currentDocument.updateContent(content);
+				String docContent = currentDocument.toString();
+				System.out.println(docContent);
+				return "changed|" + docName + "|" + docContent; 
+			} else if (inputSplit.length == 2) {
+				String docName = inputSplit[1];
+				String content = "";
+				Document currentDocument = getDoc(docName);
+				currentDocument.updateContent(content);
+				String docContent = currentDocument.toString();
+				System.out.println(docContent);
+				return "changed|" + docName + "|" + docContent; 
+			}
+			else{
+				throw new RuntimeException("Invalid formatted change request");
+			}
 		} 
 		else if (input.startsWith("EXITDOC")){
 			String[] inputSplit = input.split(" ");

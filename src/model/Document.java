@@ -12,6 +12,7 @@ public class Document {
 	private String documentID;
 	private String documentName;
 	private Map<String, Paragraph> paragraphs;
+	private String content;
 	private Calendar lastEditDateTime;
 	private List<String> onlineCollaborators;
 
@@ -24,6 +25,7 @@ public class Document {
 		this.documentName = documentName;
 		this.documentID = documentID;
 		this.paragraphs = new HashMap<String, Paragraph> ();
+		this.content = "";
 		this.lastEditDateTime = Calendar.getInstance();
 		this.onlineCollaborators = new ArrayList<String> ();
 	}
@@ -58,6 +60,10 @@ public class Document {
 			paragraphs.put(paragraphID, newParagraph);
 			return newParagraph;
 		}
+	}
+	
+	public void updateContent(String newContent) {
+		content = newContent;
 	}
 	
 	/**
@@ -107,12 +113,14 @@ public class Document {
 	
 	@Override
 	public String toString() {
+		return content;
+		/*
 		StringBuilder documentText = new StringBuilder();
 		Set<String> paragraphKeys = paragraphs.keySet();
 		for (String paragraphKey : paragraphKeys) {
 			Paragraph paragraph = paragraphs.get(paragraphKey);
 			documentText.append(paragraph.toString()).append("\n");
 		}
-		return documentText.toString();
+		return documentText.toString();*/
 	}
 }
