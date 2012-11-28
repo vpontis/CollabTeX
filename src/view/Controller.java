@@ -35,6 +35,9 @@ public class Controller {
 		
 	private void runLogin() {
 		loginGUI.setVisible(true);
+		if (docTableGUI != null) {
+			docTableGUI.setVisible(false);
+		}
 		try {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
 				if (line.startsWith("loggedin")) {
@@ -150,6 +153,21 @@ public class Controller {
 					}else{
 						throw new RuntimeException("Invalid format");
 					}					
+				} else if (line.startsWith("loggedout")) {
+					String[] lineSplit = line.split(" ");
+					if (lineSplit.length == 2) {
+						String userName = lineSplit[1];
+						if (this.userName.equals(userName)) {
+							Thread newThread = new Thread(new Runnable() {
+								@Override
+								public void run() {
+									runLogin();
+								}
+							});
+							newThread.start();
+							return;
+						}
+					}
 				}
 			}
 		} catch (IOException e) {

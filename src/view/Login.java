@@ -104,7 +104,7 @@ public class Login extends JFrame{
 	
 	private void login() {
 		String name = userName.getText();
-		String output = "login " + name;
+		String output = "LOGIN " + name;
 		out.println(output);
 	}
 			

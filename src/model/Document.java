@@ -21,13 +21,14 @@ public class Document {
 	 * @param documentID String representing the document ID of the document
 	 * @param documentName String representing the name of the document
 	 */
-	public Document(String documentID, String documentName) {
+	public Document(String documentID, String documentName, String collaborator) {
 		this.documentName = documentName;
 		this.documentID = documentID;
 		this.paragraphs = new HashMap<String, Paragraph> ();
 		this.content = "";
 		this.lastEditDateTime = Calendar.getInstance();
 		this.onlineCollaborators = new ArrayList<String> ();
+		this.onlineCollaborators.add(collaborator);
 	}
 	
 	/**

@@ -112,9 +112,9 @@ public class DocEdit extends JFrame {
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				int length = textDocument.getLength();
-				try {
-									
+				try {				
 					docContent = textDocument.getText(0, length);
+					docContent.replace("\r", "#");
 					out.println("CHANGE|" + docName + "|" + docContent);
 					
 				} catch (BadLocationException e1) {

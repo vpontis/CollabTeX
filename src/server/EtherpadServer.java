@@ -8,8 +8,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import model.Document;
 import model.User;
@@ -20,6 +22,7 @@ public class EtherpadServer {
 	private int port = 4444;
 	private final ServerSocket serverSocket;
 	private Map<String, User> name_userMappings;
+	private Set<String> onlineUsers;
 	
 	/**
 	 * Initializes the EtherpadServer with the default port number
@@ -29,6 +32,8 @@ public class EtherpadServer {
 		currentDocuments = new ArrayList<Document>();
 		name_userMappings = new HashMap<String,User>();
 		serverSocket = new ServerSocket(port);
+		
+		onlineUsers = new HashSet<String> ();
 	}
 	
 	/**
@@ -41,6 +46,8 @@ public class EtherpadServer {
 		this.serverSocket = new ServerSocket(port);
 		currentDocuments = new ArrayList<Document> ();
 		name_userMappings = new HashMap<String, User> ();
+		
+		onlineUsers = new HashSet<String> ();
 	}
 	
 	/**
@@ -53,8 +60,8 @@ public class EtherpadServer {
         while (true) {
             // block until a client connects
             Socket socket = serverSocket.accept();
-            User user = getUser(socket);
-            Thread socketThread = new Thread(new RunnableServer(socket, user));
+            //User user = getUser(socket);
+            Thread socketThread = new Thread(new RunnableServer(socket));
             socketThread.start();
         }
     }
@@ -64,60 +71,35 @@ public class EtherpadServer {
      */
     private class RunnableServer implements Runnable {
     	Socket socket;
-    	User user;
     	
-    	public RunnableServer(Socket socket, User user) {
+    	public RunnableServer(Socket socket) {
     		this.socket = socket;
-    		this.user = user;
     	}
     	
 		@Override
 		public void run() {
 			try {
-				handleConnection(socket, user);
+				handleConnection(socket);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}			
 		}
     	
     }
-    
-    /**
-     * Method that returns a User object representing the user of the current client
-     * @param socket Socket corresponding to the current client
-     * @return An object of the User class, that represents the user of the current client
-     * @throws IOException
-     */
-    private User getUser(Socket socket) throws IOException {
-    	BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-        
-        for (String line = in.readLine(); line!=null; line=in.readLine()) {
-            String output = handleLogin(line);
-            out.println(output);
-            if (output.startsWith("loggedin")) {
-            	String[] outputTokens = output.split(" ");
-            	String userName = outputTokens[1];
-            	return name_userMappings.get(userName);
-            } 
-        }
-        
-        throw new RuntimeException("Should not reach here");
-    }
-    
-    /**
-     * Handles the client logging in
-     * @param input Message sent from the client to the server
-     * @return A String representing the response of the server to the client
-     */
-    private String handleLogin(String input) {
-    	if (input.startsWith("login")) {
+  
+	
+    private String handleRequest(String input) {
+		//String output = "";
+		System.out.println(input);
+		if (input.startsWith("LOGIN")) {
 			String[] tokens = input.split(" ");
 			String userName = tokens[1].trim();
-			if (name_userMappings.containsKey(userName)) {
+			System.out.println(onlineUsers);
+			if (onlineUsers.contains(userName)) {
 				return "notloggedin";
 			} else {
 				name_userMappings.put("username", new User(userName, ""));
+				onlineUsers.add(userName);
 				StringBuilder stringBuilder = new StringBuilder("loggedin " + userName);
 				stringBuilder.append("\n");
 				for (Document document : currentDocuments){
@@ -131,26 +113,12 @@ public class EtherpadServer {
 				stringBuilder.append("enddocinfo");
 				return stringBuilder.toString();
 			}
-		} 
-    	throw new RuntimeException("Should not reach here");
-    }
-	
-    private String handleRequest(String input, User user) {
-		String output = "";
-		System.out.println(input);
-		if (input.equals("table")) {
-			for (Document document : currentDocuments) {
-				output += document.getName();
-				output += "\t";
-				return output;
-			}
-		} 
-		else if (input.startsWith("NEWDOC")){
+		} else if (input.startsWith("NEWDOC")){
 			String[] inputSplit = input.split(" ");
 			if(inputSplit.length == 3){
 				String userName = inputSplit[1];
 				String docName = inputSplit[2];
-				currentDocuments.add(new Document("asdf", docName));
+				currentDocuments.add(new Document("asdf", docName, userName));
 				return "created " + userName + " " + docName; 
 			}else{
 				throw new RuntimeException("Invalid formatted newdoc request");
@@ -172,27 +140,16 @@ public class EtherpadServer {
 		} 
 		else if (input.startsWith("CHANGE")){
 			String[] inputSplit = input.split("\\|");
-			//System.out.println(inputSplit.length);
-			if(inputSplit.length == 3){
-				String docName = inputSplit[1];
-				String content = inputSplit[2];
-				Document currentDocument = getDoc(docName);
-				currentDocument.updateContent(content);
-				String docContent = currentDocument.toString();
-				//System.out.println(docContent);
-				return "changed|" + docName + "|" + docContent; 
-			} else if (inputSplit.length == 2) {
-				String docName = inputSplit[1];
-				String content = "";
-				Document currentDocument = getDoc(docName);
-				currentDocument.updateContent(content);
-				String docContent = currentDocument.toString();
-				//System.out.println(docContent);
-				return "changed|" + docName + "|" + docContent; 
-			}
-			else{
+			String docName = inputSplit[1];
+			String content = (inputSplit.length == 3) ? inputSplit[2] : "";
+			Document currentDocument = getDoc(docName);
+			currentDocument.updateContent(content);
+			String docContent = currentDocument.toString();
+			//System.out.println(docContent);
+			return "changed|" + docName + "|" + docContent; 
+			/*else{
 				throw new RuntimeException("Invalid formatted change request");
-			}
+			}*/
 		} 
 		else if (input.startsWith("EXITDOC")){
 			String[] inputSplit = input.split(" ");
@@ -214,20 +171,22 @@ public class EtherpadServer {
 		else if (input.startsWith("LOGOUT")){
 			String[] inputSplit = input.split(" ");
 			String userName = inputSplit[1];
-			name_userMappings.remove(userName);
+			System.out.println(onlineUsers);
+			onlineUsers.remove(userName);
+			System.out.println(onlineUsers);
 			return "loggedout " + userName;
 		}
 		
 		throw new UnsupportedOperationException(input);
 	}
 	
-	public void handleConnection(Socket socket, User user) throws IOException {
+	public void handleConnection(Socket socket) throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
         
         try {
 	        for (String line = in.readLine(); line!=null; line=in.readLine()) {
-	            String output = handleRequest(line, user);
+	            String output = handleRequest(line);
 	            System.out.println("Just sent:" + output);
 	            out.println(output);
 	        }
