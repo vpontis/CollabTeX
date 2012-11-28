@@ -228,6 +228,7 @@ public class EtherpadServer {
         try {
 	        for (String line = in.readLine(); line!=null; line=in.readLine()) {
 	            String output = handleRequest(line, user);
+	            System.out.println("Just sent:" + output);
 	            out.println(output);
 	        }
         } finally {

@@ -132,7 +132,6 @@ public class DocTable extends JFrame{
 					JTable target = (JTable)e.getSource();
 					int row = target.getSelectedRow();
 					int column = target.getSelectedColumn();
-					System.out.println("Open document");
 					String docName = (String) tableModel.getValueAt(row, 0);
 					openDocument(docName);
 				}
@@ -150,6 +149,7 @@ public class DocTable extends JFrame{
 	}
 	
 	void openDocument(String docName) {
+		//System.out.println("In openDocument");
 		out.println("OPENDOC " + userName + " " + docName);
 	}
 
