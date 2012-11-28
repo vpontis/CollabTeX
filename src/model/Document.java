@@ -96,7 +96,8 @@ public class Document {
 	 * @param newCollaborator String representing the name of new collaborator
 	 */
 	public void addCollaborator(String newCollaborator) {
-		onlineCollaborators.add(newCollaborator);
+		if (! onlineCollaborators.contains(newCollaborator))
+			onlineCollaborators.add(newCollaborator);
 	}
 	
 	/**

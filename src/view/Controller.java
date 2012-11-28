@@ -68,7 +68,7 @@ public class Controller {
 		try{
 			List<String[]> documentInfo = new ArrayList<String[]>();
 			for (String line = serverInput.readLine(); line!= null; line=serverInput.readLine()){
-				System.out.println(line);
+				//System.out.println(line);
 				if (line.startsWith("enddocinfo")){
 					docTableGUI.updateTable(documentInfo);
 					return ;
@@ -86,14 +86,14 @@ public class Controller {
 	}
 
 	private void runDocTable() {
-		System.out.println("In runDocTable");
+		//System.out.println("In runDocTable");
 		loginGUI.setVisible(false);
 		if (currentDoc != null)
 			currentDoc.setVisible(false);
 		docTableGUI.setVisible(true);
 		try {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
-				System.out.println(line);
+				//System.out.println(line);
 				if (line.startsWith("created")) {
 					String[] lineSplit = line.split(" ");
 					if (lineSplit.length == 3){
@@ -114,7 +114,7 @@ public class Controller {
 						throw new RuntimeException("Invalid format");
 					}					
 				} else if (line.startsWith("opened")) {
-					System.out.println("Should be here");
+					//System.out.println("Should be here");
 					String[] lineSplit = line.split("\\|");
 					if (lineSplit.length == 4){
 						String userName = lineSplit[1];
@@ -186,7 +186,7 @@ public class Controller {
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
 						updateDocTable();
-						System.out.println(userName + "," + this.userName);
+						//System.out.println(userName + "," + this.userName);
 						if(this.userName.equals(userName)){							
 							Thread newThread = new Thread(new Runnable() {
 								@Override

@@ -60,7 +60,6 @@ public class EtherpadServer {
         while (true) {
             // block until a client connects
             Socket socket = serverSocket.accept();
-            //User user = getUser(socket);
             Thread socketThread = new Thread(new RunnableServer(socket));
             socketThread.start();
         }
@@ -89,7 +88,6 @@ public class EtherpadServer {
   
 	
     private String handleRequest(String input) {
-		//String output = "";
 		System.out.println(input);
 		if (input.startsWith("LOGIN")) {
 			String[] tokens = input.split(" ");
@@ -107,7 +105,10 @@ public class EtherpadServer {
 					stringBuilder.append("\t");
 					stringBuilder.append(document.getDate());
 					stringBuilder.append("\t");
-					stringBuilder.append(document.getCollab());
+					String collaborators = document.getCollab().toString();
+					int collaboratorLength = collaborators.length();
+					collaborators = collaborators.substring(1, collaboratorLength - 1);
+					stringBuilder.append(collaborators);
 					stringBuilder.append("\n");
 				}
 				stringBuilder.append("enddocinfo");
@@ -131,8 +132,8 @@ public class EtherpadServer {
 				String userName = inputSplit[1];
 				String docName = inputSplit[2];
 				Document currentDocument = getDoc(docName);
+				currentDocument.addCollaborator(userName);
 				String docContent = currentDocument.toString();
-				//System.out.println(docContent);
 				return "opened|" + userName + "|" + docName + "|" + docContent; 
 			}else{
 				throw new RuntimeException("Invalid formatted opendoc request");
@@ -144,12 +145,9 @@ public class EtherpadServer {
 			String content = (inputSplit.length == 3) ? inputSplit[2] : "";
 			Document currentDocument = getDoc(docName);
 			currentDocument.updateContent(content);
+			currentDocument.setLastEditDateTime();
 			String docContent = currentDocument.toString();
-			//System.out.println(docContent);
 			return "changed|" + docName + "|" + docContent; 
-			/*else{
-				throw new RuntimeException("Invalid formatted change request");
-			}*/
 		} 
 		else if (input.startsWith("EXITDOC")){
 			String[] inputSplit = input.split(" ");
@@ -162,7 +160,10 @@ public class EtherpadServer {
 				stringBuilder.append("\t");
 				stringBuilder.append(document.getDate());
 				stringBuilder.append("\t");
-				stringBuilder.append(document.getCollab());
+				String collaborators = document.getCollab().toString();
+				int collaboratorLength = collaborators.length();
+				collaborators = collaborators.substring(1, collaboratorLength - 1);
+				stringBuilder.append(collaborators);
 				stringBuilder.append("\n");
 			}
 			stringBuilder.append("enddocinfo");

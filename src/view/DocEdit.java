@@ -100,7 +100,6 @@ public class DocEdit extends JFrame {
 			public void changedUpdate(DocumentEvent e) {
 				int length = textDocument.getLength();
 				try {
-					//System.out.println(docContent);
 					docContent = textDocument.getText(0, length);
 					out.println("CHANGE|" + docName + "|" + docContent);
 					
@@ -127,7 +126,6 @@ public class DocEdit extends JFrame {
 			public void removeUpdate(DocumentEvent arg0) {
 				int length = textDocument.getLength();
 				try {
-					//System.out.println(docContent);
 					docContent = textDocument.getText(0, length);
 					out.println("CHANGE|" + docName + "|" + docContent);
 					
