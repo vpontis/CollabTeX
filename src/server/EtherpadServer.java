@@ -98,28 +98,51 @@ public class EtherpadServer {
     private String handleRequest(String input) {
 		System.out.println(input);
 		if (input.startsWith("LOGIN")) {
+			
 			String[] tokens = input.split(" ");
 			String userName = tokens[1].trim();
 			return logIn(userName);
+			
 		} else if (input.startsWith("NEWDOC")){
-			return newDoc(input);
+			
+			String[] tokens = input.split(" ");
+			if (tokens.length == 3) {
+				String userName = tokens[1];
+				String docName = tokens[2];
+				return newDoc(userName, docName);
+			}
+			
 		} 
 		else if (input.startsWith("OPENDOC")){
-			return openDoc(input);
+
+			String[] tokens = input.split(" ");
+			if (tokens.length == 3) {
+				String userName = tokens[1];
+				String docName = tokens[2];
+				return openDoc(userName, docName);
+			}
+			
 		} 
 		else if (input.startsWith("CHANGE")){
 			return changeDoc(input);
 		} 
 		else if (input.startsWith("EXITDOC")){
-			return exitDoc(input);
+			
+			String[] inputSplit = input.split(" ");
+			String userName = inputSplit[1];
+			String docName = inputSplit[2];
+			return exitDoc(userName, docName);
+			
 		} 
 		else if (input.startsWith("LOGOUT")){
+			
 			String[] inputSplit = input.split(" ");
 			String userName = inputSplit[1];
 			return logOut(userName);
+			
 		}
 		
-		throw new UnsupportedOperationException(input);
+		throw new RuntimeException("Should not reach here");
 	}
     
     /**
@@ -202,51 +225,38 @@ public class EtherpadServer {
     
     /**
      * Creates a new document
-     * @param input
-     * @return
+     * @param userName The name of the user that creates the new document
+     * @param docName The name of the newly created document
+     * @return Response from the server to the client
      */
-    private String newDoc(String input) {
-    	String[] inputSplit = input.split(" ");
-		if(inputSplit.length == 3){
-			String userName = inputSplit[1];
-			String docName = inputSplit[2];
-			currentDocuments.add(new Document("asdf", docName, userName));
-			return "created " + userName + " " + docName; 
-		}else{
-			throw new RuntimeException("Invalid formatted newdoc request");
-		}
+    private String newDoc(String userName, String docName) {
+		currentDocuments.add(new Document("asdf", docName, userName));
+		return "created " + userName + " " + docName; 
     }
     
     /**
      * Opens a new document
-     * @param input
-     * @return
+     * @param userName The name of the user that opens the document
+     * @param docName The name of the document that is being opened
+     * @return Response from the server to the client
      */
-    private String openDoc(String input) {
-    	String[] inputSplit = input.split(" ");
-
-		if(inputSplit.length == 3){
-			String userName = inputSplit[1];
-			String docName = inputSplit[2];
-			Document currentDocument = getDoc(docName);
-			currentDocument.addCollaborator(userName);
-			String docContent = currentDocument.toString();
-			docContent = docContent.replace("\n", "\t");
-			return "opened|" + userName + "|" + docName + "|" + docContent; 
-		}else{
-			throw new RuntimeException("Invalid formatted opendoc request");
-		}
+    private String openDoc(String userName, String docName) {
+    	
+		Document currentDocument = getDoc(docName);
+		currentDocument.addCollaborator(userName);
+		String docContent = currentDocument.toString();
+		docContent = docContent.replace("\n", "\t");
+		return "opened|" + userName + "|" + docName + "|" + docContent; 
+		
     }
     
     /**
      * Exits the document
-     * @param input
-     * @return
+     * @param userName The name of the user that is exiting the document
+     * @param docName The name of the document that is being exited
+     * @return Response from the server to the client
      */
-    private String exitDoc(String input) {
-    	String[] inputSplit = input.split(" ");
-		String userName = inputSplit[1];
-		String docName = inputSplit[2];
+    private String exitDoc(String userName, String docName) {
 		StringBuilder stringBuilder = new StringBuilder("exiteddoc " + userName + " " + docName);
 		stringBuilder.append("\n");
 		for (Document document : currentDocuments){
