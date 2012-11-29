@@ -120,12 +120,16 @@ public class EtherpadServer {
 		Document currentDocument = getDoc(docName);
 		String docContent = null;
 		if (inputSplit.length == 4) {
-			
 			int position = Integer.valueOf(inputSplit[2]);
 			String change = inputSplit[3];
-			String content = currentDocument.insertContent(change, position);
+			String content;
+			if (change.equals("\t")) {
+				content = currentDocument.insertContent("\n", position);
+			} else {
+				content = currentDocument.insertContent(change, position);
+			}
 			currentDocument.updateContent(content);
-			docContent = currentDocument.toString();
+			docContent = content.replace("\n", "\t");
 			
 		} else if (inputSplit.length == 5) {
 			
@@ -221,6 +225,7 @@ public class EtherpadServer {
 			Document currentDocument = getDoc(docName);
 			currentDocument.addCollaborator(userName);
 			String docContent = currentDocument.toString();
+			docContent = docContent.replace("\n", "\t");
 			return "opened|" + userName + "|" + docName + "|" + docContent; 
 		}else{
 			throw new RuntimeException("Invalid formatted opendoc request");

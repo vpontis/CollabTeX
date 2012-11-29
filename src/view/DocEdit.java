@@ -110,7 +110,12 @@ public class DocEdit extends JFrame {
 					int position = e.getOffset();
 					int length = e.getLength();
 					String change = textDocument.getText(position, length);
-					out.println("CHANGE|" + docName + "|" + position + "|" + change);
+					if (change.equals("\n")) {
+						out.println("CHANGE|" + docName + "|" + position + "|" + "\t");
+					} else {
+						out.println("CHANGE|" + docName + "|" + position + "|" + change);
+					}
+					
 					
 				} catch (BadLocationException e1) {
 					throw new UnsupportedOperationException();

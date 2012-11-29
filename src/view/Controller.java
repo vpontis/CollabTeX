@@ -120,6 +120,7 @@ public class Controller {
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
 						String docContent = lineSplit[3];
+						docContent = docContent.replace("\t", "\n");
 						if(this.userName.equals(userName)){
 							this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent);							
 							Thread newThread = new Thread(new Runnable() {
