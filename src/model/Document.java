@@ -67,6 +67,16 @@ public class Document {
 		content = newContent;
 	}
 	
+	public String insertContent(String newContent, int position) {
+		content = content.substring(0, position) + newContent + content.substring(position, content.length());
+		return content;
+	}
+	
+	public String deleteContent(int position, int length) {
+		content = content.substring(0, position) + content.substring(position+ length, content.length());
+		return content;
+	}
+	
 	/**
 	 * Sets the lastEditDateTime state of the class to a date object that represents the current date and time
 	 */

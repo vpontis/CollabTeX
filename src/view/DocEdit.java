@@ -1,7 +1,10 @@
 package view;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.PrintWriter;
 
 import javax.swing.*;
@@ -93,28 +96,21 @@ public class DocEdit extends JFrame {
 			public void actionPerformed(ActionEvent e){
 				exitDocument();	
 			}
-		});
+		});		
 		
 		textDocument.addDocumentListener(new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
-				int length = textDocument.getLength();
-				try {
-					docContent = textDocument.getText(0, length);
-					out.println("CHANGE|" + docName + "|" + docContent);
-					
-				} catch (BadLocationException e1) {
-					throw new UnsupportedOperationException();
-				}
+				//No code here yet
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				int length = textDocument.getLength();
 				try {				
-					docContent = textDocument.getText(0, length);
-					docContent.replace("\r", "#");
-					out.println("CHANGE|" + docName + "|" + docContent);
+					int position = e.getOffset();
+					int length = e.getLength();
+					String change = textDocument.getText(position, length);
+					out.println("CHANGE|" + docName + "|" + position + "|" + change);
 					
 				} catch (BadLocationException e1) {
 					throw new UnsupportedOperationException();
@@ -123,15 +119,10 @@ public class DocEdit extends JFrame {
 			}
 
 			@Override
-			public void removeUpdate(DocumentEvent arg0) {
-				int length = textDocument.getLength();
-				try {
-					docContent = textDocument.getText(0, length);
-					out.println("CHANGE|" + docName + "|" + docContent);
-					
-				} catch (BadLocationException e1) {
-					throw new UnsupportedOperationException();
-				}
+			public void removeUpdate(DocumentEvent e) {
+				int position = e.getOffset();
+				int length = e.getLength();
+				out.println("CHANGE|" + docName + "|" + "del" + "|" + position + "|" + length);
 				
 			}
 		});
