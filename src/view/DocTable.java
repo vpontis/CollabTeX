@@ -4,17 +4,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.PrintWriter;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.GroupLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
-
-import model.Document;
 
 @SuppressWarnings("serial")
 public class DocTable extends JFrame{
+	static private final int NAME_COLUMN = 0;
 	
 	private JLabel tableLabel;
 	
@@ -131,8 +135,7 @@ public class DocTable extends JFrame{
 				if (e.getClickCount() == 1) {
 					JTable target = (JTable)e.getSource();
 					int row = target.getSelectedRow();
-					int column = target.getSelectedColumn();
-					String docName = (String) tableModel.getValueAt(row, 0);
+					String docName = (String) tableModel.getValueAt(row, NAME_COLUMN);
 					openDocument(docName);
 				}
 			}
@@ -142,14 +145,7 @@ public class DocTable extends JFrame{
 		this.pack();
 	}
 	
-	void openDocument() {
-		// TODO Auto-generated method stub
-		String docName = "???";
-		out.println("OPENDOC " + userName + " " + docName);
-	}
-	
 	void openDocument(String docName) {
-		//System.out.println("In openDocument");
 		out.println("OPENDOC " + userName + " " + docName);
 	}
 

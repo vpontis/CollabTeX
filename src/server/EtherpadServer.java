@@ -92,13 +92,15 @@ public class EtherpadServer {
      * make requested mutations on game state if applicable, then return 
      * appropriate message to the user.
      * 
-     * @param input
-     * @return
+     * @param input The request from the client to the server
+     * @return Response from the server to the client
      */
     private String handleRequest(String input) {
 		System.out.println(input);
 		if (input.startsWith("LOGIN")) {
-			return logIn(input);
+			String[] tokens = input.split(" ");
+			String userName = tokens[1].trim();
+			return logIn(userName);
 		} else if (input.startsWith("NEWDOC")){
 			return newDoc(input);
 		} 
@@ -112,7 +114,9 @@ public class EtherpadServer {
 			return exitDoc(input);
 		} 
 		else if (input.startsWith("LOGOUT")){
-			return logOut(input);
+			String[] inputSplit = input.split(" ");
+			String userName = inputSplit[1];
+			return logOut(userName);
 		}
 		
 		throw new UnsupportedOperationException(input);
@@ -159,13 +163,10 @@ public class EtherpadServer {
     
     /**
      * Logs the user in
-     * @param input
-     * @return
+     * @param userName Username of the user who logs into the system
+     * @return 
      */
-    private String logIn(String input) {
-    	String[] tokens = input.split(" ");
-		String userName = tokens[1].trim();
-		System.out.println(onlineUsers);
+    private String logIn(String userName) {
 		if (onlineUsers.contains(userName)) {
 			return "notloggedin";
 		} else {
@@ -191,15 +192,11 @@ public class EtherpadServer {
     
     /**
      * Logs the user out
-     * @param input
+     * @param userName The name of the user to be logged out
      * @return
      */
-    private String logOut(String input) {
-    	String[] inputSplit = input.split(" ");
-		String userName = inputSplit[1];
-		System.out.println(onlineUsers);
+    private String logOut(String userName) {
 		onlineUsers.remove(userName);
-		System.out.println(onlineUsers);
 		return "loggedout " + userName;
     }
     
