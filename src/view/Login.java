@@ -14,7 +14,7 @@ import javax.swing.JTextField;
 public class Login extends JFrame{
 	private JButton loginButton;
 	private JTextField userName;
-	private JTextField password;
+	//private JTextField password;
 	private JLabel userNameLabel;
 	
 	private JLabel messageLabel;
@@ -102,6 +102,9 @@ public class Login extends JFrame{
 		this.pack();
 	}
 	
+	/**
+	 * Logs the current user into the server; the user can now edit documents
+	 */
 	private void login() {
 		String name = userName.getText();
 		String output = "LOGIN " + name;

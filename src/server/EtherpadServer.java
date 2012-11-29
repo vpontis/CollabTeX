@@ -86,6 +86,15 @@ public class EtherpadServer {
     	
     }
   
+    /**
+     * handler for client input
+     * 
+     * make requested mutations on game state if applicable, then return 
+     * appropriate message to the user.
+     * 
+     * @param input
+     * @return
+     */
     private String handleRequest(String input) {
 		System.out.println(input);
 		if (input.startsWith("LOGIN")) {
@@ -258,6 +267,11 @@ public class EtherpadServer {
 		return stringBuilder.toString();
     }
 	
+    /**
+     * Handle a single client connection.  Returns when client disconnects.
+     * @param socket socket where the client is connected
+     * @throws IOException if connection has an error or terminates unexpectedly
+     */
 	public void handleConnection(Socket socket) throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -290,6 +304,11 @@ public class EtherpadServer {
 		return currentDocuments;
 	}
 	
+	/**
+	 * Returns the document object corresponding to the given document name
+	 * @param docName Name of the document object to be retrieved
+	 * @return An object of type Document
+	 */
 	private Document getDoc(String docName) {
 		for (Document document: currentDocuments) {
 			String name = document.getName();

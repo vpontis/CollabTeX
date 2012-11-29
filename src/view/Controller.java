@@ -9,10 +9,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.Document;
-
-import server.EtherpadServer;
-
 public class Controller {
 	private Login loginGUI;
 	private DocTable docTableGUI = null;
@@ -32,7 +28,11 @@ public class Controller {
 		
 		this.loginGUI = new Login(serverOutput);
 	}
-		
+	
+	/**
+	 * Runs the login GUI; makes all other GUI elements invisible, if they already exist.
+	 * Tries to log the user into the server
+	 */
 	private void runLogin() {
 		loginGUI.setVisible(true);
 		if (docTableGUI != null) {
@@ -63,7 +63,9 @@ public class Controller {
 		}
 	}
 	
-
+	/**
+	 * Updates the information stored in the document table.
+	 */
 	private void updateDocTable() {
 		try{
 			List<String[]> documentInfo = new ArrayList<String[]>();
@@ -85,6 +87,9 @@ public class Controller {
 		}
 	}
 
+	/**
+	 * Runs the document table. Makes the document table GUI visible. All other GUI elements are made invisible.
+	 */
 	private void runDocTable() {
 		//System.out.println("In runDocTable");
 		loginGUI.setVisible(false);
@@ -176,6 +181,9 @@ public class Controller {
 		}
 	}
 	
+	/**
+	 * Runs the document editor. All other GUI elements are made invisible.
+	 */
 	private void runDocEdit() {
 		docTableGUI.setVisible(false);
 		currentDoc.setVisible(true);

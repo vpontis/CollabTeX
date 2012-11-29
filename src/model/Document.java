@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class Document {
 	
@@ -63,15 +62,31 @@ public class Document {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param newContent
+	 */
 	public void updateContent(String newContent) {
 		content = newContent;
 	}
 	
+	/**
+	 * Inserts new content into the given position in the document
+	 * @param newContent New content to be inserted into the document
+	 * @param position Position in the document at which new content should be inserted
+	 * @return New content of the document
+	 */
 	public String insertContent(String newContent, int position) {
 		content = content.substring(0, position) + newContent + content.substring(position, content.length());
 		return content;
 	}
 	
+	/**
+	 * Deletes old content from the document at the given position
+	 * @param position Old content that is removed from the document
+	 * @param length Length of text that is being deleted from the document
+	 * @return New content of the document
+	 */
 	public String deleteContent(int position, int length) {
 		content = content.substring(0, position) + content.substring(position+ length, content.length());
 		return content;
@@ -112,13 +127,17 @@ public class Document {
 	
 	/**
 	 * Method that removes the name of a collaborator if the collaborator exits the document
-	 * @param collaborator String representing name of the collaborator who just exitted the
+	 * @param collaborator String representing name of the collaborator who just exited the
 	 * document
 	 */
 	public void removeCollaborator(String collaborator) {
 		onlineCollaborators.remove(collaborator);
 	}
 	
+	/**
+	 * Returns a list of strings that represent the users that have edited this document
+	 * @return List of names of the different collaborators of the document
+	 */
 	public List<String> getCollab(){
 		return onlineCollaborators;
 	}
