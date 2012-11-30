@@ -237,9 +237,7 @@ public class EtherpadServer {
 				stringBuilder.append("\t");
 				stringBuilder.append(document.getDate());
 				stringBuilder.append("\t");
-				String collaborators = document.getCollab().toString();
-				int collaboratorLength = collaborators.length();
-				collaborators = collaborators.substring(1, collaboratorLength - 1);
+				String collaborators = document.getCollab();
 				stringBuilder.append(collaborators);
 				stringBuilder.append("\n");
 			}
@@ -266,7 +264,7 @@ public class EtherpadServer {
      */
     private String newDoc(String userName, String docName) {
 		currentDocuments.add(new Document("asdf", docName, userName));
-		return "created " + userName + " " + docName; 
+		return "created|" + userName + "|" + docName + "|" + userName; 
     }
     
     /**
@@ -281,7 +279,8 @@ public class EtherpadServer {
 		currentDocument.addCollaborator(userName);
 		String docContent = currentDocument.toString();
 		docContent = docContent.replace("\n", "\t");
-		return "opened|" + userName + "|" + docName + "|" + docContent; 
+		String collaborators = currentDocument.getCollab().toString();
+		return "opened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators; 
 		
     }
     
@@ -299,9 +298,7 @@ public class EtherpadServer {
 			stringBuilder.append("\t");
 			stringBuilder.append(document.getDate());
 			stringBuilder.append("\t");
-			String collaborators = document.getCollab().toString();
-			int collaboratorLength = collaborators.length();
-			collaborators = collaborators.substring(1, collaboratorLength - 1);
+			String collaborators = document.getCollab();
 			stringBuilder.append(collaborators);
 			stringBuilder.append("\n");
 		}

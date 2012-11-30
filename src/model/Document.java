@@ -138,8 +138,11 @@ public class Document {
 	 * Returns a list of strings that represent the users that have edited this document
 	 * @return List of names of the different collaborators of the document
 	 */
-	public List<String> getCollab(){
-		return onlineCollaborators;
+	public String getCollab(){
+		String collaborators = onlineCollaborators.toString();
+		int collaboratorLength = collaborators.length();
+		collaborators = collaborators.substring(1, collaboratorLength - 1);
+		return collaborators;
 	}
 	
 	/**

@@ -100,12 +100,13 @@ public class Controller {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
 				//System.out.println(line);
 				if (line.startsWith("created")) {
-					String[] lineSplit = line.split(" ");
-					if (lineSplit.length == 3){
+					String[] lineSplit = line.split("\\|");
+					if (lineSplit.length == 4){
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
+						String collaborators = lineSplit[3];
 						if(this.userName.equals(userName)){
-							this.currentDoc = new DocEdit(serverOutput, docName, userName, "");							
+							this.currentDoc = new DocEdit(serverOutput, docName, userName, "", collaborators);							
 							Thread newThread = new Thread(new Runnable() {
 								@Override
 								public void run() {
@@ -121,32 +122,14 @@ public class Controller {
 				} else if (line.startsWith("opened")) {
 					//System.out.println("Should be here");
 					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 4){
+					if (lineSplit.length == 5){
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
 						String docContent = lineSplit[3];
+						String collaborators = lineSplit[4];
 						docContent = docContent.replace("\t", "\n");
 						if(this.userName.equals(userName)){
-							this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent);							
-							Thread newThread = new Thread(new Runnable() {
-								@Override
-								public void run() {
-									runDocEdit();
-								}
-							});
-							newThread.start();
-							return;
-						}
-					}else{
-						throw new RuntimeException("Invalid format");
-					}					
-				}  else if (line.startsWith("changed")) {
-					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 3){
-						String docName = lineSplit[1];
-						String docContent = lineSplit[2];
-						if(this.userName.equals(userName)){
-							this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent);							
+							this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent, collaborators);							
 							Thread newThread = new Thread(new Runnable() {
 								@Override
 								public void run() {

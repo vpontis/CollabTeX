@@ -2,8 +2,6 @@ package view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.PrintWriter;
 
 import javax.swing.GroupLayout;
@@ -31,22 +29,25 @@ public class DocEdit extends JFrame {
 	private String docName;
 	private String userName;
 	private String docContent;
+	private String collaboratorNames;
 	
 	private Document textDocument;
+	private final DocumentListener documentListener;
 	
-	public DocEdit(PrintWriter outputStream, String documentName, String userName, String content){
+	public DocEdit(PrintWriter outputStream, String documentName, String userName, String content, String collaboratorNames){
 		super(documentName);
 		
 		out = outputStream;
 		this.docName = documentName;
 		this.userName = userName;
 		this.docContent = content;
+		this.collaboratorNames = collaboratorNames;
 
 		messageLabel = new JLabel("Welcome!");
 		exitButton = new JButton("Exit Doc");
 		
-		collabLabel = new JLabel("Also working: ");
-		collaborators = new JLabel("collab people");
+		collabLabel = new JLabel("Collaborators: ");
+		collaborators = new JLabel(collaboratorNames);
 		
 		textArea = new JTextArea(20, 50);
 		scrollText = new JScrollPane(textArea);
@@ -102,7 +103,7 @@ public class DocEdit extends JFrame {
 			}
 		});		
 		
-		textDocument.addDocumentListener(new DocumentListener() {
+		documentListener = new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				//No code here yet
@@ -134,7 +135,8 @@ public class DocEdit extends JFrame {
 				out.println("CHANGE|" + docName + "|" + "del" + "|" + position + "|" + length);
 				
 			}
-		});
+		};
+		this.addListener();
 		
 		this.pack();
 	}
@@ -164,14 +166,25 @@ public class DocEdit extends JFrame {
 	}
 	
 	/**
-	 * getter for the name of the GUI element
+	 * Getter for the name of the GUI element
 	 */
 	public String getName() {
 		return docName;
 	}
+	
+	/**
+	 * Method that associates document listener to the document associated with the text area
+	 */
+	public void addListener() {
+		textDocument.addDocumentListener(documentListener);
+	}
+	
+	public void removeListener() {
+		textDocument.removeDocumentListener(documentListener);
+	}
 
 	public static void main(String[] args){
-		DocEdit main = new DocEdit(new PrintWriter(System.out), "Document name", "victor", "");
+		DocEdit main = new DocEdit(new PrintWriter(System.out), "Document name", "victor", "", "collab");
 		main.setVisible(true);
 	}
 	
