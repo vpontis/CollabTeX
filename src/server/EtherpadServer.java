@@ -23,6 +23,7 @@ public class EtherpadServer {
 	private final ServerSocket serverSocket;
 	private Map<String, User> name_userMappings;
 	private Set<String> onlineUsers;
+	private Map<Integer, String> socketUserMappings;
 	
 	/**
 	 * Initializes the EtherpadServer with the default port number
@@ -34,6 +35,7 @@ public class EtherpadServer {
 		serverSocket = new ServerSocket(port);
 		
 		onlineUsers = new HashSet<String> ();
+		socketUserMappings = new HashMap<Integer, String> ();
 	}
 	
 	/**
@@ -48,6 +50,7 @@ public class EtherpadServer {
 		name_userMappings = new HashMap<String, User> ();
 		
 		onlineUsers = new HashSet<String> ();
+		socketUserMappings = new HashMap<Integer, String> ();
 	}
 	
 	/**
@@ -57,10 +60,12 @@ public class EtherpadServer {
      * (IOExceptions from individual clients do *not* terminate serve()).
      */
     public void serve() throws IOException {
+    	int ID = 0;
         while (true) {
             // block until a client connects
             Socket socket = serverSocket.accept();
-            Thread socketThread = new Thread(new RunnableServer(socket));
+            ID++; //ID keeps track of the socket ID, to take care of users exiting
+            Thread socketThread = new Thread(new RunnableServer(socket, ID));
             socketThread.start();
         }
     }
@@ -70,21 +75,50 @@ public class EtherpadServer {
      */
     private class RunnableServer implements Runnable {
     	Socket socket;
+    	int ID;
     	
-    	public RunnableServer(Socket socket) {
+    	public RunnableServer(Socket socket, int ID) {
     		this.socket = socket;
+    		this.ID = ID;
     	}
     	
 		@Override
 		public void run() {
 			try {
-				handleConnection(socket);
+				handleConnection(socket, ID);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}			
 		}
     	
     }
+    
+    /**
+     * Handle a single client connection.  Returns when client disconnects.
+     * @param socket socket where the client is connected
+     * @throws IOException if connection has an error or terminates unexpectedly
+     */
+	public void handleConnection(Socket socket, int ID) throws IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+        
+        try {
+	        for (String line = in.readLine(); line!=null; line=in.readLine()) {
+	            String output = handleRequest(line, ID);
+	            System.out.println("Just sent:" + output);
+	            out.println(output);
+	        }
+        } catch (IOException e) {
+        	if (socketUserMappings.containsKey(ID)) {
+        		String userName = socketUserMappings.get(ID);
+        		onlineUsers.remove(userName);
+        		socketUserMappings.remove(ID);
+        	}
+        	out.close();
+        	in.close();
+        }
+
+	}
   
     /**
      * handler for client input
@@ -95,13 +129,13 @@ public class EtherpadServer {
      * @param input The request from the client to the server
      * @return Response from the server to the client
      */
-    private String handleRequest(String input) {
+    private String handleRequest(String input, int ID) {
 		System.out.println(input);
 		if (input.startsWith("LOGIN")) {
 			
 			String[] tokens = input.split(" ");
 			String userName = tokens[1].trim();
-			return logIn(userName);
+			return logIn(userName, ID);
 			
 		} else if (input.startsWith("NEWDOC")){
 			
@@ -142,7 +176,7 @@ public class EtherpadServer {
 			
 		}
 		
-		throw new RuntimeException("Should not reach here");
+		throw new UnsupportedOperationException();
 	}
     
     /**
@@ -189,12 +223,13 @@ public class EtherpadServer {
      * @param userName Username of the user who logs into the system
      * @return 
      */
-    private String logIn(String userName) {
+    private String logIn(String userName, int ID) {
 		if (onlineUsers.contains(userName)) {
 			return "notloggedin";
 		} else {
 			name_userMappings.put("username", new User(userName, ""));
 			onlineUsers.add(userName);
+			socketUserMappings.put(ID, userName);
 			StringBuilder stringBuilder = new StringBuilder("loggedin " + userName);
 			stringBuilder.append("\n");
 			for (Document document : currentDocuments){
@@ -273,27 +308,6 @@ public class EtherpadServer {
 		stringBuilder.append("enddocinfo");
 		return stringBuilder.toString();
     }
-	
-    /**
-     * Handle a single client connection.  Returns when client disconnects.
-     * @param socket socket where the client is connected
-     * @throws IOException if connection has an error or terminates unexpectedly
-     */
-	public void handleConnection(Socket socket) throws IOException {
-		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-        
-        try {
-	        for (String line = in.readLine(); line!=null; line=in.readLine()) {
-	            String output = handleRequest(line);
-	            System.out.println("Just sent:" + output);
-	            out.println(output);
-	        }
-        } finally {
-        	out.close();
-        	in.close();
-        }
-	}
 	
 	/**
 	 * Adds a new Document to the list of currently active documents

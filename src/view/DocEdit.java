@@ -2,6 +2,8 @@ package view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.PrintWriter;
 
 import javax.swing.GroupLayout;
@@ -114,7 +116,7 @@ public class DocEdit extends JFrame {
 					String change = textDocument.getText(position, length);
 					if (change.equals("\n")) {
 						out.println("CHANGE|" + docName + "|" + position + "|" + "\t");
-					} else {
+					}  else if (! change.equals("")){
 						out.println("CHANGE|" + docName + "|" + position + "|" + change);
 					}
 					
@@ -135,6 +137,23 @@ public class DocEdit extends JFrame {
 		});
 		
 		this.pack();
+	}
+	
+	/**
+	 * Method to update content in the text area
+	 * @param newContent New content in the text area
+	 */
+	public void updateContent(String newContent) {
+		this.textArea.setText(newContent);
+	}
+	
+	/**
+	 * Method that returns the content in the text area
+	 * @return Content in the text area
+	 */
+	public String getContent() {
+		String content = this.textArea.getText();
+		return content;
 	}
 	
 	/**

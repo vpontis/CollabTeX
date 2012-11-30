@@ -142,6 +142,14 @@ public class Document {
 		return onlineCollaborators;
 	}
 	
+	/**
+	 * Returns the content of the document
+	 * @return String representation of the contents of the document
+	 */
+	public String getContent() {
+		return content;
+	}
+	
 	@Override
 	public String toString() {
 		return content;
