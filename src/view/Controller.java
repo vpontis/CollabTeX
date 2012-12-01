@@ -91,14 +91,12 @@ public class Controller {
 	 * Runs the document table. Makes the document table GUI visible. All other GUI elements are made invisible.
 	 */
 	private void runDocTable() {
-		//System.out.println("In runDocTable");
 		loginGUI.setVisible(false);
 		if (currentDoc != null)
 			currentDoc.setVisible(false);
 		docTableGUI.setVisible(true);
 		try {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
-				//System.out.println(line);
 				if (line.startsWith("created")) {
 					String[] lineSplit = line.split("\\|");
 					if (lineSplit.length == 4){
@@ -120,7 +118,6 @@ public class Controller {
 						throw new RuntimeException("Invalid format");
 					}					
 				} else if (line.startsWith("opened")) {
-					//System.out.println("Should be here");
 					String[] lineSplit = line.split("\\|");
 					if (lineSplit.length == 5){
 						String userName = lineSplit[1];
@@ -209,8 +206,19 @@ public class Controller {
 						}
 					}
 				} else if (line.startsWith("changed")) {
-					String[] lineSplit = line.split(" ");
-					System.out.println(line);
+					String[] lineSplit = line.split("\\|");
+					if (lineSplit.length == 4) {
+						String docName = lineSplit[1];
+						String content = lineSplit[2];
+						int position = Integer.valueOf(lineSplit[3]);
+						int length = Integer.valueOf(lineSplit[4]);
+						System.out.println("Updating content");
+						content.replace("\t", "\n");
+						currentDoc.removeListener();
+						currentDoc.updateContent(content, position, length);
+						currentDoc.addListener();
+					}
+					// System.out.println(line);
 				}
 			}
 		} catch (IOException e) {

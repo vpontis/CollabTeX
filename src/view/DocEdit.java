@@ -116,9 +116,9 @@ public class DocEdit extends JFrame {
 					int length = e.getLength();
 					String change = textDocument.getText(position, length);
 					if (change.equals("\n")) {
-						out.println("CHANGE|" + docName + "|" + position + "|" + "\t");
+						out.println("CHANGE|" + docName + "|" + position + "|" + "\t" + "|" + length);
 					}  else if (! change.equals("")){
-						out.println("CHANGE|" + docName + "|" + position + "|" + change);
+						out.println("CHANGE|" + docName + "|" + position + "|" + change + "|" + length);
 					}
 					
 					
@@ -132,7 +132,7 @@ public class DocEdit extends JFrame {
 			public void removeUpdate(DocumentEvent e) {
 				int position = e.getOffset();
 				int length = e.getLength();
-				out.println("CHANGE|" + docName + "|" + "del" + "|" + position + "|" + length);
+				out.println("CHANGE|" + docName + "|" + position + "|" + length);
 				
 			}
 		};
@@ -145,15 +145,16 @@ public class DocEdit extends JFrame {
 	 * Method to update content in the text area
 	 * @param newContent New content in the text area
 	 */
-	public void updateContent(String newContent) {
+	public synchronized void updateContent(String newContent, int position, int length) {
 		this.textArea.setText(newContent);
+		this.textArea.setCaretPosition(position + length);
 	}
 	
 	/**
 	 * Method that returns the content in the text area
 	 * @return Content in the text area
 	 */
-	public String getContent() {
+	public synchronized String getContent() {
 		String content = this.textArea.getText();
 		return content;
 	}
@@ -161,7 +162,7 @@ public class DocEdit extends JFrame {
 	/**
 	 * Method for the user to exit the given document
 	 */
-	private void exitDocument() {
+	private synchronized void exitDocument() {
 		out.println("EXITDOC " + userName + " " + docName);	
 	}
 	
@@ -179,6 +180,9 @@ public class DocEdit extends JFrame {
 		textDocument.addDocumentListener(documentListener);
 	}
 	
+	/**
+	 * Method that disassociates the document listener from the document associated with the text area
+	 */
 	public void removeListener() {
 		textDocument.removeDocumentListener(documentListener);
 	}

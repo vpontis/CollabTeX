@@ -189,9 +189,12 @@ public class EtherpadServer {
 		String docName = inputSplit[1];
 		Document currentDocument = getDoc(docName);
 		String docContent = null;
-		if (inputSplit.length == 4) {
-			int position = Integer.valueOf(inputSplit[2]);
+		int position = -1;
+		int length = -1;
+		if (inputSplit.length == 5) {
+			position = Integer.valueOf(inputSplit[2]);
 			String change = inputSplit[3];
+			length = Integer.valueOf(inputSplit[4]);
 			String content;
 			if (change.equals("\t")) {
 				content = currentDocument.insertContent("\n", position);
@@ -201,18 +204,18 @@ public class EtherpadServer {
 			currentDocument.updateContent(content);
 			docContent = content.replace("\n", "\t");
 			
-		} else if (inputSplit.length == 5) {
+		} else if (inputSplit.length == 4) {
 			
-			int position = Integer.valueOf(inputSplit[3]);
-			int length = Integer.valueOf(inputSplit[4]);
+			position = Integer.valueOf(inputSplit[2]);
+			length = Integer.valueOf(inputSplit[3]);
 			String content = currentDocument.deleteContent(position, length);
 			currentDocument.updateContent(content);
 			docContent = currentDocument.toString();	
 			
 		}
 		currentDocument.setLastEditDateTime();
-		if (docContent != null) {
-			return "changed|" + docName + "|" + docContent;
+		if (docContent != null && position != -1 && length != -1) {
+			return "changed|" + docName + "|" + docContent + "|" + position + "|" + length;
 		}
 		
 		throw new RuntimeException("Should not reach here");
