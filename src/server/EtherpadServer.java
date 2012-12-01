@@ -113,9 +113,10 @@ public class EtherpadServer {
         	synchronized (lock) {
         		outputStreamWriters.add(out);
         	}
+        	out.println("id: "+ID);
 	        for (String line = in.readLine(); line!=null; line=in.readLine()) {
 	            String output = handleRequest(line, ID);
-	            System.out.println("Just sent:" + output);
+	            //System.out.println("Just sent:" + output);
 	            for (PrintWriter outputStream : outputStreamWriters) {
 	            	outputStream.println(output);
 	            }
@@ -145,7 +146,6 @@ public class EtherpadServer {
      * @return Response from the server to the client
      */
     private String handleRequest(String input, int ID) {
-		System.out.println(input);
 		if (input.startsWith("LOGIN")) {
 			
 			String[] tokens = input.split(" ");
@@ -246,7 +246,7 @@ public class EtherpadServer {
 			name_userMappings.put("username", new User(userName, ""));
 			onlineUsers.add(userName);
 			socketUserMappings.put(ID, userName);
-			StringBuilder stringBuilder = new StringBuilder("loggedin " + userName);
+			StringBuilder stringBuilder = new StringBuilder("loggedin " + userName + " " + ID);
 			stringBuilder.append("\n");
 			for (Document document : currentDocuments){
 				stringBuilder.append(document.getName());
@@ -287,7 +287,7 @@ public class EtherpadServer {
      * Opens a new document
      * @param userName The name of the user that opens the document
      * @param docName The name of the document that is being opened
-     * @return Response from the server to the client
+     * @return Response from the server to the clients; all GUIs are updated
      */
     private String openDoc(String userName, String docName) {
     	
@@ -295,8 +295,8 @@ public class EtherpadServer {
 		currentDocument.addCollaborator(userName);
 		String docContent = currentDocument.toString();
 		docContent = docContent.replace("\n", "\t");
-		String collaborators = currentDocument.getCollab().toString();
-		return "opened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators; 
+		String collaborators = currentDocument.getCollab();
+		return "update|" + docName + "|" + collaborators + "\nopened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators; 
 		
     }
     

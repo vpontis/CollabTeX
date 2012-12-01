@@ -18,6 +18,7 @@ public class Controller {
 	private BufferedReader serverInput;
 	private PrintWriter serverOutput;
 	private String userName;
+	private int ID;
 	
 	private DocEdit currentDoc = null;
 
@@ -40,20 +41,26 @@ public class Controller {
 		}
 		try {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
-				if (line.startsWith("loggedin")) {
+				if (line.startsWith("id:")) {
+					String[] lineSplit = line.split(" ");
+					this.ID = Integer.valueOf(lineSplit[1]);
+				} else if (line.startsWith("loggedin")) {
 					String[] lineSplit = line.split(" ");
 					this.userName = lineSplit[1];
-					this.docTableGUI = new DocTable(serverOutput, userName);
-					updateDocTable();
-					
-					Thread newThread = new Thread(new Runnable() {
-						@Override
-						public void run() {
-							runDocTable();
-						}
-					});
-					newThread.start();
-					return;
+					int ID = Integer.valueOf(lineSplit[2]);
+					if (ID == this.ID) {
+						this.docTableGUI = new DocTable(serverOutput, userName);
+						updateDocTable();
+						
+						Thread newThread = new Thread(new Runnable() {
+							@Override
+							public void run() {
+								runDocTable();
+							}
+						});
+						newThread.start();
+						return;
+					}
 				} else if (line.startsWith("notloggedin")){
 					loginGUI.failedLogin();
 				}
@@ -69,8 +76,7 @@ public class Controller {
 	private void updateDocTable() {
 		try{
 			List<String[]> documentInfo = new ArrayList<String[]>();
-			for (String line = serverInput.readLine(); line!= null; line=serverInput.readLine()){
-				//System.out.println(line);
+			for (String line = serverInput.readLine(); line!= null; line=serverInput.readLine()) {
 				if (line.startsWith("enddocinfo")){
 					docTableGUI.updateTable(documentInfo);
 					return ;
@@ -189,7 +195,7 @@ public class Controller {
 					}else{
 						throw new RuntimeException("Invalid format");
 					}					
-				}  else if(line.startsWith("exiteddoc")){
+				} else if(line.startsWith("exiteddoc")){
 					String[] lineSplit = line.split(" ");
 					if (lineSplit.length == 3){
 						String userName = lineSplit[1];
@@ -222,6 +228,15 @@ public class Controller {
 						}
 					}
 					
+				} else if (line.startsWith("update")) {
+					String[] lineSplit = line.split("\\|");
+					if (lineSplit.length == 3) {
+						String docName = lineSplit[1];
+						String collaboratorNames = lineSplit[2];
+						if (currentDoc.getName().equals(docName)) {
+							currentDoc.updateCollaborators(collaboratorNames);
+						}
+					}
 				}
 			}
 		} catch (IOException e) {

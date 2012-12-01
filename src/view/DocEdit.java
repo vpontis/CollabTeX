@@ -174,6 +174,14 @@ public class DocEdit extends JFrame {
 	}
 	
 	/**
+	 * Method to update the displayed set of collaborators
+	 * @param collaboratorNames The updated list of collaborators
+	 */
+	public void updateCollaborators(String collaboratorNames) {
+		collaborators.setText(collaboratorNames);
+	}
+	
+	/**
 	 * Method that associates document listener to the document associated with the text area
 	 */
 	public void addListener() {

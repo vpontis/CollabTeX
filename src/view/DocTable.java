@@ -36,7 +36,7 @@ public class DocTable extends JFrame{
 	private String userName;
 	
 	public DocTable (PrintWriter outputStream, String userName) {
-		super("Document List");
+		super(userName + " - Document List");
 		
 		this.userName = userName;
 		out = outputStream;
