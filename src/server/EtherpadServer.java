@@ -24,6 +24,9 @@ public class EtherpadServer {
 	private Map<String, User> name_userMappings;
 	private Set<String> onlineUsers;
 	private Map<Integer, String> socketUserMappings;
+	private List<PrintWriter> outputStreamWriters;
+	
+	private final Object lock = new Object();
 	
 	/**
 	 * Initializes the EtherpadServer with the default port number
@@ -36,6 +39,8 @@ public class EtherpadServer {
 		
 		onlineUsers = new HashSet<String> ();
 		socketUserMappings = new HashMap<Integer, String> ();
+		
+		outputStreamWriters = new ArrayList<PrintWriter> ();
 	}
 	
 	/**
@@ -51,6 +56,8 @@ public class EtherpadServer {
 		
 		onlineUsers = new HashSet<String> ();
 		socketUserMappings = new HashMap<Integer, String> ();
+		
+		outputStreamWriters = new ArrayList<PrintWriter> ();
 	}
 	
 	/**
@@ -103,17 +110,25 @@ public class EtherpadServer {
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
         
         try {
+        	synchronized (lock) {
+        		outputStreamWriters.add(out);
+        	}
 	        for (String line = in.readLine(); line!=null; line=in.readLine()) {
 	            String output = handleRequest(line, ID);
 	            System.out.println("Just sent:" + output);
-	            out.println(output);
+	            for (PrintWriter outputStream : outputStreamWriters) {
+	            	outputStream.println(output);
+	            }
+	            
 	        }
         } catch (IOException e) {
         	if (socketUserMappings.containsKey(ID)) {
         		String userName = socketUserMappings.get(ID);
         		onlineUsers.remove(userName);
         		socketUserMappings.remove(ID);
+        		
         	}
+        	outputStreamWriters.remove(out);
         	out.close();
         	in.close();
         }
@@ -146,8 +161,7 @@ public class EtherpadServer {
 				return newDoc(userName, docName);
 			}
 			
-		} 
-		else if (input.startsWith("OPENDOC")){
+		} else if (input.startsWith("OPENDOC")){
 
 			String[] tokens = input.split(" ");
 			if (tokens.length == 3) {
@@ -156,19 +170,16 @@ public class EtherpadServer {
 				return openDoc(userName, docName);
 			}
 			
-		} 
-		else if (input.startsWith("CHANGE")){
+		} else if (input.startsWith("CHANGE")){
 			return changeDoc(input);
-		} 
-		else if (input.startsWith("EXITDOC")){
+		} else if (input.startsWith("EXITDOC")){
 			
 			String[] inputSplit = input.split(" ");
 			String userName = inputSplit[1];
 			String docName = inputSplit[2];
 			return exitDoc(userName, docName);
 			
-		} 
-		else if (input.startsWith("LOGOUT")){
+		} else if (input.startsWith("LOGOUT")){
 			
 			String[] inputSplit = input.split(" ");
 			String userName = inputSplit[1];
@@ -188,6 +199,8 @@ public class EtherpadServer {
     	String[] inputSplit = input.split("\\|");
 		String docName = inputSplit[1];
 		Document currentDocument = getDoc(docName);
+		currentDocument.updateVersion();
+		int versionNumber = currentDocument.getVersion();
 		String docContent = null;
 		int position = -1;
 		int length = -1;
@@ -215,7 +228,7 @@ public class EtherpadServer {
 		}
 		currentDocument.setLastEditDateTime();
 		if (docContent != null && position != -1 && length != -1) {
-			return "changed|" + docName + "|" + docContent + "|" + position + "|" + length;
+			return "changed|" + docName + "|" + docContent + "|" + position + "|" + length + "|" + versionNumber;
 		}
 		
 		throw new RuntimeException("Should not reach here");

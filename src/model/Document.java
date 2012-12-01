@@ -8,12 +8,13 @@ import java.util.Map;
 
 public class Document {
 	
-	private String documentID;
-	private String documentName;
+	private final String documentID;
+	private final String documentName;
 	private Map<String, Paragraph> paragraphs;
 	private String content;
 	private Calendar lastEditDateTime;
 	private List<String> onlineCollaborators;
+	private int versionNumber;
 
 	/**
 	 * Constructor of the class Document
@@ -28,6 +29,7 @@ public class Document {
 		this.lastEditDateTime = Calendar.getInstance();
 		this.onlineCollaborators = new ArrayList<String> ();
 		this.onlineCollaborators.add(collaborator);
+		this.versionNumber = 0;
 	}
 	
 	/**
@@ -66,7 +68,7 @@ public class Document {
 	 * 
 	 * @param newContent
 	 */
-	public void updateContent(String newContent) {
+	public synchronized void updateContent(String newContent) {
 		content = newContent;
 	}
 	
@@ -76,7 +78,7 @@ public class Document {
 	 * @param position Position in the document at which new content should be inserted
 	 * @return New content of the document
 	 */
-	public String insertContent(String newContent, int position) {
+	public synchronized String insertContent(String newContent, int position) {
 		content = content.substring(0, position) + newContent + content.substring(position, content.length());
 		return content;
 	}
@@ -87,7 +89,7 @@ public class Document {
 	 * @param length Length of text that is being deleted from the document
 	 * @return New content of the document
 	 */
-	public String deleteContent(int position, int length) {
+	public synchronized String deleteContent(int position, int length) {
 		content = content.substring(0, position) + content.substring(position+ length, content.length());
 		return content;
 	}
@@ -95,14 +97,14 @@ public class Document {
 	/**
 	 * Sets the lastEditDateTime state of the class to a date object that represents the current date and time
 	 */
-	public void setLastEditDateTime() {
+	public synchronized void setLastEditDateTime() {
 		lastEditDateTime = Calendar.getInstance();
 	}
 	
 	/**
 	 * @return String representation of the time of the last edit of the document
 	 */
-	public String getDate() {
+	public synchronized String getDate() {
 		String AM_PM = lastEditDateTime.get(Calendar.AM_PM) == 0 ? "AM" : "PM";
 		String currentHour = String.valueOf(lastEditDateTime.get(Calendar.HOUR));
 		int integerMinute = lastEditDateTime.get(Calendar.MINUTE);
@@ -112,6 +114,21 @@ public class Document {
 		
 		String date = currentHour + ":" + currentMinute + " " + AM_PM + " , " + currentMonth + "/" + currentDay;
 		return date;
+	}
+	
+	/**
+	 * Gets the version number of the document saved on the server
+	 * @return Version number of the document saved on the server
+	 */
+	public synchronized int getVersion() {
+		return versionNumber;
+	}
+	
+	/**
+	 * Updates the version number of the document saved on the server
+	 */
+	public synchronized void updateVersion() {
+		versionNumber++;
 	}
 	
 	

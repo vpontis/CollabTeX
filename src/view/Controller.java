@@ -207,18 +207,21 @@ public class Controller {
 					}
 				} else if (line.startsWith("changed")) {
 					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 4) {
+					if (lineSplit.length == 6) {
 						String docName = lineSplit[1];
 						String content = lineSplit[2];
 						int position = Integer.valueOf(lineSplit[3]);
 						int length = Integer.valueOf(lineSplit[4]);
-						System.out.println("Updating content");
-						content.replace("\t", "\n");
-						currentDoc.removeListener();
-						currentDoc.updateContent(content, position, length);
-						currentDoc.addListener();
+						int version = Integer.valueOf(lineSplit[5]);
+						// System.out.println("Updating content");
+						content = content.replace("\t", "\n");
+						if (currentDoc.getName().equals(docName)) {
+							currentDoc.removeListener();
+							currentDoc.updateContent(content, position, length);
+							currentDoc.addListener();
+						}
 					}
-					// System.out.println(line);
+					
 				}
 			}
 		} catch (IOException e) {
