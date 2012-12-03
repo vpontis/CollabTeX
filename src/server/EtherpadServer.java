@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import model.Document;
 import model.User;
@@ -28,6 +29,8 @@ public class EtherpadServer {
 	
 	private final Object lock = new Object();
 	
+	private LinkedBlockingQueue<ServerRequest> queue;
+	
 	/**
 	 * Initializes the EtherpadServer with the default port number
 	 * @throws IOException If there is an error creating the server socket
@@ -41,6 +44,8 @@ public class EtherpadServer {
 		socketUserMappings = new HashMap<Integer, String> ();
 		
 		outputStreamWriters = new ArrayList<PrintWriter> ();
+		
+		queue = new LinkedBlockingQueue<ServerRequest> ();
 	}
 	
 	/**
@@ -115,11 +120,8 @@ public class EtherpadServer {
         	}
         	out.println("id: "+ID);
 	        for (String line = in.readLine(); line!=null; line=in.readLine()) {
-	            String output = handleRequest(line, ID);
-	            //System.out.println("Just sent:" + output);
-	            for (PrintWriter outputStream : outputStreamWriters) {
-	            	outputStream.println(output);
-	            }
+	        	ServerRequest serverRequest = new ServerRequest(ID, line);
+	        	queue.add(serverRequest);
 	            
 	        }
         } catch (IOException e) {
@@ -135,6 +137,25 @@ public class EtherpadServer {
         }
 
 	}
+	
+	/**
+	 * Attends to the different requests made by the different clients.
+	 * @throws InterruptedException throws an interrupted exception when popping out of the block queue is interrupted
+	 */
+	public void attendRequest() throws InterruptedException {
+		while (true) {
+			ServerRequest serverRequest = queue.take();
+			int ID = serverRequest.getID();
+			String request = serverRequest.getLine();
+			RequestType requestType = serverRequest.getType();
+			
+			String response = handleRequest(request, ID, requestType);
+
+            for (PrintWriter outputStream : outputStreamWriters) {
+            	outputStream.println(response);
+            }
+		}
+	}
   
     /**
      * handler for client input
@@ -145,49 +166,58 @@ public class EtherpadServer {
      * @param input The request from the client to the server
      * @return Response from the server to the client
      */
-    private String handleRequest(String input, int ID) {
-		if (input.startsWith("LOGIN")) {
-			
-			String[] tokens = input.split(" ");
-			String userName = tokens[1].trim();
+    private String handleRequest(String input, int ID, RequestType requestType) {
+    	String userName = "";
+    	
+    	switch (requestType) {
+    	case LOGIN:
+			userName = input;
 			return logIn(userName, ID);
 			
-		} else if (input.startsWith("NEWDOC")){
+    	case NEWDOC:
 			
-			String[] tokens = input.split(" ");
-			if (tokens.length == 3) {
-				String userName = tokens[1];
-				String docName = tokens[2];
+			String[] newdocTokens = input.split(" ");
+			if (newdocTokens.length == 2) {
+				userName = newdocTokens[0];
+				String docName = newdocTokens[1];
 				return newDoc(userName, docName);
 			}
 			
-		} else if (input.startsWith("OPENDOC")){
-
+			break;
+			
+		case OPENDOC: {
 			String[] tokens = input.split(" ");
-			if (tokens.length == 3) {
-				String userName = tokens[1];
-				String docName = tokens[2];
+			if (tokens.length == 2) {
+				userName = tokens[0];
+				String docName = tokens[1];
 				return openDoc(userName, docName);
 			}
 			
-		} else if (input.startsWith("CHANGE")){
+			break;
+		}
+	
+		case CHANGEDOC:
 			return changeDoc(input);
-		} else if (input.startsWith("EXITDOC")){
 			
-			String[] inputSplit = input.split(" ");
-			String userName = inputSplit[1];
-			String docName = inputSplit[2];
+		case EXITDOC:
+			
+			String[] exitdocSplit = input.split(" ");
+			userName = exitdocSplit[0];
+			String docName = exitdocSplit[1];
 			return exitDoc(userName, docName);
 			
-		} else if (input.startsWith("LOGOUT")){
+		case LOGOUT:
 			
 			String[] inputSplit = input.split(" ");
-			String userName = inputSplit[1];
+			userName = inputSplit[0];
 			return logOut(userName);
 			
-		}
-		
-		throw new UnsupportedOperationException();
+		default:
+			return "Invalid request";
+    	}
+    	
+    	return "Invalid request";
+    	
 	}
     
     /**
@@ -197,17 +227,17 @@ public class EtherpadServer {
      */
     private String changeDoc(String input) {
     	String[] inputSplit = input.split("\\|");
-		String docName = inputSplit[1];
+		String docName = inputSplit[0];
 		Document currentDocument = getDoc(docName);
 		currentDocument.updateVersion();
 		int versionNumber = currentDocument.getVersion();
 		String docContent = null;
 		int position = -1;
 		int length = -1;
-		if (inputSplit.length == 5) {
-			position = Integer.valueOf(inputSplit[2]);
-			String change = inputSplit[3];
-			length = Integer.valueOf(inputSplit[4]);
+		if (inputSplit.length == 4) {
+			position = Integer.valueOf(inputSplit[1]);
+			String change = inputSplit[2];
+			length = Integer.valueOf(inputSplit[3]);
 			String content;
 			if (change.equals("\t")) {
 				content = currentDocument.insertContent("\n", position);
@@ -217,10 +247,10 @@ public class EtherpadServer {
 			currentDocument.updateContent(content);
 			docContent = content.replace("\n", "\t");
 			
-		} else if (inputSplit.length == 4) {
+		} else if (inputSplit.length == 3) {
 			
-			position = Integer.valueOf(inputSplit[2]);
-			length = Integer.valueOf(inputSplit[3]);
+			position = Integer.valueOf(inputSplit[1]);
+			length = Integer.valueOf(inputSplit[2]);
 			String content = currentDocument.deleteContent(position, length);
 			currentDocument.updateContent(content);
 			docContent = currentDocument.toString();	
@@ -360,12 +390,44 @@ public class EtherpadServer {
 	 * @param args Unused
 	 */
 	public static void main(String[] args) {
+		final EtherpadServer etherpadServer;
 		try {
-			EtherpadServer etherpadServer = new EtherpadServer();
-			etherpadServer.serve();
-		} catch (IOException e) {
-			e.printStackTrace();
+			etherpadServer = new EtherpadServer();
+			
+			//Serving thread handles new connections made to the server
+			Thread servingThread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						System.out.println("Listening for requests");
+						etherpadServer.serve();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			
+			//Attending thread attends to the different requests made by the clients
+			Thread attendingThread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						System.out.println("Attending requests");
+						etherpadServer.attendRequest();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			
+			servingThread.start();
+			attendingThread.start();
+			
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
+			
+
 	}
 
 }

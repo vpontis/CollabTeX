@@ -147,11 +147,8 @@ public class DocEdit extends JFrame {
 	 */
 	public synchronized void updateContent(String newContent, int position, int length) {
 		int posChange = position + length;
-		if ((posChange < textArea.getText().length()) && (posChange >= 0)) {
-			this.textArea.setText(newContent);
-			this.textArea.setCaretPosition(posChange);
-		}
-		
+		this.textArea.setText(newContent);
+		this.textArea.setCaretPosition(posChange);	
 	}
 	
 	/**
