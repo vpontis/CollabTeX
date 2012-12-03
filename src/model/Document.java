@@ -20,6 +20,7 @@ public class Document {
 	 * Constructor of the class Document
 	 * @param documentID String representing the document ID of the document
 	 * @param documentName String representing the name of the document
+	 * @param collaborator String representing the name of the user that is creating the document
 	 */
 	public Document(String documentID, String documentName, String collaborator) {
 		this.documentName = documentName;
@@ -65,8 +66,8 @@ public class Document {
 	}
 	
 	/**
-	 * 
-	 * @param newContent
+	 * This method updates the content of the document 
+	 * @param newContent String to replace the content of the document with
 	 */
 	public synchronized void updateContent(String newContent) {
 		content = newContent;
@@ -130,8 +131,6 @@ public class Document {
 	public synchronized void updateVersion() {
 		versionNumber++;
 	}
-	
-	
 	/**
 	 * Method that adds the name of a new collaborator to the list of currently online
 	 * collaborators
@@ -170,6 +169,9 @@ public class Document {
 		return content;
 	}
 	
+	/**
+	 * @return a String that represents the content of the document
+	 */
 	@Override
 	public String toString() {
 		return content;

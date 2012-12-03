@@ -29,10 +29,17 @@ public class Paragraph {
 		return paragraphText;
 	}
 	
+	/**
+	 * Sets the paragraph to the given text
+	 * @param newParagraphText
+	 */
 	public void setParagraphText(String newParagraphText) {
 		paragraphText = newParagraphText;
 	}
 	
+	/**
+	 * @return the string that represents the paragraph
+	 */
 	@Override
 	public String toString() {
 		return paragraphText;
