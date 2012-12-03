@@ -160,6 +160,14 @@ public class DocTable extends JFrame{
 	    }
 	}
 	
+	void addData(String[] documentInfo) {
+		String docName = documentInfo[0];
+    	String docDate = documentInfo[1];
+    	String docCollab = documentInfo[2];
+    	String[] rowData = new String[]{docName, docDate, docCollab};
+    	tableModel.addRow(rowData);
+	}
+	
 	private void logout() {
 		out.println("LOGOUT " + userName);
 	}
