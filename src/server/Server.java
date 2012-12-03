@@ -17,7 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import model.Document;
 import model.User;
 
-public class EtherpadServer {
+public class Server {
 	
 	private List<Document> currentDocuments;
 	private int port = 4444;
@@ -35,7 +35,7 @@ public class EtherpadServer {
 	 * Initializes the EtherpadServer with the default port number
 	 * @throws IOException If there is an error creating the server socket
 	 */
-	public EtherpadServer() throws IOException {
+	public Server() throws IOException {
 		currentDocuments = new ArrayList<Document>();
 		name_userMappings = new HashMap<String,User>();
 		serverSocket = new ServerSocket(port);
@@ -53,7 +53,7 @@ public class EtherpadServer {
 	 * @param port The port number to which the server publishes messages
 	 * @throws IOException If there is an error creating the server socket
 	 */
-	public EtherpadServer(int port) throws IOException {
+	public Server(int port) throws IOException {
 		this.port = port;
 		this.serverSocket = new ServerSocket(port);
 		currentDocuments = new ArrayList<Document> ();
@@ -387,12 +387,13 @@ public class EtherpadServer {
 	
 	/**
 	 * Starts the etherpad server
+	 * This server stores documents and can be accessed by clients running the controller. 
 	 * @param args Unused
 	 */
 	public static void main(String[] args) {
-		final EtherpadServer etherpadServer;
+		final Server etherpadServer;
 		try {
-			etherpadServer = new EtherpadServer();
+			etherpadServer = new Server();
 			
 			//Serving thread handles new connections made to the server
 			Thread servingThread = new Thread(new Runnable() {
