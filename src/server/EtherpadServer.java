@@ -279,8 +279,10 @@ public class EtherpadServer {
      * @return Response from the server to the client
      */
     private String newDoc(String userName, String docName) {
-		currentDocuments.add(new Document("asdf", docName, userName));
-		return "created|" + userName + "|" + docName + "|" + userName; 
+    	Document newDoc = new Document("asdf", docName, userName);
+		currentDocuments.add(newDoc);
+		String date = newDoc.getDate();
+		return "created|" + userName + "|" + docName + "|" + userName + "|" + date; 
     }
     
     /**

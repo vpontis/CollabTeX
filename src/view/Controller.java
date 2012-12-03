@@ -105,10 +105,19 @@ public class Controller {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
 				if (line.startsWith("created")) {
 					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 4){
+					if (lineSplit.length == 5){
+						
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
 						String collaborators = lineSplit[3];
+						String date = lineSplit[4];
+
+						String[] dataDoc = new String [3];
+						dataDoc[0] = docName;
+						dataDoc[1] = date;
+						dataDoc[2] = userName;
+						docTableGUI.addData(dataDoc);
+						
 						if(this.userName.equals(userName)){
 							this.currentDoc = new DocEdit(serverOutput, docName, userName, "", collaborators);							
 							Thread newThread = new Thread(new Runnable() {
