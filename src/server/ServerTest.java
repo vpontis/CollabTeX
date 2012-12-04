@@ -1,5 +1,11 @@
 package server;
 
-public class ServerTest {
 
+/*
+ * Overall Testing Strategy: 
+ * 
+ * 
+ */
+public class ServerTest {
+	
 }

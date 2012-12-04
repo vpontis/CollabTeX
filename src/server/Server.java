@@ -19,13 +19,11 @@ import model.Document;
  * and log out, among other actions. This thread reads the request from each client 
  * and modifies the corresponding document. We keep track of the clients by assigning
  * each client a unique ID. 
- * 
- * 
  */
 public class Server {
 	
 	private List<Document> currentDocuments;
-	private int port = 4444;
+	private static int port = 4444;
 	private final ServerSocket serverSocket;
 	private Set<String> onlineUsers;
 	private Map<Integer, String> socketUserMappings;
@@ -40,15 +38,7 @@ public class Server {
 	 * @throws IOException If there is an error creating the server socket
 	 */
 	public Server() throws IOException {
-		currentDocuments = new ArrayList<Document>();
-		serverSocket = new ServerSocket(port);
-		
-		onlineUsers = new HashSet<String> ();
-		socketUserMappings = new HashMap<Integer, String> ();
-		
-		outputStreamWriters = new ArrayList<PrintWriter> ();
-		
-		queue = new LinkedBlockingQueue<ServerRequest> ();
+		this(port);
 	}
 	
 	/**
@@ -56,8 +46,8 @@ public class Server {
 	 * @param port The port number to which the server publishes messages
 	 * @throws IOException If there is an error creating the server socket
 	 */
-	public Server(int port) throws IOException {
-		this.port = port;
+	public Server(int givenPort) throws IOException {
+		port = givenPort;
 		this.serverSocket = new ServerSocket(port);
 		currentDocuments = new ArrayList<Document> ();
 		
