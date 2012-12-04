@@ -171,30 +171,29 @@ public class Server {
     	
     	switch (requestType) {
     	case LOGIN:
+    		//attempts to log the user in, checks if name is unique
 			userName = input;
 			return logIn(userName, ID);
 			
     	case NEWDOC:
-			
+			//creates a new document if the input is formatted validly
 			String[] newdocTokens = input.split(" ");
 			if (newdocTokens.length == 2) {
 				userName = newdocTokens[0];
 				String docName = newdocTokens[1];
 				return newDoc(userName, docName);
 			}
-			
 			break;
 			
-		case OPENDOC: {
+		case OPENDOC: 
 			String[] tokens = input.split(" ");
 			if (tokens.length == 2) {
 				userName = tokens[0];
 				String docName = tokens[1];
 				return openDoc(userName, docName);
 			}
-			
 			break;
-		}
+		
 	
 		case CHANGEDOC:
 			return changeDoc(input);
@@ -265,9 +264,9 @@ public class Server {
     }
     
     /**
-     * Logs the user in
+     * Logs the user in if they have a unique username
      * @param userName Username of the user who logs into the system
-     * @return 
+     * @return the response which encodes whether or not the login was successful
      */
     private String logIn(String userName, int ID) {
 		if (onlineUsers.contains(userName)) {

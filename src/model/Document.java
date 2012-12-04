@@ -75,12 +75,13 @@ public class Document {
 	
 	/**
 	 * Inserts new content into the given position in the document
-	 * @param newContent New content to be inserted into the document
+	 * The content should be a letter that results from the user typing. 
+	 * @param newLetter New letter to be inserted into the document
 	 * @param position Position in the document at which new content should be inserted
 	 * @return New content of the document
 	 */
-	public synchronized String insertContent(String newContent, int position) {
-		content = content.substring(0, position) + newContent + content.substring(position, content.length());
+	public synchronized String insertContent(String newLetter, int position) {
+		content = content.substring(0, position) + newLetter + content.substring(position, content.length());
 		return content;
 	}
 	

@@ -5,20 +5,35 @@ public class ServerRequest {
 	private String requestLine;
 	private RequestType requestType;
 	
+	/**
+	 * Constructor for the ServerRequest class
+	 * @param ID
+	 * @param requestLine
+	 */
 	public ServerRequest(int ID, String requestLine) {
 		this.ID = ID;
 		this.requestLine = requestLine;
 		this.requestType = getType(requestLine);
 	}
 	
+	
+	/**
+	 * @return int ID of the client that the request comes from
+	 */
 	public int getID() {
 		return ID;
 	}
 	
+	/**
+	 * @return content of the request
+	 */
 	public String getLine() {
 		return requestLine;
 	}
 	
+	/**
+	 * @return RequestType type of the instance of ServerRequest
+	 */
 	public RequestType getType() {
 		return requestType;
 	}
