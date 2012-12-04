@@ -6,7 +6,6 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import model.Document;
-import model.User;
 
 /**
  * This class runs the server that hosts the documents and maintains connections with
@@ -28,7 +27,6 @@ public class Server {
 	private List<Document> currentDocuments;
 	private int port = 4444;
 	private final ServerSocket serverSocket;
-	private Map<String, User> name_userMappings;
 	private Set<String> onlineUsers;
 	private Map<Integer, String> socketUserMappings;
 	private List<PrintWriter> outputStreamWriters;
@@ -43,7 +41,6 @@ public class Server {
 	 */
 	public Server() throws IOException {
 		currentDocuments = new ArrayList<Document>();
-		name_userMappings = new HashMap<String,User>();
 		serverSocket = new ServerSocket(port);
 		
 		onlineUsers = new HashSet<String> ();
@@ -63,7 +60,6 @@ public class Server {
 		this.port = port;
 		this.serverSocket = new ServerSocket(port);
 		currentDocuments = new ArrayList<Document> ();
-		name_userMappings = new HashMap<String, User> ();
 		
 		onlineUsers = new HashSet<String> ();
 		socketUserMappings = new HashMap<Integer, String> ();
@@ -304,7 +300,6 @@ public class Server {
 		
     	//otherwise, the user has a unique name
 		else {
-			name_userMappings.put("username", new User(userName, ""));
 			onlineUsers.add(userName);
 			socketUserMappings.put(ID, userName);
 			
@@ -345,8 +340,7 @@ public class Server {
      * @return Response from the server to the client
      */
     private String newDoc(String userName, String docName) {
-    	//when you create a document you automatically initialize the collaborator list with the given username
-    	Document newDoc = new Document("asdf", docName, userName);
+    	Document newDoc = new Document(docName, userName);
 		currentDocuments.add(newDoc);
 		String date = newDoc.getDate();
 		return "created|" + userName + "|" + docName + "|" + userName + "|" + date; 

@@ -6,26 +6,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Representation of the document.
+ * Contains important meta data regarding the document.
+ * Also contains data of the document
+ * @author Deepak
+ *
+ */
 public class Document {
 	
-	private final String documentID;
 	private final String documentName;
-	private Map<String, Paragraph> paragraphs;
 	private String content;
 	private Calendar lastEditDateTime;
 	private List<String> onlineCollaborators;
 	private int versionNumber;
 
 	/**
-	 * Constructor of the class Document
-	 * @param documentID String representing the document ID of the document
+	 * Constructor of the class Document. Creates a new document with the given document ID, document name and collaborator
 	 * @param documentName String representing the name of the document
 	 * @param collaborator String representing the name of the user that is creating the document
 	 */
-	public Document(String documentID, String documentName, String collaborator) {
+	public Document(String documentName, String collaborator) {
 		this.documentName = documentName;
-		this.documentID = documentID;
-		this.paragraphs = new HashMap<String, Paragraph> ();
 		this.content = "";
 		this.lastEditDateTime = Calendar.getInstance();
 		this.onlineCollaborators = new ArrayList<String> ();
@@ -34,35 +36,11 @@ public class Document {
 	}
 	
 	/**
-	 * Returns the document ID of the particular document
-	 * @return String representing the document ID of the document
-	 */
-	public String getDocumentID() {
-		return documentID;
-	}
-	
-	/**
 	 * Returns the name of the document
 	 * @return String representing the name of the document
 	 */
 	public String getName() {
 		return documentName;
-	}
-	
-	/**
-	 * Returns a paragraph with the given paragraph ID if it already exists.
-	 * Otherwise, creates a new paragraph with the given paragraph ID and returns it. Updates document to contain the new paragraph as well.
-	 * @param paragraphID String representing the paragraph ID of the Paragraph object in the document
-	 * @return A Paragraph object that either already exists in the document, or is newly created with input paragraph ID
-	 */
-	public Paragraph getParagraph(String paragraphID) {
-		if (paragraphs.containsKey(paragraphID)) {
-			return paragraphs.get(paragraphID);
-		} else {
-			Paragraph newParagraph = new Paragraph(paragraphID);
-			paragraphs.put(paragraphID, newParagraph);
-			return newParagraph;
-		}
 	}
 	
 	/**
@@ -176,13 +154,5 @@ public class Document {
 	@Override
 	public String toString() {
 		return content;
-		/*
-		StringBuilder documentText = new StringBuilder();
-		Set<String> paragraphKeys = paragraphs.keySet();
-		for (String paragraphKey : paragraphKeys) {
-			Paragraph paragraph = paragraphs.get(paragraphKey);
-			documentText.append(paragraph.toString()).append("\n");
-		}
-		return documentText.toString();*/
 	}
 }
