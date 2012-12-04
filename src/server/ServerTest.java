@@ -27,6 +27,38 @@ package server;
  * 		Try to edit the same document - we will have the users try to edit the document in various locations
  * 			the users should see the changes that the other users are currently committing, you should also be
  * 			able to change the same position as another user
+ * 
+ * We will test the server and model before testing the view. Once the server and model logic fully check out we will
+ * be able to move on to the GUI and actually begin testing the program for usability. 
+ * We will make sure that we test the system logic for connecting to one client before expanding to multiple clients open
+ * at the same time. We will then have two clients who are both sending requests at the same time. From there we will progress
+ * to having multiple clients open at the same time which are all sending requests. 
+ * 
+ * Coverage level
+ * We will attempt to achieve a coverage level that tests every line of code. This should not be hard to do with JUnit
+ * and manual testing. For most of the files JUnit testing will cover most of the lines. Coverage of lines tests that the 
+ * basic usage works. We will also go one step further and try to test all lines of code in different circumstances. Two
+ * other key circumstances are the number of client connections open and the frequency of requests to the server. We will 
+ * try to test all lines of code while having multiple clients open, having requests being sent to the server continuously, 
+ * and the combination of both where we have a lot of clients sending a lot of messages. We will be looking for the GUI
+ * to still behave normally and not to throw any exceptions. 
+ * 
+ * Location of bugs
+ * We will design the JUnit tests to test for bugs in logic. We will step through the state machine in different orders
+ * and check to make sure that all of our invariants are preserved. This again should define a working model for one client. 
+ * The other types of bugs that we could have are concurrency issues or race conditions. We will test for these, as stated 
+ * above, with manual testing. We will methodically go through different scenarios that could provoke race conditions and 
+ * test each one. We will also write an in-depth thread safety argument that should prove to the user that concurrency issues
+ * and race conditions will not exist. 
+ * 
+ * Prevalence of bugs and degree of reliability
+ * We will not tolerate any bugs in the logic of the program with regards to one client. Thus we will thoroughly test this 
+ * using JUnit tests. These tests have a high level of accuracy at getting deterministic bugs if we partition our test cases
+ * appropriately. The JUnit test cases should be sufficient in catching deterministic bugs. The race conditions and so called
+ * heisenbugs are harder to detect. Thus we will spend a couple hours each going through the series of test cases and making
+ * documenting the results of each test case. We can tolerate small bugs in conditions where there are a lot of clients connecting
+ * at the same time and these cases are very hard to test. So we will handle the condition where there are a lot of clients primarily
+ * from the thread-safety argument with a little testing as well. 
  */
 public class ServerTest {
 	
