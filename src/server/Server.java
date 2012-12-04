@@ -19,6 +19,11 @@ import model.Document;
  * and log out, among other actions. This thread reads the request from each client 
  * and modifies the corresponding document. We keep track of the clients by assigning
  * each client a unique ID. 
+ * 
+ * Rep Invariants:
+ * 		onlineUsers is a list of unique names
+ * 		Each document has a unique name
+ * 		
  */
 public class Server {
 	
