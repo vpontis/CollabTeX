@@ -2,8 +2,6 @@ package server;
 
 /**
  * Represents a request made to the server. Contains all data pertaining to the particular server request.
- * @author Deepak
- *
  */
 public class ServerRequest {
 	private int ID;

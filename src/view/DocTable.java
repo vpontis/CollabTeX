@@ -16,6 +16,13 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
+/**
+ *  Represents the DocTable GUI element. Displays all documents available
+ *  to edit by the user. Contains meta data about the documents.
+ *  User can also create a new document in the document table; and also logout.
+ * @author Deepak
+ *
+ */
 @SuppressWarnings("serial")
 public class DocTable extends JFrame{
 	static private final int NAME_COLUMN = 0;
@@ -35,6 +42,11 @@ public class DocTable extends JFrame{
 	
 	private String userName;
 	
+	/**
+	 * Constructor of the DocTable GUI element.
+	 * @param outputStream PrintWriter onto which the Doc table publishes requests to the server
+	 * @param userName User name associated with the client associated with this DocTable
+	 */
 	public DocTable (PrintWriter outputStream, String userName) {
 		super(userName + " - Document List");
 		
@@ -45,7 +57,7 @@ public class DocTable extends JFrame{
 		tableLabel.setName("tableLabel");
 		tableLabel.setText("Document table");
 		
-		//Table that contains all of the user's documents
+		//Table that contains information about all of the user's documents
 		String[] columnNames = new String[]{"Name", "Last Modified", "Collab"};
 		tableModel = new DefaultTableModel(null, columnNames);
 		documentTable = new JTable();
@@ -106,7 +118,8 @@ public class DocTable extends JFrame{
 							.addComponent(tableScroll)
 						)
 			);
-				
+		
+		// Action listener on the new document text box
 		newDocumentName.addActionListener( new ActionListener() {
 		    @Override 
 		    public void actionPerformed(ActionEvent e){
@@ -114,6 +127,7 @@ public class DocTable extends JFrame{
 		    }
 		});
 		
+		// Action listener on the new document button
 		newDocumentButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e){
@@ -121,6 +135,7 @@ public class DocTable extends JFrame{
 			}
 		});
 		
+		// Action listener on the logout button
 		logoutButton.addActionListener(new ActionListener() {
 			@Override 
 			public void actionPerformed(ActionEvent e){
@@ -128,6 +143,7 @@ public class DocTable extends JFrame{
 			}
 		});
 		
+		// Action listener on the document table. Allows the user to choose a document from the table to edit
 		documentTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -145,10 +161,18 @@ public class DocTable extends JFrame{
 		this.pack();
 	}
 	
+	/**
+	 * Method that publishes a open document request to the server
+	 * @param docName Name of the new document. User-defined
+	 */
 	void openDocument(String docName) {
 		out.println("OPENDOC " + userName + " " + docName);
 	}
 
+	/**
+	 * Completely rewrites the table with data present in the documentList
+	 * @param documentList List of string arrays that contains all data that is to be stored within the table
+	 */
 	void updateTable(List<String[]> documentList){
 	    tableModel.setNumRows(0);
 	    for (String[] documentInfo: documentList){
@@ -160,6 +184,10 @@ public class DocTable extends JFrame{
 	    }
 	}
 	
+	/**
+	 * Adds a row of data to the table
+	 * @param documentInfo String array that contains data to be added into the table
+	 */
 	void addData(String[] documentInfo) {
 		String docName = documentInfo[0];
     	String docDate = documentInfo[1];
@@ -168,15 +196,26 @@ public class DocTable extends JFrame{
     	tableModel.addRow(rowData);
 	}
 	
+	/**
+	 * Method that publishes a request to the server to log the current user out
+	 */
 	private void logout() {
 		out.println("LOGOUT " + userName);
 	}
 
+	/**
+	 * Method that publishes a request to the server to create a new document
+	 * with the user-entered name
+	 */
 	private void newDocument(){
 		String docName = newDocumentName.getText();
 		out.println("NEWDOC " + userName + " " + docName);
 	}
 	
+	/**
+	 * Sets up a new DocTable GUI element. For testing purposes alone
+	 * @param args Unused
+	 */
 	public static void main(String[] args){
 	    DocTable main = new DocTable(new PrintWriter(System.out), "victor");
 	    main.setVisible(true);
