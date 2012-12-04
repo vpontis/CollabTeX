@@ -41,7 +41,7 @@ public class ServerRequest {
 			requestLine = requestLine.substring(8);
 			return RequestType.OPENDOC;
 			
-		} else if (input.startsWith("CHANGE ")){
+		} else if (input.startsWith("CHANGE|")){
 			requestLine = requestLine.substring(7);
 			return RequestType.CHANGEDOC;
 			
