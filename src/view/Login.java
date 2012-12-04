@@ -10,6 +10,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+
+/**
+ * Represents the Login GUI element. Allows the user to login to the
+ * system. The user may either be logged in or denied access, depending
+ * on whether the user with the same username is already logged in or 
+ * not.
+ */
 @SuppressWarnings("serial")
 public class Login extends JFrame{
 	private JButton loginButton;
@@ -21,6 +28,10 @@ public class Login extends JFrame{
 	
 	private PrintWriter out;
 
+	/**
+	 * Contructor of the Login GUI element
+	 * @param outputStream PrintWriter onto which the login screen published requests to the server
+	 */
 	public Login(PrintWriter outputStream) {
 		super("Etherpad GUI");
 		out = outputStream;
@@ -38,6 +49,7 @@ public class Login extends JFrame{
 		userNameLabel.setName("userNameLabel");
 		userNameLabel.setText("Username: ");
 
+		// Initialize the message label to contain a welcome message
 		messageLabel = new JLabel("Hello there, enter a username and login.");
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -49,6 +61,7 @@ public class Login extends JFrame{
 		completeLayout.setAutoCreateGaps(true);
         completeLayout.setAutoCreateContainerGaps(true);
 		
+        // horizontal layout of elements within the login GUI
 		completeLayout.setHorizontalGroup(completeLayout
 				.createParallelGroup(GroupLayout.Alignment.CENTER)
 				.addGroup(
@@ -67,6 +80,7 @@ public class Login extends JFrame{
                 
 			);
 		
+		// vertical layout of elements within the login GUI
 		completeLayout.setVerticalGroup(completeLayout
 				.createSequentialGroup()
 				.addGroup(
@@ -92,6 +106,7 @@ public class Login extends JFrame{
 			}
 		});
 		
+		//Action listener for the text box in which the user types in the user name
 		userName.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -103,23 +118,36 @@ public class Login extends JFrame{
 	}
 	
 	/**
-	 * Logs the current user into the server; the user can now edit documents
+	 * Tries to log the current user into the server
+	 * If the login is successful, the user can now edit documents
+	 * If the login is not successful, the user remains in the login screen
 	 */
 	private void login() {
 		String name = userName.getText();
 		String output = "LOGIN " + name;
 		out.println(output);
 	}
-			
-	synchronized void resetName() {
+	
+	/**
+	 * Resets the name field within the GUI element, so that it no longer contains text
+	 */
+	synchronized private void resetName() {
 		userName.setText("");
 	}
-
+	
+	/**
+	 * Method that is called when login fails. 
+	 * Error message is displayed in the message label
+	 */
 	void failedLogin() {
 		resetName();
 		messageLabel.setText("Error: try a different name");
 	}
 		
+	/**
+	 * Sets up a new login GUI element. For testing purposes alone
+	 * @param args Unused
+	 */
 	public static void main(String[] args){
 	    Login main = new Login(new PrintWriter(System.out));
 	    main.setVisible(true);

@@ -15,6 +15,12 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+/**
+ * Represents the DocEdit GUI element. Allows the user to edit a document.
+ * All changes made in the document are updated back to the server.
+ * It is possible for the user to return to the document table from the
+ * DocEdit GUI element.
+ */
 @SuppressWarnings("serial")
 public class DocEdit extends JFrame {
 	
@@ -34,6 +40,14 @@ public class DocEdit extends JFrame {
 	private Document textDocument;
 	private final DocumentListener documentListener;
 	
+	/**
+	 * Constructor of the DocEdit GUI element
+	 * @param outputStream PrintWriter on which client publishes requests to the server
+	 * @param documentName Name of the document which is currently being edited
+	 * @param userName Name of the user currently making the edit on the document
+	 * @param content Initial content of the document, when the document is loaded from the server
+	 * @param collaboratorNames The initial list of collaborators of the document at the time the document is loaded from the server
+	 */
 	public DocEdit(PrintWriter outputStream, String documentName, String userName, String content, String collaboratorNames){
 		super(documentName);
 		
@@ -96,6 +110,7 @@ public class DocEdit extends JFrame {
 					);
 		layout.setVerticalGroup(vGroup);
 		
+		// Add an action listener to the exit button
 		exitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e){
@@ -103,6 +118,7 @@ public class DocEdit extends JFrame {
 			}
 		});		
 		
+		// Adds a document listener to the document associated with the JTextArea
 		documentListener = new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
@@ -116,11 +132,11 @@ public class DocEdit extends JFrame {
 					int length = e.getLength();
 					String change = textDocument.getText(position, length);
 					if (change.equals("\n")) {
+						// Delimit lines with tabs
 						out.println("CHANGE|" + docName + "|" + position + "|" + "\t" + "|" + length);
 					}  else if (! change.equals("")){
 						out.println("CHANGE|" + docName + "|" + position + "|" + change + "|" + length);
 					}
-					
 					
 				} catch (BadLocationException e1) {
 					throw new UnsupportedOperationException();
@@ -153,7 +169,7 @@ public class DocEdit extends JFrame {
 	
 	/**
 	 * Method that returns the content in the text area
-	 * @return Content in the text area
+	 * @return Content of the document entered by the user
 	 */
 	public synchronized String getContent() {
 		String content = this.textArea.getText();
@@ -196,6 +212,10 @@ public class DocEdit extends JFrame {
 		textDocument.removeDocumentListener(documentListener);
 	}
 
+	/**
+	 * Sets up a new login DocEdit element. For testing purposes alone
+	 * @param args Unused
+	 */
 	public static void main(String[] args){
 		DocEdit main = new DocEdit(new PrintWriter(System.out), "Document name", "victor", "", "collab");
 		main.setVisible(true);
