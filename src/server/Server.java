@@ -142,7 +142,7 @@ public class Server {
 	 * Attends to the different requests made by the different clients.
 	 * @throws InterruptedException throws an interrupted exception when popping out of the block queue is interrupted
 	 */
-	public void attendRequest() throws InterruptedException {
+	public synchronized void attendRequest() throws InterruptedException {
 		while (true) {
 			ServerRequest serverRequest = queue.take();
 			int ID = serverRequest.getID();
