@@ -1,22 +1,28 @@
 package server;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import model.Document;
 import model.User;
 
+/**
+ * This class runs the server that hosts the documents and maintains connections with
+ * clients. This class needs to be run before any clients connect to the server. This 
+ * server can handle multiple clients connecting to it concurrently. 
+ * 
+ * The server interacts with the client by running two threads that continually pull 
+ * from streams. One of the threads looks for new connections and attaches the socket 
+ * of any new connection to the serverSocket of the server. The other thread handles
+ * requests from the client. Clients can view, create, and modify documents and log in 
+ * and log out, among other actions. This thread reads the request from each client 
+ * and modifies the corresponding document. We keep track of the clients by assigning
+ * each client a unique ID. 
+ * 
+ * 
+ */
 public class Server {
 	
 	private List<Document> currentDocuments;
@@ -186,6 +192,7 @@ public class Server {
 			break;
 			
 		case OPENDOC: 
+			//opens a document if the input is validly formatted
 			String[] tokens = input.split(" ");
 			if (tokens.length == 2) {
 				userName = tokens[0];
@@ -196,17 +203,19 @@ public class Server {
 		
 	
 		case CHANGEDOC:
+			//passes off the input to a helper method
+			//this is called when a user inserts or deletes a character in a document
 			return changeDoc(input);
 			
 		case EXITDOC:
-			
+			//exits the document and returns the user to the document table screen
 			String[] exitdocSplit = input.split(" ");
 			userName = exitdocSplit[0];
 			String docName = exitdocSplit[1];
 			return exitDoc(userName, docName);
 			
 		case LOGOUT:
-			
+			//logs the user out and returns them to the login page
 			String[] inputSplit = input.split(" ");
 			userName = inputSplit[0];
 			return logOut(userName);
@@ -215,6 +224,7 @@ public class Server {
 			return "Invalid request";
     	}
     	
+    	//catches the case where the token length is not correct
     	return "Invalid request";
     	
 	}
@@ -226,36 +236,54 @@ public class Server {
      */
     private String changeDoc(String input) {
     	String[] inputSplit = input.split("\\|");
+    	
+    	//insertion is in the form docName | position | change | length
+    	//deletion is in the form docName | position | length
 		String docName = inputSplit[0];
 		Document currentDocument = getDoc(docName);
+		
+		//handles versioning for synchronization purposes
 		currentDocument.updateVersion();
 		int versionNumber = currentDocument.getVersion();
+		
+		//initializes our variables
 		String docContent = null;
 		int position = -1;
 		int length = -1;
+		
+		//if the user wants to insert a letter
 		if (inputSplit.length == 4) {
 			position = Integer.valueOf(inputSplit[1]);
 			String change = inputSplit[2];
 			length = Integer.valueOf(inputSplit[3]);
 			String content;
+			
+			//a tab character represents a newline so that socket input is not broken over multiple lines
+			//the user is not able to enter tabs so we don't have to worry about how to represent tabs
 			if (change.equals("\t")) {
 				content = currentDocument.insertContent("\n", position);
 			} else {
 				content = currentDocument.insertContent(change, position);
 			}
+			
+			//this updates the model of the document
 			currentDocument.updateContent(content);
 			docContent = content.replace("\n", "\t");
-			
-		} else if (inputSplit.length == 3) {
-			
+		} 
+		
+		//if the user wants to delete a letter
+		else if (inputSplit.length == 3) {
 			position = Integer.valueOf(inputSplit[1]);
 			length = Integer.valueOf(inputSplit[2]);
+			
 			String content = currentDocument.deleteContent(position, length);
+			
 			currentDocument.updateContent(content);
 			docContent = currentDocument.toString();	
-			
 		}
 		currentDocument.setLastEditDateTime();
+		
+		//this propagates the change to the clients
 		if (docContent != null && position != -1 && length != -1) {
 			return "changed|" + docName + "|" + docContent + "|" + position + "|" + length + "|" + versionNumber;
 		}
@@ -269,14 +297,22 @@ public class Server {
      * @return the response which encodes whether or not the login was successful
      */
     private String logIn(String userName, int ID) {
-		if (onlineUsers.contains(userName)) {
+		//if the username already is logged in
+    	if (onlineUsers.contains(userName)) {
 			return "notloggedin";
-		} else {
+		} 
+		
+    	//otherwise, the user has a unique name
+		else {
 			name_userMappings.put("username", new User(userName, ""));
 			onlineUsers.add(userName);
 			socketUserMappings.put(ID, userName);
+			
+			//this returns information about the user logged in 
+			//it then returns a list of documents and their corresponding names, dates, and collaborators
 			StringBuilder stringBuilder = new StringBuilder("loggedin " + userName + " " + ID);
 			stringBuilder.append("\n");
+			
 			for (Document document : currentDocuments){
 				stringBuilder.append(document.getName());
 				stringBuilder.append("\t");
@@ -287,6 +323,7 @@ public class Server {
 				stringBuilder.append("\n");
 			}
 			stringBuilder.append("enddocinfo");
+			
 			return stringBuilder.toString();
 		}
     }
@@ -308,6 +345,7 @@ public class Server {
      * @return Response from the server to the client
      */
     private String newDoc(String userName, String docName) {
+    	//when you create a document you automatically initialize the collaborator list with the given username
     	Document newDoc = new Document("asdf", docName, userName);
 		currentDocuments.add(newDoc);
 		String date = newDoc.getDate();
@@ -315,20 +353,20 @@ public class Server {
     }
     
     /**
-     * Opens a new document
+     * Opens an existing document
      * @param userName The name of the user that opens the document
      * @param docName The name of the document that is being opened
      * @return Response from the server to the clients; all GUIs are updated
      */
     private String openDoc(String userName, String docName) {
-    	
 		Document currentDocument = getDoc(docName);
 		currentDocument.addCollaborator(userName);
 		String docContent = currentDocument.toString();
 		docContent = docContent.replace("\n", "\t");
 		String collaborators = currentDocument.getCollab();
-		return "update|" + docName + "|" + collaborators + "\nopened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators; 
 		
+		//updates collaborators than opens the document
+		return "update|" + docName + "|" + collaborators + "\nopened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators; 		
     }
     
     /**
@@ -340,6 +378,8 @@ public class Server {
     private String exitDoc(String userName, String docName) {
 		StringBuilder stringBuilder = new StringBuilder("exiteddoc " + userName + " " + docName);
 		stringBuilder.append("\n");
+		
+		//add information about all the documents in the database
 		for (Document document : currentDocuments){
 			stringBuilder.append(document.getName());
 			stringBuilder.append("\t");
@@ -350,6 +390,8 @@ public class Server {
 			stringBuilder.append("\n");
 		}
 		stringBuilder.append("enddocinfo");
+		
+		//returns exitdoc response then the information about the document list for the document table
 		return stringBuilder.toString();
     }
 	
@@ -426,8 +468,5 @@ public class Server {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-			
-
 	}
-
 }
