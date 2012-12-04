@@ -15,14 +15,12 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import model.Document;
-import model.User;
 
 public class Server {
 	
 	private List<Document> currentDocuments;
 	private int port = 4444;
 	private final ServerSocket serverSocket;
-	private Map<String, User> name_userMappings;
 	private Set<String> onlineUsers;
 	private Map<Integer, String> socketUserMappings;
 	private List<PrintWriter> outputStreamWriters;
@@ -37,7 +35,6 @@ public class Server {
 	 */
 	public Server() throws IOException {
 		currentDocuments = new ArrayList<Document>();
-		name_userMappings = new HashMap<String,User>();
 		serverSocket = new ServerSocket(port);
 		
 		onlineUsers = new HashSet<String> ();
@@ -57,7 +54,6 @@ public class Server {
 		this.port = port;
 		this.serverSocket = new ServerSocket(port);
 		currentDocuments = new ArrayList<Document> ();
-		name_userMappings = new HashMap<String, User> ();
 		
 		onlineUsers = new HashSet<String> ();
 		socketUserMappings = new HashMap<Integer, String> ();
@@ -272,7 +268,6 @@ public class Server {
 		if (onlineUsers.contains(userName)) {
 			return "notloggedin";
 		} else {
-			name_userMappings.put("username", new User(userName, ""));
 			onlineUsers.add(userName);
 			socketUserMappings.put(ID, userName);
 			StringBuilder stringBuilder = new StringBuilder("loggedin " + userName + " " + ID);
@@ -308,7 +303,7 @@ public class Server {
      * @return Response from the server to the client
      */
     private String newDoc(String userName, String docName) {
-    	Document newDoc = new Document("asdf", docName, userName);
+    	Document newDoc = new Document(docName, userName);
 		currentDocuments.add(newDoc);
 		String date = newDoc.getDate();
 		return "created|" + userName + "|" + docName + "|" + userName + "|" + date; 

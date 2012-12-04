@@ -1,5 +1,10 @@
 package server;
 
+/**
+ * Represents a request made to the server. Contains all data pertaining to the particular server request.
+ * @author Deepak
+ *
+ */
 public class ServerRequest {
 	private int ID;
 	private String requestLine;
@@ -18,7 +23,7 @@ public class ServerRequest {
 	
 	
 	/**
-	 * @return int ID of the client that the request comes from
+	 * @return integer ID of the client that the request comes from
 	 */
 	public int getID() {
 		return ID;
