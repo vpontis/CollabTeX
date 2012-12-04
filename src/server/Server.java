@@ -47,14 +47,15 @@ public class Server {
 	 * @throws IOException If there is an error creating the server socket
 	 */
 	public Server(int givenPort) throws IOException {
-		port = givenPort;
-		this.serverSocket = new ServerSocket(port);
-		currentDocuments = new ArrayList<Document> ();
+		currentDocuments = new ArrayList<Document>();
+		serverSocket = new ServerSocket(port);
 		
 		onlineUsers = new HashSet<String> ();
 		socketUserMappings = new HashMap<Integer, String> ();
 		
 		outputStreamWriters = new ArrayList<PrintWriter> ();
+		
+		queue = new LinkedBlockingQueue<ServerRequest> ();
 	}
 	
 	/**
