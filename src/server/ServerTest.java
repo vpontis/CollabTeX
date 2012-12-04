@@ -41,7 +41,8 @@ package server;
  * other key circumstances are the number of client connections open and the frequency of requests to the server. We will 
  * try to test all lines of code while having multiple clients open, having requests being sent to the server continuously, 
  * and the combination of both where we have a lot of clients sending a lot of messages. We will be looking for the GUI
- * to still behave normally and not to throw any exceptions. 
+ * to still behave as expected and not to throw any exceptions. Ensuring that the entire system is stable for incorrect 
+ * inputs as well is a very important part of our testing strategy. 
  * 
  * Location of bugs
  * We will design the JUnit tests to test for bugs in logic. We will step through the state machine in different orders
@@ -49,13 +50,13 @@ package server;
  * The other types of bugs that we could have are concurrency issues or race conditions. We will test for these, as stated 
  * above, with manual testing. We will methodically go through different scenarios that could provoke race conditions and 
  * test each one. We will also write an in-depth thread safety argument that should prove to the user that concurrency issues
- * and race conditions will not exist. 
+ * and race conditions do not exist. 
  * 
  * Prevalence of bugs and degree of reliability
  * We will not tolerate any bugs in the logic of the program with regards to one client. Thus we will thoroughly test this 
  * using JUnit tests. These tests have a high level of accuracy at getting deterministic bugs if we partition our test cases
  * appropriately. The JUnit test cases should be sufficient in catching deterministic bugs. The race conditions and so called
- * heisenbugs are harder to detect. Thus we will spend a couple hours each going through the series of test cases and making
+ * heisenbugs are harder to detect. Thus we will spend a couple hours each going through the series of test cases and
  * documenting the results of each test case. We can tolerate small bugs in conditions where there are a lot of clients connecting
  * at the same time and these cases are very hard to test. So we will handle the condition where there are a lot of clients primarily
  * from the thread-safety argument with a little testing as well. 
