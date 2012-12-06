@@ -228,50 +228,56 @@ public class Server {
      */
     private synchronized String changeDoc(String input) {
     	String[] inputSplit = input.split("\\|");
+    	//TODO pass version to the changedog method
     	
+    	
+    	int version;
     	//insertion is in the form docName | position | change | length
     	//deletion is in the form docName | position | length
 		String docName = inputSplit[0];
 		Document currentDocument = getDoc(docName);
-		
-		//handles versioning for synchronization purposes
-		currentDocument.updateVersion();
-		int versionNumber = currentDocument.getVersion();
-		
+				
 		//initializes our variables
 		String docContent = null;
 		int position = -1;
 		int length = -1;
 		
 		//if the user wants to insert a letter
-		if (inputSplit.length == 4) {
+		if (inputSplit.length == 5) {
 			position = Integer.valueOf(inputSplit[1]);
 			String change = inputSplit[2];
 			length = Integer.valueOf(inputSplit[3]);
+			version = Integer.valueOf(inputSplit[4]);
 			
 			//update the model of the data
 			//a tab character represents a newline so that socket input is not broken over multiple lines
 			//the user is not able to enter tabs so we don't have to worry about how to represent tabs
 			if (change.equals("\t")) {
-				docContent = currentDocument.insertContent("\n", position);
+				docContent = currentDocument.insertContent("\n", position, version);
 			} else {
-				docContent = currentDocument.insertContent(change, position);
+				docContent = currentDocument.insertContent(change, position, version);
 			}
 			
 			docContent = docContent.replace("\n", "\t");
 		} 
 		
 		//if the user wants to delete a letter
-		else if (inputSplit.length == 3) {
+		else if (inputSplit.length == 4) {
 			position = Integer.valueOf(inputSplit[1]);
 			length = Integer.valueOf(inputSplit[2]);
+			version = Integer.valueOf(inputSplit[3]);
 			
 			//update the model of the data
-			docContent = currentDocument.deleteContent(position, length);
+			docContent = currentDocument.deleteContent(position, length, version );
 		}
 		
 		currentDocument.setLastEditDateTime();
 		
+		//version updating is handled by the insertion/deletion of content
+		int versionNumber = currentDocument.getVersion();
+		
+		
+		//TODO return version from the changedoc and pass that on to clients
 		//this propagates the change to the clients
 		if (docContent != null && position != -1 && length != -1) {
 			return "changed|" + docName + "|" + docContent + "|" + position + "|" + length + "|" + versionNumber;

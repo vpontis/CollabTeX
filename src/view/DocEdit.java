@@ -42,6 +42,8 @@ public class DocEdit extends JFrame {
 	private Document textDocument;
 	private final DocumentListener documentListener;
 	
+	private int version;
+	
 	/**
 	 * Constructor of the DocEdit GUI element
 	 * @param outputStream PrintWriter on which client publishes requests to the server
@@ -52,7 +54,7 @@ public class DocEdit extends JFrame {
 	 */
 	public DocEdit(PrintWriter outputStream, String documentName, String userName, String content, String collaboratorNames){
 		super(documentName);
-		
+		this.version = 0;
 		out = outputStream;
 		this.docName = documentName;
 		this.userName = userName;
@@ -136,9 +138,9 @@ public class DocEdit extends JFrame {
 					String change = textDocument.getText(position, length);
 					if (change.equals("\n")) {
 						// Delimit lines with tabs
-						out.println("CHANGE|" + docName + "|" + position + "|" + "\t" + "|" + length);
+						out.println("CHANGE|" + docName + "|" + position + "|" + "\t" + "|" + length + "|" + version);
 					}  else if (! change.equals("")){
-						out.println("CHANGE|" + docName + "|" + position + "|" + change + "|" + length);
+						out.println("CHANGE|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
 					}
 					
 				} catch (BadLocationException e1) {
@@ -151,7 +153,7 @@ public class DocEdit extends JFrame {
 			public void removeUpdate(DocumentEvent e) {
 				int position = e.getOffset();
 				int length = e.getLength();
-				out.println("CHANGE|" + docName + "|" + position + "|" + length);
+				out.println("CHANGE|" + docName + "|" + position + "|" + length + "|" + version);
 				
 			}
 		};
@@ -165,11 +167,13 @@ public class DocEdit extends JFrame {
 	 * Method to update content in the text area
 	 * @param newContent New content in the text area
 	 */
-	public synchronized void updateContent(String newContent, int position, int length) {
+	public synchronized void updateContent(String newContent, int position, int length, int versionNo) {
+		this.version = versionNo;
+		
 		int posChange = position + length;
 		posChange = Math.min(posChange, textArea.getText().length());
 		posChange = Math.max(0, posChange);
-
+		
 		removeListener();
 		textArea.setText(newContent);
 		addListener();

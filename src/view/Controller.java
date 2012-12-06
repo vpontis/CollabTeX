@@ -283,11 +283,12 @@ public class Controller {
 						String content = lineSplit[2];
 						int position = Integer.valueOf(lineSplit[3]);
 						int length = Integer.valueOf(lineSplit[4]);
+						//TODO do something with the verison
 						int version = Integer.valueOf(lineSplit[5]);
 						// System.out.println("Updating content");
 						content = content.replace("\t", "\n");
 						if (currentDoc.getName().equals(docName)) {
-							currentDoc.updateContent(content, position, length);
+							currentDoc.updateContent(content, position, length, version);
 						}
 					}
 					

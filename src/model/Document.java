@@ -21,6 +21,31 @@ public class Document {
 	private List<String> collaborators;
 	private int versionNumber;
 		
+	private List<Change> changeList;
+	/*
+	 * Idea for keeping up with changes
+	 * have a changelist which stores the list of changes and the positions of each change
+	 * each version of the document corresponds with a certain change
+	 * 
+	 * this list may become really long, we can flush the list when we are not editing the document
+	 * 
+	 * do we want a list or an array? 
+	 * 
+	 * if we have an array we will have to dynamically resize it. are there dynamically resizing
+	 * arrays in java?
+	 * 
+	 * we could do a list and still iterate over the indices of the list by keeping track of the 
+	 * first value of the list
+	 * 
+	 * now when we get a change, we look at the version number and if it is different
+	 * we start at that version and look at all of the changes we have made since then
+	 * and if they affect the thing we are going to change, then we append that change onto 
+	 * our cahngelist, we append the modified change because we keep track of the modified
+	 * value and check with regards to taht
+	 */
+
+	
+	
 	/**
 	 * Constructor of the class Document. Creates a new document with the given document ID, document name and collaborator
 	 * @param documentName String representing the name of the document
@@ -33,6 +58,7 @@ public class Document {
 		this.collaborators = new ArrayList<String> ();
 		this.collaborators.add(collaborator);
 		this.versionNumber = 0;
+		this.changeList = new ArrayList<Change>();
 	}
 	
 	/**
@@ -50,25 +76,46 @@ public class Document {
 	 * @param position Position in the document at which new content should be inserted
 	 * @return New content of the document
 	 */
-	public synchronized String insertContent(String newLetter, int position) {
+	public synchronized String insertContent(String newLetter, int position, int version) {
 		synchronized(content) {
-			System.out.println(newLetter + " " + String.valueOf(position) + " " + content);
+			
+			//TODO use version information to modify position
+			position = transformPosition(position, version);
+			position = Math.min(position, content.length());
 			content = content.substring(0, position) + newLetter + content.substring(position);
+			updateVersion();
+			changeList.add(new Change(position, newLetter.length(), version));
 			return content;
 		}
 	}
 	
+
 	/**
 	 * Deletes old content from the document at the given position
 	 * @param position Old content that is removed from the document
 	 * @param length Length of text that is being deleted from the document
 	 * @return New content of the document
 	 */
-	public String deleteContent(int position, int length) {
+	public String deleteContent(int position, int length, int version) {
 		synchronized(content) {
+			position = transformPosition(position, version);
+			
 			content = content.substring(0, position) + content.substring(position + length);
+			updateVersion();
+			changeList.add(new Change(position, -length, version));
 			return content;
 		}
+	}
+	
+	private int transformPosition(int position, int version) {
+		for (Change ch : changeList){
+			if (ch.getVersion() > version){
+				if (ch.getPosition() < position){
+					position += ch.getCharInserted();
+				}
+			}
+		}
+		return position;
 	}
 	
 	/**

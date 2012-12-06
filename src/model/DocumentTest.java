@@ -45,7 +45,7 @@ public class DocumentTest {
 			@Override
 			public void run() {
 				for (int i = 0; i < 100; i ++){
-					doc.insertContent("a", i);
+					doc.insertContent("a", i, i);
 				}
 			}
 		});
@@ -54,7 +54,7 @@ public class DocumentTest {
 			@Override
 			public void run() {
 				for (int i = 0; i < 100; i ++){
-					doc.insertContent("b", i);
+					doc.insertContent("b", i, i);
 				}
 			}
 		});
