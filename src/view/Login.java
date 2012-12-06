@@ -123,7 +123,12 @@ public class Login extends JFrame{
 	 * If the login is not successful, the user remains in the login screen
 	 */
 	private void login() {
-		String name = userName.getText();
+		String name = userName.getText().trim();
+		if (name.contains(" ")){
+			resetName();
+			messageLabel.setText("Your login cannot have spaces");
+			return;
+		}
 		String output = "LOGIN " + name;
 		out.println(output);
 	}
