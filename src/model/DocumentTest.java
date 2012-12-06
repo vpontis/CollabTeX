@@ -37,6 +37,40 @@ import org.junit.Test;
  */
 public class DocumentTest {
 	
+	@Test 
+	public void quickChanges() {
+		final Document doc = new Document("Test", "ViccyPont");
+		
+		Thread changingThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				for (int i = 0; i < 100; i ++){
+					doc.insertContent("a", i);
+				}
+			}
+		});
+		
+		Thread otherChangingThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				for (int i = 0; i < 100; i ++){
+					doc.insertContent("b", i);
+				}
+			}
+		});
+		
+		Thread deletingThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				
+			}
+		});
+		
+		changingThread.start();
+		otherChangingThread.start();
+
+	}
+	
 	@Test
 	public void testDate() {
 		Document testingDocument = new Document("Test3", "User"); //Initialize a new document with a fake document ID
