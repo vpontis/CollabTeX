@@ -124,9 +124,13 @@ public class Login extends JFrame{
 	 */
 	private void login() {
 		String name = userName.getText().trim();
+		resetName();
 		if (name.contains(" ")){
-			resetName();
 			messageLabel.setText("Your login cannot have spaces");
+			return;
+		}
+		if(name.equals("")){
+			messageLabel.setText("Name cannot be empty string.");
 			return;
 		}
 		String output = "LOGIN " + name;
@@ -136,7 +140,7 @@ public class Login extends JFrame{
 	/**
 	 * Resets the name field within the GUI element, so that it no longer contains text
 	 */
-	synchronized private void resetName() {
+	private void resetName() {
 		userName.setText("");
 	}
 	
