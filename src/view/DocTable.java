@@ -20,8 +20,6 @@ import javax.swing.table.DefaultTableModel;
  *  Represents the DocTable GUI element. Displays all documents available
  *  to edit by the user. Contains meta data about the documents.
  *  User can also create a new document in the document table; and also logout.
- * @author Deepak
- *
  */
 @SuppressWarnings("serial")
 public class DocTable extends JFrame{
@@ -209,6 +207,9 @@ public class DocTable extends JFrame{
 	 */
 	private void newDocument(){
 		String docName = newDocumentName.getText();
+		if(docName.equals("")){
+			return;
+		}
 		out.println("NEWDOC " + userName + " " + docName);
 	}
 	
