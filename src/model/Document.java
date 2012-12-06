@@ -18,9 +18,9 @@ public class Document {
 	private final String documentName;
 	private String content;
 	private Calendar lastEditDateTime;
-	private List<String> onlineCollaborators;
+	private List<String> collaborators;
 	private int versionNumber;
-
+		
 	/**
 	 * Constructor of the class Document. Creates a new document with the given document ID, document name and collaborator
 	 * @param documentName String representing the name of the document
@@ -30,8 +30,8 @@ public class Document {
 		this.documentName = documentName;
 		this.content = "";
 		this.lastEditDateTime = Calendar.getInstance();
-		this.onlineCollaborators = new ArrayList<String> ();
-		this.onlineCollaborators.add(collaborator);
+		this.collaborators = new ArrayList<String> ();
+		this.collaborators.add(collaborator);
 		this.versionNumber = 0;
 	}
 	
@@ -131,9 +131,9 @@ public class Document {
 	 * @param newCollaborator String representing the name of new collaborator
 	 */
 	public void addCollaborator(String newCollaborator) {
-		synchronized(onlineCollaborators){			
-			if (! onlineCollaborators.contains(newCollaborator))
-				onlineCollaborators.add(newCollaborator);
+		synchronized(collaborators){			
+			if (! collaborators.contains(newCollaborator))
+				collaborators.add(newCollaborator);
 		}
 	}
 	
@@ -143,8 +143,8 @@ public class Document {
 	 * document
 	 */
 	public void removeCollaborator(String collaborator) {
-		synchronized(onlineCollaborators){
-			onlineCollaborators.remove(collaborator);
+		synchronized(collaborators){
+			collaborators.remove(collaborator);
 		}
 	}
 	
@@ -153,11 +153,11 @@ public class Document {
 	 * @return List of names of the different collaborators of the document
 	 */
 	public String getCollab(){
-		synchronized(onlineCollaborators){
-			String collaborators = onlineCollaborators.toString();
-			int collaboratorLength = collaborators.length();
-			collaborators = collaborators.substring(1, collaboratorLength - 1);
-			return collaborators;
+		synchronized(collaborators){
+			String collab = collaborators.toString();
+			int collaboratorLength = collab.length();
+			collab = collab.substring(1, collaboratorLength - 1);
+			return collab;
 		}
 	}
 		
