@@ -226,7 +226,7 @@ public class Server {
      * @param input
      * @return
      */
-    private String changeDoc(String input) {
+    private synchronized String changeDoc(String input) {
     	String[] inputSplit = input.split("\\|");
     	
     	//insertion is in the form docName | position | change | length
@@ -248,19 +248,17 @@ public class Server {
 			position = Integer.valueOf(inputSplit[1]);
 			String change = inputSplit[2];
 			length = Integer.valueOf(inputSplit[3]);
-			String content;
 			
+			//update the model of the data
 			//a tab character represents a newline so that socket input is not broken over multiple lines
 			//the user is not able to enter tabs so we don't have to worry about how to represent tabs
 			if (change.equals("\t")) {
-				content = currentDocument.insertContent("\n", position);
+				docContent = currentDocument.insertContent("\n", position);
 			} else {
-				content = currentDocument.insertContent(change, position);
+				docContent = currentDocument.insertContent(change, position);
 			}
 			
-			//this updates the model of the document
-			currentDocument.updateContent(content);
-			docContent = content.replace("\n", "\t");
+			docContent = docContent.replace("\n", "\t");
 		} 
 		
 		//if the user wants to delete a letter
@@ -268,11 +266,10 @@ public class Server {
 			position = Integer.valueOf(inputSplit[1]);
 			length = Integer.valueOf(inputSplit[2]);
 			
-			String content = currentDocument.deleteContent(position, length);
-			
-			currentDocument.updateContent(content);
-			docContent = currentDocument.toString();	
+			//update the model of the data
+			docContent = currentDocument.deleteContent(position, length);
 		}
+		
 		currentDocument.setLastEditDateTime();
 		
 		//this propagates the change to the clients
@@ -335,7 +332,12 @@ public class Server {
      * @param docName The name of the newly created document
      * @return Response from the server to the client
      */
-    private String newDoc(String userName, String docName) {
+    private synchronized String newDoc(String userName, String docName) {
+    	for (Document doc : currentDocuments){
+    		if(docName.equals(doc.getName())){
+    			return "notcreated";
+    		}
+    	}
     	Document newDoc = new Document(docName, userName);
 		currentDocuments.add(newDoc);
 		String date = newDoc.getDate();
