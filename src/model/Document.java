@@ -23,15 +23,15 @@ public class Document {
 		
 	private List<Change> changeList;
 	/*
-	 * Idea for keeping up with changes
-	 * have a changelist which stores the list of changes and the positions of each change
-	 * each version of the document corresponds with a certain change
+	 * Idea for keeping up with changes -->
+	 * Have a changelist which stores the list of changes and the positions of each change
+	 * Each version of the document corresponds with a certain change
 	 * 
-	 * this list may become really long, we can flush the list when we are not editing the document
+	 * This list may become really long, we can flush the list when we are not editing the document
 	 * 
-	 * do we want a list or an array? 
+	 * Do we want a list or an array? 
 	 * 
-	 * if we have an array we will have to dynamically resize it. are there dynamically resizing
+	 * If we have an array we will have to dynamically resize it. Are there dynamically resizing
 	 * arrays in java?
 	 * 
 	 * we could do a list and still iterate over the indices of the list by keeping track of the 
@@ -40,8 +40,8 @@ public class Document {
 	 * now when we get a change, we look at the version number and if it is different
 	 * we start at that version and look at all of the changes we have made since then
 	 * and if they affect the thing we are going to change, then we append that change onto 
-	 * our cahngelist, we append the modified change because we keep track of the modified
-	 * value and check with regards to taht
+	 * our changelist, we append the modified change because we keep track of the modified
+	 * value and check with regards to that
 	 */
 
 	

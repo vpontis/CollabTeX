@@ -228,7 +228,7 @@ public class Server {
      */
     private synchronized String changeDoc(String input) {
     	String[] inputSplit = input.split("\\|");
-    	//TODO pass version to the changedog method
+    	//TODO pass version to the changedoc method
     	
     	
     	int version;
