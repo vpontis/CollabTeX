@@ -8,8 +8,10 @@ import java.util.List;
  * Representation of the document.
  * Contains important meta data regarding the document.
  * Also contains data of the document
- * @author Deepak
- *
+ * 
+ * Thread safety argument:
+ * 
+ * TODO fill this in
  */
 public class Document {
 	
@@ -40,15 +42,7 @@ public class Document {
 	public String getName() {
 		return documentName;
 	}
-	
-	/**
-	 * This method updates the content of the document 
-	 * @param newContent String to replace the content of the document with
-	 */
-	public synchronized void updateContent(String newContent) {
-		content = newContent;
-	}
-	
+		
 	/**
 	 * Inserts new content into the given position in the document
 	 * The content should be a letter that results from the user typing. 
@@ -57,8 +51,11 @@ public class Document {
 	 * @return New content of the document
 	 */
 	public synchronized String insertContent(String newLetter, int position) {
-		content = content.substring(0, position) + newLetter + content.substring(position, content.length());
-		return content;
+		synchronized(content) {
+			System.out.println(newLetter + " " + String.valueOf(position) + " " + content);
+			content = content.substring(0, position) + newLetter + content.substring(position);
+			return content;
+		}
 	}
 	
 	/**
@@ -67,46 +64,66 @@ public class Document {
 	 * @param length Length of text that is being deleted from the document
 	 * @return New content of the document
 	 */
-	public synchronized String deleteContent(int position, int length) {
-		content = content.substring(0, position) + content.substring(position+ length, content.length());
-		return content;
+	public String deleteContent(int position, int length) {
+		synchronized(content) {
+			content = content.substring(0, position) + content.substring(position + length);
+			return content;
+		}
 	}
 	
 	/**
+	 * @return a String that represents the content of the document
+	 */
+	@Override
+	public synchronized String toString() {
+		synchronized(content){
+			return content;
+		}
+	}
+
+	/**
 	 * Sets the lastEditDateTime state of the class to a date object that represents the current date and time
 	 */
-	public synchronized void setLastEditDateTime() {
-		lastEditDateTime = Calendar.getInstance();
+	public void setLastEditDateTime() {
+		synchronized(content){
+			lastEditDateTime = Calendar.getInstance();
+		}
 	}
 	
 	/**
 	 * @return String representation of the time of the last edit of the document
 	 */
-	public synchronized String getDate() {
-		String AM_PM = lastEditDateTime.get(Calendar.AM_PM) == 0 ? "AM" : "PM";
-		String currentHour = String.valueOf(lastEditDateTime.get(Calendar.HOUR));
-		int integerMinute = lastEditDateTime.get(Calendar.MINUTE);
-		String currentMinute = integerMinute < 10 ? "0" + String.valueOf(integerMinute) : String.valueOf(integerMinute);
-		String currentMonth = String.valueOf(lastEditDateTime.get(Calendar.MONTH) + 1);
-		String currentDay = String.valueOf(lastEditDateTime.get(Calendar.DAY_OF_MONTH));
-		
-		String date = currentHour + ":" + currentMinute + " " + AM_PM + " , " + currentMonth + "/" + currentDay;
-		return date;
+	public String getDate() {
+		synchronized(content){
+			String AM_PM = lastEditDateTime.get(Calendar.AM_PM) == 0 ? "AM" : "PM";
+			String currentHour = String.valueOf(lastEditDateTime.get(Calendar.HOUR));
+			int integerMinute = lastEditDateTime.get(Calendar.MINUTE);
+			String currentMinute = integerMinute < 10 ? "0" + String.valueOf(integerMinute) : String.valueOf(integerMinute);
+			String currentMonth = String.valueOf(lastEditDateTime.get(Calendar.MONTH) + 1);
+			String currentDay = String.valueOf(lastEditDateTime.get(Calendar.DAY_OF_MONTH));
+			
+			String date = currentHour + ":" + currentMinute + " " + AM_PM + " , " + currentMonth + "/" + currentDay;
+			return date;
+		}
 	}
 	
 	/**
 	 * Gets the version number of the document saved on the server
 	 * @return Version number of the document saved on the server
 	 */
-	public synchronized int getVersion() {
-		return versionNumber;
+	public int getVersion() {
+		synchronized(content){
+			return versionNumber;
+		}
 	}
 	
 	/**
 	 * Updates the version number of the document saved on the server
 	 */
-	public synchronized void updateVersion() {
-		versionNumber++;
+	public void updateVersion() {
+		synchronized(content){
+			versionNumber++;
+		}
 	}
 	/**
 	 * Method that adds the name of a new collaborator to the list of currently online
@@ -114,8 +131,10 @@ public class Document {
 	 * @param newCollaborator String representing the name of new collaborator
 	 */
 	public void addCollaborator(String newCollaborator) {
-		if (! onlineCollaborators.contains(newCollaborator))
-			onlineCollaborators.add(newCollaborator);
+		synchronized(onlineCollaborators){			
+			if (! onlineCollaborators.contains(newCollaborator))
+				onlineCollaborators.add(newCollaborator);
+		}
 	}
 	
 	/**
@@ -124,7 +143,9 @@ public class Document {
 	 * document
 	 */
 	public void removeCollaborator(String collaborator) {
-		onlineCollaborators.remove(collaborator);
+		synchronized(onlineCollaborators){
+			onlineCollaborators.remove(collaborator);
+		}
 	}
 	
 	/**
@@ -132,25 +153,12 @@ public class Document {
 	 * @return List of names of the different collaborators of the document
 	 */
 	public String getCollab(){
-		String collaborators = onlineCollaborators.toString();
-		int collaboratorLength = collaborators.length();
-		collaborators = collaborators.substring(1, collaboratorLength - 1);
-		return collaborators;
+		synchronized(onlineCollaborators){
+			String collaborators = onlineCollaborators.toString();
+			int collaboratorLength = collaborators.length();
+			collaborators = collaborators.substring(1, collaboratorLength - 1);
+			return collaborators;
+		}
 	}
-	
-	/**
-	 * Returns the content of the document
-	 * @return String representation of the contents of the document
-	 */
-	public String getContent() {
-		return content;
-	}
-	
-	/**
-	 * @return a String that represents the content of the document
-	 */
-	@Override
-	public String toString() {
-		return content;
-	}
+		
 }
