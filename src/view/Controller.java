@@ -193,6 +193,9 @@ public class Controller {
 						throw new RuntimeException("Invalid format");
 					}					
 				} 
+				else if(line.startsWith("notcreated")){
+					//TODO document not created because name not unique
+				}
 				
 				else if (line.startsWith("opened")) {
 					String[] lineSplit = line.split("\\|");
@@ -284,9 +287,7 @@ public class Controller {
 						// System.out.println("Updating content");
 						content = content.replace("\t", "\n");
 						if (currentDoc.getName().equals(docName)) {
-							currentDoc.removeListener();
 							currentDoc.updateContent(content, position, length);
-							currentDoc.addListener();
 						}
 					}
 					
