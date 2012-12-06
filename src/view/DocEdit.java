@@ -2,6 +2,8 @@ package view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.PrintWriter;
 
 import javax.swing.GroupLayout;
@@ -122,14 +124,15 @@ public class DocEdit extends JFrame {
 		documentListener = new DocumentListener() {
 			@Override
 			public void changedUpdate(DocumentEvent e) {
-				//No code here yet
+				System.out.println("CHANGED!");
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				try {				
+				try {
 					int position = e.getOffset();
 					int length = e.getLength();
+					System.out.println(String.valueOf(position) + " " + String.valueOf(length));
 					String change = textDocument.getText(position, length);
 					if (change.equals("\n")) {
 						// Delimit lines with tabs
@@ -152,6 +155,7 @@ public class DocEdit extends JFrame {
 				
 			}
 		};
+				
 		this.addListener();
 		
 		this.pack();
@@ -163,8 +167,13 @@ public class DocEdit extends JFrame {
 	 */
 	public synchronized void updateContent(String newContent, int position, int length) {
 		int posChange = position + length;
-		this.textArea.setText(newContent);
-		this.textArea.setCaretPosition(posChange);	
+		posChange = Math.min(posChange, textArea.getText().length());
+		posChange = Math.max(0, posChange);
+
+		removeListener();
+		textArea.setText(newContent);
+		addListener();
+		textArea.setCaretPosition(posChange);
 	}
 	
 	/**
