@@ -1,21 +1,30 @@
 package view;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.html.HTMLDocument;
+
+import org.scilab.forge.jlatexmath.TeXIcon;
 
 /**
  * Represents the DocEdit GUI element. Allows the user to edit a document.
@@ -26,12 +35,19 @@ import javax.swing.text.Document;
 @SuppressWarnings("serial")
 public class DocEdit extends JFrame {
 	
-	private JLabel messageLabel;
+	private JLabel welcomeLabel;
 	private JButton exitButton;
+	
 	private JLabel collabLabel;
-	private JLabel collaborators; 
+	private JLabel collaborators;
+	
 	private JTextArea textArea;
 	private JScrollPane scrollText;
+	
+	private JLabel messageLabel;
+	private JButton latexButton;
+	private JButton closeLatexButton;
+	private JLabel latexDisplay;
 	
 	private PrintWriter out;
 	private String docName;
@@ -61,11 +77,19 @@ public class DocEdit extends JFrame {
 		this.docContent = content;
 		this.collaboratorNames = collaboratorNames;
 
-		messageLabel = new JLabel("Welcome!");
+		welcomeLabel = new JLabel("Welcome " + userName + "!");
 		exitButton = new JButton("Exit Doc");
 		
 		collabLabel = new JLabel("Collaborators: ");
 		collaborators = new JLabel(collaboratorNames);
+		
+		messageLabel = new JLabel("Messages will appear here.");
+		latexButton = new JButton("Latex View");
+		latexDisplay = new JLabel();
+		latexDisplay.setSize(new Dimension(20, 55));
+		closeLatexButton = new JButton("<");
+		closeLatexButton.setVisible(false);
+		latexDisplay.setVisible(false);
 		
 		textArea = new JTextArea(20, 50);
 		scrollText = new JScrollPane(textArea);
@@ -87,12 +111,20 @@ public class DocEdit extends JFrame {
 							.addComponent(collabLabel)
 							.addComponent(collaborators)
 							)
+					.addComponent(welcomeLabel)
 					.addComponent(messageLabel)
 					);
 		hGroup.addGroup(
 				layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
 					.addComponent(exitButton)
-					.addComponent(scrollText)
+					.addGroup(layout.createSequentialGroup()							
+							.addComponent(scrollText)
+							.addComponent(latexDisplay)
+							)
+					.addGroup(layout.createSequentialGroup()
+							.addComponent(closeLatexButton)
+							.addComponent(latexButton)
+							)
 					);
 		layout.setHorizontalGroup(hGroup);
 		
@@ -100,7 +132,7 @@ public class DocEdit extends JFrame {
 		GroupLayout.SequentialGroup vGroup = layout.createSequentialGroup();
 		vGroup.addGroup(
 					layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-						.addComponent(messageLabel)
+						.addComponent(welcomeLabel)
 						.addComponent(exitButton)
 					);
 		vGroup.addGroup(
@@ -111,8 +143,53 @@ public class DocEdit extends JFrame {
 		vGroup.addGroup(
 					layout.createParallelGroup()
 						.addComponent(scrollText)
+						.addComponent(latexDisplay)
+					);
+		vGroup.addGroup(
+					layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+						.addComponent(messageLabel)
+						.addComponent(closeLatexButton)
+						.addComponent(latexButton)
 					);
 		layout.setVerticalGroup(vGroup);
+		
+		latexButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e){
+				if (latexDisplay.isVisible()){
+					//TODO render latex
+					String content = textArea.getText();
+					if (Latex.isLatex(content)){
+						TeXIcon icon = Latex.getLatex(content);
+						BufferedImage b = new BufferedImage(icon.getIconWidth(),
+								icon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+						icon.paintIcon(messageLabel, b.getGraphics(), 0, 0);
+						System.out.println("Why isn't it painting!");
+					}
+					else{
+						System.out.println("Tried but failed.");
+					}
+				}
+				//show latex display and the close button
+				else{
+					latexDisplay.setVisible(true);
+					latexButton.setText("Render");
+					closeLatexButton.setVisible(true);
+				}
+			}
+		});
+		
+		closeLatexButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e){				
+				//close latex and make button disappear
+				latexDisplay.setVisible(false);
+				closeLatexButton.setVisible(false);
+				latexButton.setText("Latex View");
+			}
+			
+		});
+		
 		
 		// Add an action listener to the exit button
 		exitButton.addActionListener(new ActionListener() {
