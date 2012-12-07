@@ -7,7 +7,9 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -171,6 +173,7 @@ public class Controller {
 						String docName = lineSplit[2];
 						String collaborators = lineSplit[3];
 						String date = lineSplit[4];
+						int version = 0;
 
 						String[] dataDoc = new String [3];
 						dataDoc[0] = docName;
@@ -179,7 +182,7 @@ public class Controller {
 						docTableGUI.addData(dataDoc);
 						
 						if(this.userName.equals(userName)){
-							this.currentDoc = new DocEdit(serverOutput, docName, userName, "", collaborators);							
+							this.currentDoc = new DocEdit(serverOutput, docName, userName, "", collaborators, version);							
 							Thread newThread = new Thread(new Runnable() {
 								@Override
 								public void run() {
@@ -199,14 +202,16 @@ public class Controller {
 				
 				else if (line.startsWith("opened")) {
 					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 5){
+					if (lineSplit.length == 6){
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
 						String docContent = lineSplit[3];
 						String collaborators = lineSplit[4];
+						int version = Integer.valueOf(lineSplit[5]);
+						
 						docContent = docContent.replace("\t", "\n");
 						if(this.userName.equals(userName)){
-							this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent, collaborators);							
+							this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent, collaborators, version);							
 							Thread newThread = new Thread(new Runnable() {
 								@Override
 								public void run() {

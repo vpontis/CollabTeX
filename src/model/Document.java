@@ -99,7 +99,7 @@ public class Document {
 	public String deleteContent(int position, int length, int version) {
 		synchronized(content) {
 			position = transformPosition(position, version);
-			
+			System.out.println(position + "," + version + "," + length);
 			content = content.substring(0, position) + content.substring(position + length);
 			updateVersion();
 			changeList.add(new Change(position, -length, version));
