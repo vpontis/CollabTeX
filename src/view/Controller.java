@@ -55,6 +55,16 @@ public class Controller {
 
 		this.loginGUI = new Login(serverOutput);
 	}
+	/**
+	 * This is pretty much the same as the constructor above except that we are specifying a port. 
+	 * If the port is not valid, the constructor will throw an exception.  
+	 * @param port the user specifies 
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 */
+	public Controller(int port) throws UnknownHostException, IOException {
+		this("127.0.0.1", port);
+	}
 
 	
 	/**
@@ -71,6 +81,7 @@ public class Controller {
 	private void runLogin() {
 		//make loginGUI the only thing that is visible, maintain the rep invariant
 		loginGUI.setVisible(true);
+		loginGUI.resetMessage();
 		if (docTableGUI != null) {
 			docTableGUI.setVisible(false);
 		}
@@ -324,6 +335,48 @@ public class Controller {
 		final Controller main;
 		try {
 			main = new Controller();
+		} catch (IOException e) {
+			throw new RuntimeException("IO Exception caught while setting up the GUI");
+		}
+		
+		Thread newThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				main.runLogin();
+			}
+		});
+		newThread.start();
+
+	}
+	/**
+	 * This method should be run by clients to connect to the server. It uses the default constructor
+	 * and assumes that you are connecting on to a server which is on the same machine over port 4444. 
+	 * @param args Unused
+	 */
+	public static void main(final String[] args) {
+		final Controller main;
+		//There are three different commandline options
+		//no arguments
+		//[port]
+		//[IP address] [port]
+		//default IP is 127.0.0.1
+		//default port is 4444
+		try {
+			if (args.length == 0){
+				main = new Controller();				
+			}
+			else if(args.length == 1){
+				int port = Integer.parseInt(args[0]);
+				main = new Controller(port);
+			}
+			else if(args.length == 2){
+				int port = Integer.parseInt(args[1]);
+				String IP = args[0];
+				main = new Controller(IP, port);
+			}
+			else{
+				throw new RuntimeException("Invalid input");
+			}
 		} catch (IOException e) {
 			throw new RuntimeException("IO Exception caught while setting up the GUI");
 		}

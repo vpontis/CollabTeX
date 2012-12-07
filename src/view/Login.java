@@ -144,13 +144,17 @@ public class Login extends JFrame{
 		userName.setText("");
 	}
 	
+	void resetMessage() {
+		messageLabel.setText("Hello there, enter a username and login.");
+	}
+	
 	/**
 	 * Method that is called when login fails. 
 	 * Error message is displayed in the message label
 	 */
 	void failedLogin() {
 		resetName();
-		messageLabel.setText("Error: try a different name");
+		messageLabel.setText("Error: user with same username already logged in");
 	}
 		
 	/**
