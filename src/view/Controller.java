@@ -47,7 +47,19 @@ public class Controller {
 	 * @throws IOException
 	 */
 	public Controller(int port) throws UnknownHostException, IOException {
-		this.serverSocket = new Socket("127.0.0.1", port);
+		this("127.0.0.1", port);
+	}
+	
+	/**
+	 * This is pretty much the same as the two above except that you are also 
+	 * specifying an IP address in addition to a port. 
+	 * @param IP
+	 * @param port
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 */
+	public Controller(String IP, int port) throws UnknownHostException, IOException {
+		this.serverSocket = new Socket(IP, port);
 		
 		//set the input and output streams
 		this.serverInput = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
@@ -322,8 +334,28 @@ public class Controller {
 	 */
 	public static void main(final String[] args) {
 		final Controller main;
+		//There are three different commandline options
+		//no arguments
+		//[port]
+		//[IP address] [port]
+		//default IP is 127.0.0.1
+		//default port is 4444
 		try {
-			main = new Controller();
+			if (args.length == 0){
+				main = new Controller();				
+			}
+			else if(args.length == 1){
+				int port = Integer.parseInt(args[0]);
+				main = new Controller(port);
+			}
+			else if(args.length == 2){
+				int port = Integer.parseInt(args[1]);
+				String IP = args[0];
+				main = new Controller(IP, port);
+			}
+			else{
+				throw new RuntimeException("Invalid input");
+			}
 		} catch (IOException e) {
 			throw new RuntimeException("IO Exception caught while setting up the GUI");
 		}
