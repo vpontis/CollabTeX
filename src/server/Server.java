@@ -362,9 +362,10 @@ public class Server {
 		String docContent = currentDocument.toString();
 		docContent = docContent.replace("\n", "\t");
 		String collaborators = currentDocument.getCollab();
+		int version = currentDocument.getVersion();
 		
 		//updates collaborators than opens the document
-		return "update|" + docName + "|" + collaborators + "\nopened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators; 		
+		return "update|" + docName + "|" + collaborators + "\nopened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version; 		
     }
     
     /**

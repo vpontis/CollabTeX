@@ -68,9 +68,9 @@ public class DocEdit extends JFrame {
 	 * @param content Initial content of the document, when the document is loaded from the server
 	 * @param collaboratorNames The initial list of collaborators of the document at the time the document is loaded from the server
 	 */
-	public DocEdit(PrintWriter outputStream, String documentName, String userName, String content, String collaboratorNames){
+	public DocEdit(PrintWriter outputStream, String documentName, String userName, String content, String collaboratorNames, int versionID){
 		super(documentName);
-		this.version = 0;
+		this.version = versionID;
 		out = outputStream;
 		this.docName = documentName;
 		this.userName = userName;
@@ -230,6 +230,7 @@ public class DocEdit extends JFrame {
 			public void removeUpdate(DocumentEvent e) {
 				int position = e.getOffset();
 				int length = e.getLength();
+				System.out.println("CHANGE|" + docName + "|" + position + "|" + length + "|" + version);
 				out.println("CHANGE|" + docName + "|" + position + "|" + length + "|" + version);
 				
 			}
@@ -250,6 +251,8 @@ public class DocEdit extends JFrame {
 		int posChange = position + length;
 		posChange = Math.min(posChange, textArea.getText().length());
 		posChange = Math.max(0, posChange);
+		
+		System.out.println(versionNo);
 		
 		removeListener();
 		textArea.setText(newContent);
@@ -307,7 +310,7 @@ public class DocEdit extends JFrame {
 	 * @param args Unused
 	 */
 	public static void main(String[] args){
-		DocEdit main = new DocEdit(new PrintWriter(System.out), "Document name", "victor", "", "collab");
+		DocEdit main = new DocEdit(new PrintWriter(System.out), "Document name", "victor", "", "collab", 0);
 		main.setVisible(true);
 	}
 	
