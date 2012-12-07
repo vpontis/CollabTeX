@@ -49,7 +49,11 @@ public class Controller {
 	public Controller(int port) throws UnknownHostException, IOException {
 		this("127.0.0.1", port);
 	}
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> branch 'master' of ssh://deepakn@athena.dialup.mit.edu/afs/athena.mit.edu/course/6/6.005/git/fa12/projects/rtce/tcramer-deepakn-vpontis.git
 	/**
 	 * This is pretty much the same as the two above except that you are also 
 	 * specifying an IP address in addition to a port. 
