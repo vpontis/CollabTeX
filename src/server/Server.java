@@ -228,7 +228,6 @@ public class Server {
      */
     private synchronized String changeDoc(String input) {
     	String[] inputSplit = input.split("\\|");
-    	//TODO pass version to the changedoc method
 
     	int version;
     	//insertion is in the form docName | position | change | length | version
@@ -277,7 +276,6 @@ public class Server {
 		//version updating is handled by the insertion/deletion of content
 		int versionNumber = currentDocument.getVersion();
 		
-		//TODO return version from the changedoc and pass that on to clients
 		//this propagates the change to the clients
 		if (docContent != null && position != -1 && length != -1) {
 			return "changed|" + docName + "|" + docContent + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion;
@@ -341,7 +339,7 @@ public class Server {
     private synchronized String newDoc(String userName, String docName) {
     	for (Document doc : currentDocuments){
     		if(docName.equals(doc.getName())){
-    			return "notcreated";
+    			return "notcreatedduplicate";
     		}
     	}
     	Document newDoc = new Document(docName, userName);

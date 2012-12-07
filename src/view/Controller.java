@@ -194,8 +194,8 @@ public class Controller {
 						throw new RuntimeException("Invalid format");
 					}					
 				} 
-				else if(line.startsWith("notcreated")){
-					//TODO document not created because name not unique
+				else if(line.startsWith("notcreatedduplicate")){
+					docTableGUI.setDuplicateErrorMessage();
 				}
 				
 				else if (line.startsWith("opened")) {
@@ -286,9 +286,9 @@ public class Controller {
 						String content = lineSplit[2];
 						int position = Integer.valueOf(lineSplit[3]);
 						int length = Integer.valueOf(lineSplit[4]);
-						//TODO do something with the version
+
 						int version = Integer.valueOf(lineSplit[5]);
-						boolean isInsertion = Boolean.valueOf(lineSplit[6]);
+						boolean isInsertion = Boolean.valueOf(lineSplit[6]); //Boolean value to determine whether edit made is insertion or deletion
 						
 						content = content.replace("\t", "\n");
 						if (currentDoc.getName().equals(docName)) {

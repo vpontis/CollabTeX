@@ -26,6 +26,7 @@ public class DocTable extends JFrame{
 	static private final int NAME_COLUMN = 0;
 	
 	private JLabel tableLabel;
+	private JLabel messageLabel;
 	
 	private JTable documentTable;
 	private DefaultTableModel tableModel;
@@ -54,6 +55,10 @@ public class DocTable extends JFrame{
 		tableLabel = new JLabel();
 		tableLabel.setName("tableLabel");
 		tableLabel.setText("Document table");
+		
+		messageLabel = new JLabel();
+		messageLabel.setName("messageLabel");
+		messageLabel.setText("Insert messages here");
 		
 		//Table that contains information about all of the user's documents
 		String[] columnNames = new String[]{"Name", "Last Modified", "Collab"};
@@ -90,6 +95,10 @@ public class DocTable extends JFrame{
                 			.addComponent(logoutButton)
                 		)
                 .addGroup(
+                		completeLayout.createSequentialGroup()
+                			.addComponent(messageLabel)
+                		)
+                .addGroup(
                 		completeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
                 			.addComponent(tableLabel)
                 		)
@@ -106,6 +115,10 @@ public class DocTable extends JFrame{
 	            			.addComponent(newDocumentName)
 	            			.addComponent(newDocumentButton)
 	            			.addComponent(logoutButton)
+						)
+				.addGroup(
+						completeLayout.createSequentialGroup()
+							.addComponent(messageLabel)
 						)
 				.addGroup(
 						completeLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
@@ -195,6 +208,28 @@ public class DocTable extends JFrame{
 	}
 	
 	/**
+	 * Sets error message when a create request is sent to the server with an already existing document name 
+	 */
+	void setDuplicateErrorMessage() {
+		setMessage("Document name already exists. Duplicates not allowed.");
+	}
+	
+	/**
+	 * Sets error message when a create request is sent to the server with an empty string document name 
+	 */
+	void setEmptyErrorMessage() {
+		setMessage("Document name cannot be an empty string");
+	}
+	
+	/**
+	 * Method to update message on the client
+	 * @param message Message to be displayed on the client
+	 */
+	private void setMessage(String message) {
+		messageLabel.setText(message);
+	}
+	
+	/**
 	 * Method that publishes a request to the server to log the current user out
 	 */
 	private void logout() {
@@ -208,8 +243,10 @@ public class DocTable extends JFrame{
 	private void newDocument(){
 		String docName = newDocumentName.getText();
 		if(docName.equals("")){
+			setEmptyErrorMessage();
 			return;
 		}
+		// setMessage("");
 		out.println("NEWDOC " + userName + " " + docName);
 	}
 	
