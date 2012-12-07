@@ -229,11 +229,10 @@ public class Server {
     private synchronized String changeDoc(String input) {
     	String[] inputSplit = input.split("\\|");
     	//TODO pass version to the changedoc method
-    	
-    	
+
     	int version;
-    	//insertion is in the form docName | position | change | length
-    	//deletion is in the form docName | position | length
+    	//insertion is in the form docName | position | change | length | version
+    	//deletion is in the form docName | position | length | version
 		String docName = inputSplit[0];
 		Document currentDocument = getDoc(docName);
 				
@@ -241,13 +240,15 @@ public class Server {
 		String docContent = null;
 		int position = -1;
 		int length = -1;
-		
+		boolean isInsertion = false;
+
 		//if the user wants to insert a letter
 		if (inputSplit.length == 5) {
 			position = Integer.valueOf(inputSplit[1]);
 			String change = inputSplit[2];
 			length = Integer.valueOf(inputSplit[3]);
 			version = Integer.valueOf(inputSplit[4]);
+			isInsertion = true;
 			
 			//update the model of the data
 			//a tab character represents a newline so that socket input is not broken over multiple lines
@@ -276,11 +277,10 @@ public class Server {
 		//version updating is handled by the insertion/deletion of content
 		int versionNumber = currentDocument.getVersion();
 		
-		
 		//TODO return version from the changedoc and pass that on to clients
 		//this propagates the change to the clients
 		if (docContent != null && position != -1 && length != -1) {
-			return "changed|" + docName + "|" + docContent + "|" + position + "|" + length + "|" + versionNumber;
+			return "changed|" + docName + "|" + docContent + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion;
 		}
 		
 		throw new RuntimeException("Should not reach here");

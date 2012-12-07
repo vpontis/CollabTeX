@@ -1,12 +1,8 @@
 package view;
 
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
 
@@ -14,17 +10,12 @@ import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.html.HTMLDocument;
 
 import org.scilab.forge.jlatexmath.TeXIcon;
 
@@ -55,6 +46,7 @@ public class DocEdit extends JFrame {
 	private String docName;
 	private String userName;
 	private String docContent;
+	@SuppressWarnings("unused")
 	private String collaboratorNames;
 	
 	private Document textDocument;
@@ -213,7 +205,7 @@ public class DocEdit extends JFrame {
 				try {
 					int position = e.getOffset();
 					int length = e.getLength();
-					System.out.println(String.valueOf(position) + " " + String.valueOf(length));
+
 					String change = textDocument.getText(position, length);
 					if (change.equals("\n")) {
 						// Delimit lines with tabs
@@ -232,7 +224,6 @@ public class DocEdit extends JFrame {
 			public void removeUpdate(DocumentEvent e) {
 				int position = e.getOffset();
 				int length = e.getLength();
-				System.out.println("CHANGE|" + docName + "|" + position + "|" + length + "|" + version);
 				out.println("CHANGE|" + docName + "|" + position + "|" + length + "|" + version);
 				
 			}
@@ -247,18 +238,18 @@ public class DocEdit extends JFrame {
 	 * Method to update content in the text area
 	 * @param newContent New content in the text area
 	 */
-	public synchronized void updateContent(String newContent, int position, int length, int versionNo) {
+	public synchronized void updateContent(String newContent, int position, int length, int versionNo, boolean isInsertion) {
 		this.version = versionNo;
 		
-		int posChange = position + length;
+		int posChange = isInsertion ? position + length : position;
+		
 		posChange = Math.min(posChange, textArea.getText().length());
 		posChange = Math.max(0, posChange);
-		
-		System.out.println(versionNo);
 		
 		removeListener();
 		textArea.setText(newContent);
 		addListener();
+		//TODO Need to fix the cursor issue; it's pretty annoying
 		textArea.setCaretPosition(posChange);
 	}
 	

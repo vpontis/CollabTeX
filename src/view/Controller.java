@@ -7,9 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 
@@ -283,17 +281,18 @@ public class Controller {
 				//if the content of the document is changed, update the view for the user
 				else if (line.startsWith("changed")) {
 					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 6) {
+					if (lineSplit.length == 7) {
 						String docName = lineSplit[1];
 						String content = lineSplit[2];
 						int position = Integer.valueOf(lineSplit[3]);
 						int length = Integer.valueOf(lineSplit[4]);
-						//TODO do something with the verison
+						//TODO do something with the version
 						int version = Integer.valueOf(lineSplit[5]);
-						// System.out.println("Updating content");
+						boolean isInsertion = Boolean.valueOf(lineSplit[6]);
+						
 						content = content.replace("\t", "\n");
 						if (currentDoc.getName().equals(docName)) {
-							currentDoc.updateContent(content, position, length, version);
+							currentDoc.updateContent(content, position, length, version, isInsertion);
 						}
 					}
 					
