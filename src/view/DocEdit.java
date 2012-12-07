@@ -81,13 +81,13 @@ public class DocEdit extends JFrame {
 		messageLabel = new JLabel("Messages will appear here.");
 		latexButton = new JButton("Latex View");
 		latexDisplay = new MyPanel();
-		latexDisplay.setSize(new Dimension(20, 55));
 		closeLatexButton = new JButton("<");
 		closeLatexButton.setVisible(false);
 		latexDisplay.setVisible(false);
 		
-		textArea = new JTextArea(20, 50);
+		textArea = new JTextArea();
 		scrollText = new JScrollPane(textArea);
+		scrollText.setMinimumSize(new Dimension(700, 700));
 		textArea.setText(docContent);
 		textDocument = textArea.getDocument();
 		
@@ -151,8 +151,8 @@ public class DocEdit extends JFrame {
 		latexButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e){
+				//render the latex
 				if (latexDisplay.isVisible()){
-					//TODO render latex
 					String content = textArea.getText();
 					if (Latex.isLatex(content)){
 						TeXIcon icon = Latex.getLatex(content);
@@ -167,12 +167,18 @@ public class DocEdit extends JFrame {
 				//show latex display and the close button
 				else{
 					latexDisplay.setVisible(true);
+					int height = scrollText.getHeight();
+					int width = scrollText.getWidth();
+					latexDisplay.setMinimumSize(new Dimension(width/2, height));
+					scrollText.setMinimumSize(new Dimension(width/2, height));
 					latexButton.setText("Render");
 					closeLatexButton.setVisible(true);
+					packFrame();
 				}
 			}
 		});
 		
+		//make the latex disappear
 		closeLatexButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){				
@@ -297,6 +303,10 @@ public class DocEdit extends JFrame {
 	public void removeListener() {
 		textDocument.removeDocumentListener(documentListener);
 	}
+	
+	public void packFrame() {
+		this.pack();
+	}
 
 	/**
 	 * Sets up a new login DocEdit element. For testing purposes alone
@@ -306,5 +316,6 @@ public class DocEdit extends JFrame {
 		DocEdit main = new DocEdit(new PrintWriter(System.out), "Document name", "victor", "", "collab", 0);
 		main.setVisible(true);
 	}
+	
 	
 }
