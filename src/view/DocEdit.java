@@ -1,6 +1,8 @@
 package view;
 
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -47,7 +49,7 @@ public class DocEdit extends JFrame {
 	private JLabel messageLabel;
 	private JButton latexButton;
 	private JButton closeLatexButton;
-	private JLabel latexDisplay;
+	private MyPanel latexDisplay;
 	
 	private PrintWriter out;
 	private String docName;
@@ -70,6 +72,7 @@ public class DocEdit extends JFrame {
 	 */
 	public DocEdit(PrintWriter outputStream, String documentName, String userName, String content, String collaboratorNames){
 		super(documentName);
+		
 		this.version = 0;
 		out = outputStream;
 		this.docName = documentName;
@@ -85,7 +88,7 @@ public class DocEdit extends JFrame {
 		
 		messageLabel = new JLabel("Messages will appear here.");
 		latexButton = new JButton("Latex View");
-		latexDisplay = new JLabel();
+		latexDisplay = new MyPanel();
 		latexDisplay.setSize(new Dimension(20, 55));
 		closeLatexButton = new JButton("<");
 		closeLatexButton.setVisible(false);
@@ -163,11 +166,10 @@ public class DocEdit extends JFrame {
 						TeXIcon icon = Latex.getLatex(content);
 						BufferedImage b = new BufferedImage(icon.getIconWidth(),
 								icon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
-						icon.paintIcon(messageLabel, b.getGraphics(), 0, 0);
-						System.out.println("Why isn't it painting!");
-					}
-					else{
-						System.out.println("Tried but failed.");
+						icon.paintIcon(new JLabel(), b.getGraphics(), 0, 0);
+						b.getGraphics().drawImage(b, 0, 0, null);
+						latexDisplay.updateImage(b);
+						latexDisplay.repaint();
 					}
 				}
 				//show latex display and the close button
@@ -186,7 +188,7 @@ public class DocEdit extends JFrame {
 				latexDisplay.setVisible(false);
 				closeLatexButton.setVisible(false);
 				latexButton.setText("Latex View");
-			}
+			}	
 			
 		});
 		
