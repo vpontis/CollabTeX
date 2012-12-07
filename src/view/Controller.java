@@ -47,7 +47,19 @@ public class Controller {
 	 * @throws IOException
 	 */
 	public Controller(int port) throws UnknownHostException, IOException {
-		this.serverSocket = new Socket("127.0.0.1", port);
+		this("127.0.0.1", port);
+	}
+
+	/**
+	 * This is pretty much the same as the two above except that you are also 
+	 * specifying an IP address in addition to a port. 
+	 * @param IP
+	 * @param port
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 */
+	public Controller(String IP, int port) throws UnknownHostException, IOException {
+		this.serverSocket = new Socket(IP, port);
 		
 		//set the input and output streams
 		this.serverInput = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
@@ -55,17 +67,6 @@ public class Controller {
 
 		this.loginGUI = new Login(serverOutput);
 	}
-	/**
-	 * This is pretty much the same as the constructor above except that we are specifying a port. 
-	 * If the port is not valid, the constructor will throw an exception.  
-	 * @param port the user specifies 
-	 * @throws UnknownHostException
-	 * @throws IOException
-	 */
-	public Controller(int port) throws UnknownHostException, IOException {
-		this("127.0.0.1", port);
-	}
-
 	
 	/**
 	 * Runs the login GUI; makes all other GUI elements invisible, if they already exist.
@@ -333,28 +334,6 @@ public class Controller {
 	 */
 	public static void main(final String[] args) {
 		final Controller main;
-		try {
-			main = new Controller();
-		} catch (IOException e) {
-			throw new RuntimeException("IO Exception caught while setting up the GUI");
-		}
-		
-		Thread newThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				main.runLogin();
-			}
-		});
-		newThread.start();
-
-	}
-	/**
-	 * This method should be run by clients to connect to the server. It uses the default constructor
-	 * and assumes that you are connecting on to a server which is on the same machine over port 4444. 
-	 * @param args Unused
-	 */
-	public static void main(final String[] args) {
-		final Controller main;
 		//There are three different commandline options
 		//no arguments
 		//[port]
@@ -388,6 +367,6 @@ public class Controller {
 			}
 		});
 		newThread.start();
-
+		
 	}
 }
