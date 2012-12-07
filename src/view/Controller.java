@@ -49,7 +49,11 @@ public class Controller {
 	public Controller(int port) throws UnknownHostException, IOException {
 		this("127.0.0.1", port);
 	}
+<<<<<<< HEAD
+
+=======
 	
+>>>>>>> branch 'master' of ssh://deepakn@athena.dialup.mit.edu/afs/athena.mit.edu/course/6/6.005/git/fa12/projects/rtce/tcramer-deepakn-vpontis.git
 	/**
 	 * This is pretty much the same as the two above except that you are also 
 	 * specifying an IP address in addition to a port. 
@@ -67,7 +71,6 @@ public class Controller {
 
 		this.loginGUI = new Login(serverOutput);
 	}
-
 	
 	/**
 	 * Runs the login GUI; makes all other GUI elements invisible, if they already exist.
@@ -83,6 +86,7 @@ public class Controller {
 	private void runLogin() {
 		//make loginGUI the only thing that is visible, maintain the rep invariant
 		loginGUI.setVisible(true);
+		loginGUI.resetMessage();
 		if (docTableGUI != null) {
 			docTableGUI.setVisible(false);
 		}
@@ -367,6 +371,6 @@ public class Controller {
 			}
 		});
 		newThread.start();
-
+		
 	}
 }
