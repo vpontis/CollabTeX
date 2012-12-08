@@ -190,9 +190,20 @@ public class DocEdit extends JFrame {
 				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
 					int position = textArea.getCaretPosition();
 					
-					position --;
+					if (position > 0) {
+						position --;
+						int length = 1;
+						out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + length + "|" + version);
+					}
+					
+					
+				} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					int position = textArea.getCaretPosition();
+					
 					int length = 1;
-					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + length + "|" + version);
+					String change = "\t";
+					
+					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
 				}
 			}
 
@@ -206,7 +217,7 @@ public class DocEdit extends JFrame {
 			public void keyTyped(KeyEvent e) {
 				int position = textArea.getCaretPosition();
 				String change = String.valueOf(e.getKeyChar());
-				if (e.getKeyCode() != KeyEvent.VK_BACK_SPACE) { 
+				if (e.getKeyCode() != KeyEvent.VK_BACK_SPACE && e.getKeyCode() != KeyEvent.VK_ENTER) { 
 					change = change.equals("\n") ? "\t" : change;
 					int length = change.length();
 					//System.out.println(change);
@@ -286,8 +297,10 @@ public class DocEdit extends JFrame {
 		int cursorPosition = textArea.getCaretPosition();
 		cursorPosition = cursorPosition > position ? cursorPosition + length : cursorPosition;
 		//TODO Fix concurrency bug
+		
 		//removeListener();
 		try {
+			
 			textDocument.insertString(position, change , null);
 		} catch (BadLocationException e) {
 			e.printStackTrace();
