@@ -159,7 +159,7 @@ public class DocEdit extends JFrame {
 				//render the latex
 				if (latexDisplay.isVisible()){
 					String content = textArea.getText();
-					if (Latex.isLatex(content)){
+//					if (Latex.isLatex(content)){
 						TeXIcon icon = Latex.getLatex(content);
 						BufferedImage b = new BufferedImage(icon.getIconWidth(),
 								icon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
@@ -167,7 +167,11 @@ public class DocEdit extends JFrame {
 						b.getGraphics().drawImage(b, 0, 0, null);
 						latexDisplay.updateImage(b);
 						latexDisplay.repaint();
-					}
+						System.out.println("hello");
+//					}
+//					else{
+//						System.out.println("asdf;ladjsf;");
+//					}
 				}
 				//show latex display and the close button
 				else{
