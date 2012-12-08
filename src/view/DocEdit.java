@@ -243,25 +243,30 @@ public class DocEdit extends JFrame {
 	public void insertContent(String change, int position, int versionNo) {
 		this.version = versionNo;
 		
+		int cursorPosition = position + change.length();
+		//TODO Fix concurrency bug
 		removeListener();
 		try {
 			textDocument.insertString(position, change , null);
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
-
+		textArea.setCaretPosition(cursorPosition);
 		addListener();
 	}
 	
 	public void deleteContent(int position, int length, int versionNo) {
 		this.version = versionNo;
 		
+		int cursorPosition = position;
+		//TODO Fix concurrency bug
 		removeListener();
 		try {
 			textDocument.remove(position, length);
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
+		textArea.setCaretPosition(cursorPosition);
 		addListener();
 	}
 	
