@@ -6,6 +6,12 @@ import org.junit.Test;
 
 public class LatexTest {
 
+	@Test
+	public void escapeString(){
+		String original = "hello \\ person";
+		String escaped = "hello \\textbackslash person";
+		assertEquals(escaped, Latex.escape(original));
+	}
 	
 	@Test
 	public void isLatexTest(){

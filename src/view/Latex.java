@@ -24,7 +24,8 @@ public class Latex {
 		for (int i = 0; i < stringSplit.length; i++ ){
 			if (i % 2 == 0){
 				out.append("\\textrm{");
-				out.append(stringSplit[i]);
+				String escaped = escape(stringSplit[i]);
+				out.append(escaped);
 				out.append("}");
 			}
 			else{
@@ -37,6 +38,29 @@ public class Latex {
 					.createTeXIcon(TeXConstants.STYLE_DISPLAY,20);
 		icon.setInsets(new Insets(5,5,5,5));
 		return icon;
+	}
+
+	public static String escape(String string) {
+//        "#"=>"\\#",
+//        "$"=>"\\$",
+//        "%"=>"\\%",
+//        "&"=>"\\&",
+//        "~"=>"\\~{}",
+//        "_"=>"\\_",
+//        "^"=>"\\^{}",
+//        "\\"=>"\\textbackslash",
+//        "{"=>"\\{",
+//        "}"=>"\\}",
+        string = string.replaceAll("\\\\", "\\\\textbackslash");
+		string = string.replaceAll("#", "\\#");
+		string = string.replaceAll("\\$", "\\$");
+		string = string.replaceAll("%", "\\%");
+		string = string.replaceAll("~", "\\~");
+		string = string.replaceAll("_", "\\_");
+		string = string.replaceAll("\\{", "\\{");
+		string = string.replaceAll("\\}", "\\}");
+		string = string.replaceAll("\\^","\\^{}");
+		return string;
 	}
 	
 }
