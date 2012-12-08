@@ -62,13 +62,13 @@ public class DocEdit extends JFrame {
 	 * @param content Initial content of the document, when the document is loaded from the server
 	 * @param collaboratorNames The initial list of collaborators of the document at the time the document is loaded from the server
 	 */
-	public DocEdit(PrintWriter outputStream, String documentName, String userName, String content, String collaboratorNames, int versionID){
+	public DocEdit(PrintWriter outputStream, String documentName, String user, String content, String collaboratorNames, int versionID){
 		super(documentName);
 		
 		this.version = versionID;
 		out = outputStream;
 		this.docName = documentName;
-		this.userName = userName;
+		this.userName = user;
 		this.docContent = content;
 		this.collaboratorNames = collaboratorNames;
 
@@ -215,9 +215,9 @@ public class DocEdit extends JFrame {
 					String change = textDocument.getText(position, length);
 					if (change.equals("\n")) {
 						// Delimit lines with tabs
-						out.println("CHANGE|" + docName + "|" + position + "|" + "\t" + "|" + length + "|" + version);
+						out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + "\t" + "|" + length + "|" + version);
 					}  else if (! change.equals("")){
-						out.println("CHANGE|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
+						out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
 					}
 					
 				} catch (BadLocationException e1) {
@@ -230,7 +230,7 @@ public class DocEdit extends JFrame {
 			public void removeUpdate(DocumentEvent e) {
 				int position = e.getOffset();
 				int length = e.getLength();
-				out.println("CHANGE|" + docName + "|" + position + "|" + length + "|" + version);
+				out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + length + "|" + version);
 				
 			}
 		};
@@ -240,9 +240,35 @@ public class DocEdit extends JFrame {
 		this.pack();
 	}
 	
+	public void insertContent(String change, int position, int versionNo) {
+		this.version = versionNo;
+		
+		removeListener();
+		try {
+			textDocument.insertString(position, change , null);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+
+		addListener();
+	}
+	
+	public void deleteContent(int position, int length, int versionNo) {
+		this.version = versionNo;
+		
+		removeListener();
+		try {
+			textDocument.remove(position, length);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		addListener();
+	}
+	
 	/**
 	 * Method to update content in the text area
 	 * @param newContent New content in the text area
+	 * @throws BadLocationException 
 	 */
 	public synchronized void updateContent(String newContent, int position, int length, int versionNo, boolean isInsertion) {
 		this.version = versionNo;
@@ -253,10 +279,18 @@ public class DocEdit extends JFrame {
 		posChange = Math.max(0, posChange);
 		
 		removeListener();
-		textArea.setText(newContent);
+		try {
+			//textDocument.remove(0, textArea.getText().length());
+			textDocument.insertString(0, newContent, null);
+		} catch (BadLocationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//textArea.setText(newContent);
 		addListener();
 		//TODO Need to fix the cursor issue; it's pretty annoying
-		textArea.setCaretPosition(posChange);
+		//textArea.setCaretPosition(posChange);
 	}
 	
 	/**

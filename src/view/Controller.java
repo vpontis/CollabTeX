@@ -293,18 +293,36 @@ public class Controller {
 				//if the content of the document is changed, update the view for the user
 				else if (line.startsWith("changed")) {
 					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 7) {
-						String docName = lineSplit[1];
-						String content = lineSplit[2];
+					if (lineSplit.length == 8) {
+						String userName = lineSplit[1];
+						String docName = lineSplit[2];
+						String change = lineSplit[3];
+						int position = Integer.valueOf(lineSplit[4]);
+
+						int version = Integer.valueOf(lineSplit[6]);
+						boolean isInsertion = Boolean.valueOf(lineSplit[7]); //Boolean value to determine whether edit made is insertion or deletion
+						
+						change = change.replace("\t", "\n");
+						if (currentDoc.getName().equals(docName)) {
+							if (! this.userName.equals(userName)) {
+								currentDoc.insertContent(change, position, version);
+							}
+
+						}
+					} else if (lineSplit.length == 7) {
+						String userName = lineSplit[1];
+						String docName = lineSplit[2];
 						int position = Integer.valueOf(lineSplit[3]);
 						int length = Integer.valueOf(lineSplit[4]);
 
 						int version = Integer.valueOf(lineSplit[5]);
 						boolean isInsertion = Boolean.valueOf(lineSplit[6]); //Boolean value to determine whether edit made is insertion or deletion
 						
-						content = content.replace("\t", "\n");
 						if (currentDoc.getName().equals(docName)) {
-							currentDoc.updateContent(content, position, length, version, isInsertion);
+							if (! this.userName.equals(userName)) {
+								currentDoc.deleteContent(position,length, version);
+							}
+
 						}
 					}
 					

@@ -232,53 +232,59 @@ public class Server {
     	int version;
     	//insertion is in the form docName | position | change | length | version
     	//deletion is in the form docName | position | length | version
-		String docName = inputSplit[0];
+		String docName = inputSplit[1];
+		String userName = inputSplit[0];
 		Document currentDocument = getDoc(docName);
 				
 		//initializes our variables
-		String docContent = null;
 		int position = -1;
 		int length = -1;
 		boolean isInsertion = false;
 
 		//if the user wants to insert a letter
-		if (inputSplit.length == 5) {
-			position = Integer.valueOf(inputSplit[1]);
-			String change = inputSplit[2];
-			length = Integer.valueOf(inputSplit[3]);
-			version = Integer.valueOf(inputSplit[4]);
+		if (inputSplit.length == 6) {
+			position = Integer.valueOf(inputSplit[2]);
+			String change = inputSplit[3];
+			length = Integer.valueOf(inputSplit[4]);
+			version = Integer.valueOf(inputSplit[5]);
 			isInsertion = true;
 			
 			//update the model of the data
 			//a tab character represents a newline so that socket input is not broken over multiple lines
 			//the user is not able to enter tabs so we don't have to worry about how to represent tabs
 			if (change.equals("\t")) {
-				docContent = currentDocument.insertContent("\n", position, version);
+				currentDocument.insertContent("\n", position, version);
 			} else {
-				docContent = currentDocument.insertContent(change, position, version);
+				currentDocument.insertContent(change, position, version);
 			}
+			currentDocument.setLastEditDateTime();
 			
-			docContent = docContent.replace("\n", "\t");
+			//version updating is handled by the insertion/deletion of content
+			int versionNumber = currentDocument.getVersion();
+			
+			if (position != -1 && length != -1) {
+				return "changed|" + userName + "|" + docName + "|" + change + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion;
+			}
 		} 
 		
 		//if the user wants to delete a letter
-		else if (inputSplit.length == 4) {
-			position = Integer.valueOf(inputSplit[1]);
-			length = Integer.valueOf(inputSplit[2]);
-			version = Integer.valueOf(inputSplit[3]);
+		else if (inputSplit.length == 5) {
+			position = Integer.valueOf(inputSplit[2]);
+			length = Integer.valueOf(inputSplit[3]);
+			version = Integer.valueOf(inputSplit[4]);
 			
 			//update the model of the data
-			docContent = currentDocument.deleteContent(position, length, version );
-		}
-		
-		currentDocument.setLastEditDateTime();
-		
-		//version updating is handled by the insertion/deletion of content
-		int versionNumber = currentDocument.getVersion();
-		
-		//this propagates the change to the clients
-		if (docContent != null && position != -1 && length != -1) {
-			return "changed|" + docName + "|" + docContent + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion;
+			currentDocument.deleteContent(position, length, version);
+			
+			currentDocument.setLastEditDateTime();
+			
+			//version updating is handled by the insertion/deletion of content
+			int versionNumber = currentDocument.getVersion();
+			
+			if (position != -1 && length != -1) {
+				return "changed|" + userName + "|" + docName + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion;
+			}
+
 		}
 		
 		throw new RuntimeException("Should not reach here");

@@ -76,7 +76,7 @@ public class Document {
 	 * @param position Position in the document at which new content should be inserted
 	 * @return New content of the document
 	 */
-	public synchronized String insertContent(String newLetter, int position, int version) {
+	public synchronized void insertContent(String newLetter, int position, int version) {
 		synchronized(content) {
 			
 			//TODO use version information to modify position
@@ -85,7 +85,6 @@ public class Document {
 			content = content.substring(0, position) + newLetter + content.substring(position);
 			updateVersion();
 			changeList.add(new Change(position, newLetter.length(), version));
-			return content;
 		}
 	}
 	
@@ -96,17 +95,21 @@ public class Document {
 	 * @param length Length of text that is being deleted from the document
 	 * @return New content of the document
 	 */
-	public String deleteContent(int position, int length, int version) {
+	public void deleteContent(int position, int length, int version) {
 		synchronized(content) {
 			position = transformPosition(position, version);
-			System.out.println(position + "," + version + "," + length);
 			content = content.substring(0, position) + content.substring(position + length);
 			updateVersion();
 			changeList.add(new Change(position, -length, version));
-			return content;
 		}
 	}
 	
+	/**
+	 * Finds the position at which edit should be made given version history
+	 * @param position Position of edit at the initial version number
+	 * @param version New version number
+	 * @return Position of final edit
+	 */
 	private int transformPosition(int position, int version) {
 		for (Change ch : changeList){
 			if (ch.getVersion() > version){
