@@ -6,20 +6,17 @@ import org.scilab.forge.jlatexmath.*;
 
 public class Latex {
 	public static boolean isLatex(String string){
-		if(1==1){
-			try{
-				new TeXFormula(string);
-				return true;
-			}
-			catch(Exception e){
-				return false;
-			}
+		try{
+			new TeXFormula(string);
+			return true;
 		}
-		return false;
+		catch(Exception e){
+			return false;
+		}
 	}
 	
 	public static TeXIcon getLatex(String latexString){
-		String[] stringSplit = latexString.split("$$");
+		String[] stringSplit = latexString.split("\\$\\$");
 		StringBuilder out = new StringBuilder();
 		for (int i = 0; i < stringSplit.length; i++ ){
 			if (i % 2 == 0){
@@ -58,6 +55,7 @@ public class Latex {
 		string = string.replaceAll("\\{", "\\\\{");
 		string = string.replaceAll("\\}", "\\\\}");
 		string = string.replaceAll("\\^","\\\\^{}");
+		string = string.replaceAll("\\@","\\\\@");
 		string = string.replaceAll("\\&","\\\\&");
 		StringBuilder out = new StringBuilder();
 		String[] lines = string.split("\\n");
