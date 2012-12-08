@@ -266,6 +266,9 @@ public class DocEdit extends JFrame {
 		
 		int cursorPosition = textArea.getCaretPosition();
 		cursorPosition = cursorPosition > position ? cursorPosition - length : cursorPosition;
+		cursorPosition = Math.min(cursorPosition, textArea.getText().length());
+		cursorPosition = Math.max(0, cursorPosition);
+		
 		//TODO Fix concurrency bug
 		removeListener();
 		try {
