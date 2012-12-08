@@ -3,6 +3,9 @@ package view;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
 
@@ -11,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -201,7 +205,16 @@ public class DocEdit extends JFrame {
 			public void actionPerformed(ActionEvent e){
 				exitDocument();	
 			}
-		});		
+		});	
+		
+		textArea.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked (MouseEvent e) {
+				textArea.setCaretPosition(textArea.viewToModel(e.getPoint()));
+				cursorPosition = textArea.getCaretPosition();
+				System.out.println(textArea.getCaretPosition());
+			}
+		});
 		
 		// Adds a document listener to the document associated with the JTextArea
 		documentListener = new DocumentListener() {
@@ -216,6 +229,7 @@ public class DocEdit extends JFrame {
 					int position = e.getOffset();
 					int length = e.getLength();
 					cursorPosition = position + length;
+					System.out.println(cursorPosition);
 
 					String change = textDocument.getText(position, length);
 					if (change.equals("\n")) {
@@ -235,7 +249,7 @@ public class DocEdit extends JFrame {
 			public void removeUpdate(DocumentEvent e) {
 				int position = e.getOffset();
 				int length = e.getLength();
-				cursorPosition = length;
+				cursorPosition = position;
 				out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + length + "|" + version);
 				
 			}
@@ -250,6 +264,7 @@ public class DocEdit extends JFrame {
 		this.version = versionNo;
 		
 		int length = change.length();
+		int cursorPosition = textArea.getCaretPosition();
 		cursorPosition = cursorPosition > position ? cursorPosition + length : cursorPosition;
 		//TODO Fix concurrency bug
 		removeListener();
@@ -265,6 +280,7 @@ public class DocEdit extends JFrame {
 	public void deleteContent(int position, int length, int versionNo) {
 		this.version = versionNo;
 		
+		int cursorPosition = textArea.getCaretPosition();
 		cursorPosition = cursorPosition > position ? cursorPosition - length : cursorPosition;
 		//TODO Fix concurrency bug
 		removeListener();
