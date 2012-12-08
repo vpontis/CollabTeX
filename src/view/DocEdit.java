@@ -304,9 +304,10 @@ public class DocEdit extends JFrame {
 		
 		//removeListener();
 		try {
-			
 			textDocument.insertString(position, change , null);
 		} catch (BadLocationException e) {
+			System.out.println("Position: " + String.valueOf(position));
+			System.out.println("Change: " + change);
 			e.printStackTrace();
 		}
 		textArea.setCaretPosition(cursorPosition);
