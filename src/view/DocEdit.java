@@ -53,6 +53,7 @@ public class DocEdit extends JFrame {
 	private final DocumentListener documentListener;
 	
 	private int version;
+	private int cursorPosition;
 	
 	/**
 	 * Constructor of the DocEdit GUI element
@@ -66,6 +67,8 @@ public class DocEdit extends JFrame {
 		super(documentName);
 		
 		this.version = versionID;
+		this.cursorPosition = 0;
+		
 		out = outputStream;
 		this.docName = documentName;
 		this.userName = user;
@@ -89,6 +92,7 @@ public class DocEdit extends JFrame {
 		scrollText = new JScrollPane(textArea);
 		scrollText.setMinimumSize(new Dimension(700, 700));
 		textArea.setText(docContent);
+		textArea.setCaretPosition(cursorPosition);
 		textDocument = textArea.getDocument();
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -243,7 +247,8 @@ public class DocEdit extends JFrame {
 	public void insertContent(String change, int position, int versionNo) {
 		this.version = versionNo;
 		
-		int cursorPosition = position + change.length();
+		int length = change.length();
+		cursorPosition = cursorPosition > position ? cursorPosition + length : cursorPosition;
 		//TODO Fix concurrency bug
 		removeListener();
 		try {
@@ -258,7 +263,7 @@ public class DocEdit extends JFrame {
 	public void deleteContent(int position, int length, int versionNo) {
 		this.version = versionNo;
 		
-		int cursorPosition = position;
+		cursorPosition = cursorPosition > position ? cursorPosition - length : cursorPosition;
 		//TODO Fix concurrency bug
 		removeListener();
 		try {
