@@ -215,6 +215,7 @@ public class DocEdit extends JFrame {
 				try {
 					int position = e.getOffset();
 					int length = e.getLength();
+					cursorPosition = position + length;
 
 					String change = textDocument.getText(position, length);
 					if (change.equals("\n")) {
@@ -234,6 +235,7 @@ public class DocEdit extends JFrame {
 			public void removeUpdate(DocumentEvent e) {
 				int position = e.getOffset();
 				int length = e.getLength();
+				cursorPosition = length;
 				out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + length + "|" + version);
 				
 			}
