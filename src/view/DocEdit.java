@@ -303,14 +303,15 @@ public class DocEdit extends JFrame {
 		//TODO Fix concurrency bug
 		
 		//removeListener();
-		try {
-			textDocument.insertString(position, change , null);
-		} catch (BadLocationException e) {
-			System.out.println("Position: " + String.valueOf(position));
-			System.out.println("Change: " + change);
-			e.printStackTrace();
+		synchronized (textDocument) {
+			try {
+				
+				textDocument.insertString(position, change , null);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
+			textArea.setCaretPosition(cursorPosition);
 		}
-		textArea.setCaretPosition(cursorPosition);
 		//addListener();
 	}
 	
@@ -324,12 +325,14 @@ public class DocEdit extends JFrame {
 		
 		//TODO Fix concurrency bug
 		//removeListener();
-		try {
-			textDocument.remove(position, length);
-		} catch (BadLocationException e) {
-			e.printStackTrace();
+		synchronized(textDocument) {
+			try {
+				textDocument.remove(position, length);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
+			textArea.setCaretPosition(cursorPosition);
 		}
-		textArea.setCaretPosition(cursorPosition);
 		//addListener();
 	}
 	
@@ -347,12 +350,14 @@ public class DocEdit extends JFrame {
 		posChange = Math.max(0, posChange);
 		
 		removeListener();
-		try {
-			//textDocument.remove(0, textArea.getText().length());
-			textDocument.insertString(0, newContent, null);
-		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		synchronized(textDocument) {
+			try {
+				//textDocument.remove(0, textArea.getText().length());
+				textDocument.insertString(0, newContent, null);
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		//textArea.setText(newContent);
