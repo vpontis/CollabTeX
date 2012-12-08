@@ -3,6 +3,8 @@ package view;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -181,6 +183,39 @@ public class DocEdit extends JFrame {
 			}
 		});
 		
+		textArea.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+					int position = textArea.getCaretPosition();
+					
+					position --;
+					int length = 1;
+					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + length + "|" + version);
+				}
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				int position = textArea.getCaretPosition();
+				String change = String.valueOf(e.getKeyChar());
+				if (e.getKeyCode() != KeyEvent.VK_BACK_SPACE) { 
+					change = change.equals("\n") ? "\t" : change;
+					int length = change.length();
+					//System.out.println(change);
+					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
+				} 
+			}
+			
+		});
+		
 		//make the latex disappear
 		closeLatexButton.addActionListener(new ActionListener(){
 			@Override
@@ -239,7 +274,7 @@ public class DocEdit extends JFrame {
 			}
 		};
 				
-		this.addListener();
+		//this.addListener();
 		
 		this.pack();
 	}
@@ -251,14 +286,14 @@ public class DocEdit extends JFrame {
 		int cursorPosition = textArea.getCaretPosition();
 		cursorPosition = cursorPosition > position ? cursorPosition + length : cursorPosition;
 		//TODO Fix concurrency bug
-		removeListener();
+		//removeListener();
 		try {
 			textDocument.insertString(position, change , null);
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
 		textArea.setCaretPosition(cursorPosition);
-		addListener();
+		//addListener();
 	}
 	
 	public void deleteContent(int position, int length, int versionNo) {
@@ -270,14 +305,14 @@ public class DocEdit extends JFrame {
 		cursorPosition = Math.max(0, cursorPosition);
 		
 		//TODO Fix concurrency bug
-		removeListener();
+		//removeListener();
 		try {
 			textDocument.remove(position, length);
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
 		textArea.setCaretPosition(cursorPosition);
-		addListener();
+		//addListener();
 	}
 	
 	/**
