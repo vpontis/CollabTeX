@@ -23,10 +23,8 @@ public class Latex {
 		StringBuilder out = new StringBuilder();
 		for (int i = 0; i < stringSplit.length; i++ ){
 			if (i % 2 == 0){
-				out.append("\\textrm{");
 				String escaped = escape(stringSplit[i]);
 				out.append(escaped);
-				out.append("}");
 			}
 			else{
 				out.append(stringSplit[i]);
@@ -51,16 +49,25 @@ public class Latex {
 //        "\\"=>"\\textbackslash",
 //        "{"=>"\\{",
 //        "}"=>"\\}",
-        string = string.replaceAll("\\\\", "\\\\textbackslash");
-		string = string.replaceAll("#", "\\#");
-		string = string.replaceAll("\\$", "\\$");
-		string = string.replaceAll("%", "\\%");
-		string = string.replaceAll("~", "\\~");
-		string = string.replaceAll("_", "\\_");
-		string = string.replaceAll("\\{", "\\{");
-		string = string.replaceAll("\\}", "\\}");
-		string = string.replaceAll("\\^","\\^{}");
-		return string;
+		string = string.replaceAll("\\\\(?!n)", "\\\\textbackslash");
+		string = string.replaceAll("~", "\\\\~");
+		string = string.replaceAll("#", "\\\\#");
+		string = string.replaceAll("\\$", "\\\\\\$");
+		string = string.replaceAll("%", "\\\\%");
+		string = string.replaceAll("_", "\\\\_");
+		string = string.replaceAll("\\{", "\\\\{");
+		string = string.replaceAll("\\}", "\\\\}");
+		string = string.replaceAll("\\^","\\\\^{}");
+		string = string.replaceAll("\\&","\\\\&");
+		StringBuilder out = new StringBuilder();
+		String[] lines = string.split("\\n");
+		for (int i = 0; i < lines.length; i++){
+			out.append("\\textrm{");
+			out.append(lines[i]);
+			out.append("} \\\\ ");
+		}
+		//TODO add support for newline. probably will need to split string on \n
+		return out.toString();
 	}
 	
 }

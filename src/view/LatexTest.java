@@ -8,6 +8,11 @@ public class LatexTest {
 
 	@Test
 	public void escapeString(){
+		assertEquals("! @ \\# \\$ \\% \\^{}" +
+				" \\& * \\{ \\} \\textbackslash \\\\",
+				Latex.escape("! @ # $ % ^ & * { } \\ \n"));
+		assertEquals("\\textbackslash", Latex.escape("\\"));
+		assertEquals("\\~", Latex.escape("~"));
 		String original = "hello \\ person";
 		String escaped = "hello \\textbackslash person";
 		assertEquals(escaped, Latex.escape(original));
