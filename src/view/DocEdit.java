@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
 
@@ -14,7 +13,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -57,7 +55,6 @@ public class DocEdit extends JFrame {
 	private final DocumentListener documentListener;
 	
 	private int version;
-	private int cursorPosition;
 	
 	/**
 	 * Constructor of the DocEdit GUI element
@@ -71,7 +68,6 @@ public class DocEdit extends JFrame {
 		super(documentName);
 		
 		this.version = versionID;
-		this.cursorPosition = 0;
 		
 		out = outputStream;
 		this.docName = documentName;
@@ -96,7 +92,6 @@ public class DocEdit extends JFrame {
 		scrollText = new JScrollPane(textArea);
 		scrollText.setMinimumSize(new Dimension(700, 700));
 		textArea.setText(docContent);
-		textArea.setCaretPosition(cursorPosition);
 		textDocument = textArea.getDocument();
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -206,15 +201,7 @@ public class DocEdit extends JFrame {
 				exitDocument();	
 			}
 		});	
-		
-		textArea.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked (MouseEvent e) {
-				textArea.setCaretPosition(textArea.viewToModel(e.getPoint()));
-				cursorPosition = textArea.getCaretPosition();
-				System.out.println(textArea.getCaretPosition());
-			}
-		});
+
 		
 		// Adds a document listener to the document associated with the JTextArea
 		documentListener = new DocumentListener() {
@@ -228,8 +215,6 @@ public class DocEdit extends JFrame {
 				try {
 					int position = e.getOffset();
 					int length = e.getLength();
-					cursorPosition = position + length;
-					System.out.println(cursorPosition);
 
 					String change = textDocument.getText(position, length);
 					if (change.equals("\n")) {
@@ -249,7 +234,6 @@ public class DocEdit extends JFrame {
 			public void removeUpdate(DocumentEvent e) {
 				int position = e.getOffset();
 				int length = e.getLength();
-				cursorPosition = position;
 				out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + length + "|" + version);
 				
 			}
