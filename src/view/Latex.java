@@ -6,26 +6,22 @@ import org.scilab.forge.jlatexmath.*;
 
 public class Latex {
 	public static boolean isLatex(String string){
-		if(1==1){
-			try{
-				new TeXFormula(string);
-				return true;
-			}
-			catch(Exception e){
-				return false;
-			}
+		try{
+			new TeXFormula(string);
+			return true;
 		}
-		return false;
+		catch(Exception e){
+			return false;
+		}
 	}
 	
 	public static TeXIcon getLatex(String latexString){
-		String[] stringSplit = latexString.split("$$");
+		String[] stringSplit = latexString.split("\\$\\$");
 		StringBuilder out = new StringBuilder();
 		for (int i = 0; i < stringSplit.length; i++ ){
 			if (i % 2 == 0){
-				out.append("\\textrm{");
-				out.append(stringSplit[i]);
-				out.append("}");
+				String escaped = escape(stringSplit[i]);
+				out.append(escaped);
 			}
 			else{
 				out.append(stringSplit[i]);
@@ -37,6 +33,39 @@ public class Latex {
 					.createTeXIcon(TeXConstants.STYLE_DISPLAY,20);
 		icon.setInsets(new Insets(5,5,5,5));
 		return icon;
+	}
+
+	public static String escape(String string) {
+//        "#"=>"\\#",
+//        "$"=>"\\$",
+//        "%"=>"\\%",
+//        "&"=>"\\&",
+//        "~"=>"\\~{}",
+//        "_"=>"\\_",
+//        "^"=>"\\^{}",
+//        "\\"=>"\\textbackslash",
+//        "{"=>"\\{",
+//        "}"=>"\\}",
+		string = string.replaceAll("\\\\(?!n)", "\\\\textbackslash");
+		string = string.replaceAll("~", "\\\\~");
+		string = string.replaceAll("#", "\\\\#");
+		string = string.replaceAll("\\$", "\\\\\\$");
+		string = string.replaceAll("%", "\\\\%");
+		string = string.replaceAll("_", "\\\\_");
+		string = string.replaceAll("\\{", "\\\\{");
+		string = string.replaceAll("\\}", "\\\\}");
+		string = string.replaceAll("\\^","\\\\^{}");
+		string = string.replaceAll("\\@","\\\\@");
+		string = string.replaceAll("\\&","\\\\&");
+		StringBuilder out = new StringBuilder();
+		String[] lines = string.split("\\n");
+		for (int i = 0; i < lines.length; i++){
+			out.append("\\textrm{");
+			out.append(lines[i]);
+			out.append("} \\\\ ");
+		}
+		//TODO add support for newline. probably will need to split string on \n
+		return out.toString();
 	}
 	
 }
