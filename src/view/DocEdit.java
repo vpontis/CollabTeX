@@ -5,8 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
 
@@ -191,16 +189,16 @@ public class DocEdit extends JFrame {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
+				
 				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
 					int position = textArea.getCaretPosition();
 					
 					if (position > 0) {
 						position --;
 						int length = 1;
+
 						out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + length + "|" + version);
-					}
-					
-					
+					}					
 				} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					int position = textArea.getCaretPosition();
 					
@@ -208,6 +206,7 @@ public class DocEdit extends JFrame {
 					String change = "\t";
 					
 					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
+
 				}
 			}
 
@@ -221,10 +220,11 @@ public class DocEdit extends JFrame {
 			public void keyTyped(KeyEvent e) {
 				int position = textArea.getCaretPosition();
 				String change = String.valueOf(e.getKeyChar());
-				if (e.getKeyCode() != KeyEvent.VK_BACK_SPACE && e.getKeyCode() != KeyEvent.VK_ENTER) { 
+
+				if (! (change.equals("\b") || change.equals("\n"))) { 
 					change = change.equals("\n") ? "\t" : change;
 					int length = change.length();
-					//System.out.println(change);
+					System.out.println(change);
 					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
 				} 
 			}
@@ -305,7 +305,6 @@ public class DocEdit extends JFrame {
 		//removeListener();
 		synchronized (textDocument) {
 			try {
-				
 				textDocument.insertString(position, change , null);
 			} catch (BadLocationException e) {
 				e.printStackTrace();
@@ -319,19 +318,23 @@ public class DocEdit extends JFrame {
 		this.version = versionNo;
 		
 		int cursorPosition = textArea.getCaretPosition();
+		//System.out.println(cursorPosition);
 		cursorPosition = cursorPosition > position ? cursorPosition - length : cursorPosition;
-		cursorPosition = Math.min(cursorPosition, textArea.getText().length());
-		cursorPosition = Math.max(0, cursorPosition);
+		//cursorPosition = Math.min(cursorPosition, textArea.getText().length());
+		//cursorPosition = Math.max(0, cursorPosition);
 		
 		//TODO Fix concurrency bug
 		//removeListener();
 		synchronized(textDocument) {
 			try {
+				System.out.println(textDocument.getText(0, textArea.getText().length()));
 				textDocument.remove(position, length);
+				System.out.println(textDocument.getText(0, textArea.getText().length()));
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}
 			textArea.setCaretPosition(cursorPosition);
+			//System.out.println(cursorPosition);
 		}
 		//addListener();
 	}
