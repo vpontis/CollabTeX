@@ -13,7 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
@@ -34,7 +34,7 @@ public class DocEdit extends JFrame {
 	private JLabel collabLabel;
 	private JLabel collaborators;
 	
-	private JTextArea textArea;
+	private JTextPane textArea;
 	private JScrollPane scrollText;
 	
 	private JLabel messageLabel;
@@ -85,7 +85,7 @@ public class DocEdit extends JFrame {
 		closeLatexButton.setVisible(false);
 		latexDisplay.setVisible(false);
 		
-		textArea = new JTextArea();
+		textArea = new JTextPane();
 		scrollText = new JScrollPane(textArea);
 		scrollText.setMinimumSize(new Dimension(700, 700));
 		textArea.setText(docContent);
