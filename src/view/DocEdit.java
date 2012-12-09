@@ -1,12 +1,11 @@
 package view;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
 
@@ -15,11 +14,13 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import org.scilab.forge.jlatexmath.TeXIcon;
 
@@ -38,7 +39,7 @@ public class DocEdit extends JFrame {
 	private JLabel collabLabel;
 	private JLabel collaborators;
 	
-	private JTextArea textArea;
+	private JTextPane textArea;
 	private JScrollPane scrollText;
 	
 	private JLabel messageLabel;
@@ -53,8 +54,7 @@ public class DocEdit extends JFrame {
 	@SuppressWarnings("unused")
 	private String collaboratorNames;
 	
-	private Document textDocument;
-	private final DocumentListener documentListener;
+	private StyledDocument textDocument;
 	
 	private int version;
 	
@@ -90,11 +90,11 @@ public class DocEdit extends JFrame {
 		closeLatexButton.setVisible(false);
 		latexDisplay.setVisible(false);
 		
-		textArea = new JTextArea();
+		textArea = new JTextPane();
 		scrollText = new JScrollPane(textArea);
 		scrollText.setMinimumSize(new Dimension(700, 700));
 		textArea.setText(docContent);
-		textDocument = textArea.getDocument();
+		textDocument = textArea.getStyledDocument();
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -191,16 +191,16 @@ public class DocEdit extends JFrame {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
+				
 				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
 					int position = textArea.getCaretPosition();
 					
 					if (position > 0) {
 						position --;
 						int length = 1;
+
 						out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + length + "|" + version);
-					}
-					
-					
+					}					
 				} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					int position = textArea.getCaretPosition();
 					
@@ -208,6 +208,7 @@ public class DocEdit extends JFrame {
 					String change = "\t";
 					
 					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
+
 				}
 			}
 
@@ -221,10 +222,18 @@ public class DocEdit extends JFrame {
 			public void keyTyped(KeyEvent e) {
 				int position = textArea.getCaretPosition();
 				String change = String.valueOf(e.getKeyChar());
-				if (e.getKeyCode() != KeyEvent.VK_BACK_SPACE && e.getKeyCode() != KeyEvent.VK_ENTER) { 
-					change = change.equals("\n") ? "\t" : change;
+				
+				if (! (change.equals("\b") || change.equals("\n"))) {
+					MutableAttributeSet attr = new SimpleAttributeSet();
+					
+					javax.swing.text.Style style = textArea.addStyle("BlackForecolor", null);
+			        StyleConstants.setForeground(style, Color.black);
+
+			        change = change.equals("\n") ? "\t" : change;
 					int length = change.length();
-					//System.out.println(change);
+			        
+			        textDocument.setCharacterAttributes(position - length, length, textArea.getStyle("BlackForecolor"), false); 
+					
 					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
 				} 
 			}
@@ -251,50 +260,17 @@ public class DocEdit extends JFrame {
 				exitDocument();	
 			}
 		});	
-
-		
-		// Adds a document listener to the document associated with the JTextArea
-		documentListener = new DocumentListener() {
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				System.out.println("CHANGED!");
-			}
-
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				try {
-					int position = e.getOffset();
-					int length = e.getLength();
-
-					String change = textDocument.getText(position, length);
-					if (change.equals("\n")) {
-						// Delimit lines with tabs
-						out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + "\t" + "|" + length + "|" + version);
-					}  else if (! change.equals("")){
-						out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
-					}
-					
-				} catch (BadLocationException e1) {
-					throw new UnsupportedOperationException();
-				}
-				
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				int position = e.getOffset();
-				int length = e.getLength();
-				out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + length + "|" + version);
-				
-			}
-		};
-				
-		//this.addListener();
 		
 		this.pack();
 	}
 	
-	public void insertContent(String change, int position, int versionNo) {
+	/**
+	 * Inserts new content at the given position in the document
+	 * @param change New content added at the position	
+	 * @param position Position at which insertion must be made
+	 * @param versionNo New version number of the document
+	 */
+	public void insertContent(String change, int position, int versionNo, Color color) {
 		this.version = versionNo;
 		
 		int length = change.length();
@@ -302,11 +278,11 @@ public class DocEdit extends JFrame {
 		cursorPosition = cursorPosition > position ? cursorPosition + length : cursorPosition;
 		//TODO Fix concurrency bug
 		
-		//removeListener();
 		synchronized (textDocument) {
 			try {
-				
-				textDocument.insertString(position, change , null);
+				Style style = textArea.addStyle("foreGround", null);
+		        StyleConstants.setForeground(style, color);
+				textDocument.insertString(position, change , style);
 			} catch (BadLocationException e) {
 				System.out.println("Position: " + String.valueOf(position));
 				System.out.println("Change: " + change);
@@ -315,19 +291,20 @@ public class DocEdit extends JFrame {
 			}
 			textArea.setCaretPosition(cursorPosition);
 		}
-		//addListener();
 	}
 	
+	/**
+	 * Deletes all content from the given version for the given length of characters
+	 * @param position Position of start of deletion
+	 * @param length Length of deletion
+	 * @param versionNo New version number of the document
+	 */
 	public void deleteContent(int position, int length, int versionNo) {
 		this.version = versionNo;
 		
 		int cursorPosition = textArea.getCaretPosition();
 		cursorPosition = cursorPosition > position ? cursorPosition - length : cursorPosition;
-		cursorPosition = Math.min(cursorPosition, textArea.getText().length());
-		cursorPosition = Math.max(0, cursorPosition);
-		
-		//TODO Fix concurrency bug
-		//removeListener();
+
 		synchronized(textDocument) {
 			try {
 				textDocument.remove(position, length);
@@ -338,38 +315,8 @@ public class DocEdit extends JFrame {
 				e.printStackTrace();
 			}
 			textArea.setCaretPosition(cursorPosition);
+			
 		}
-		//addListener();
-	}
-	
-	/**
-	 * Method to update content in the text area
-	 * @param newContent New content in the text area
-	 * @throws BadLocationException 
-	 */
-	public synchronized void updateContent(String newContent, int position, int length, int versionNo, boolean isInsertion) {
-		this.version = versionNo;
-		
-		int posChange = isInsertion ? position + length : position;
-		
-		posChange = Math.min(posChange, textArea.getText().length());
-		posChange = Math.max(0, posChange);
-		
-		removeListener();
-		synchronized(textDocument) {
-			try {
-				//textDocument.remove(0, textArea.getText().length());
-				textDocument.insertString(0, newContent, null);
-			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		//textArea.setText(newContent);
-		addListener();
-		//TODO Need to fix the cursor issue; it's pretty annoying
-		//textArea.setCaretPosition(posChange);
 	}
 	
 	/**
@@ -403,19 +350,6 @@ public class DocEdit extends JFrame {
 		collaborators.setText(collaboratorNames);
 	}
 	
-	/**
-	 * Method that associates document listener to the document associated with the text area
-	 */
-	public void addListener() {
-		textDocument.addDocumentListener(documentListener);
-	}
-	
-	/**
-	 * Method that disassociates the document listener from the document associated with the text area
-	 */
-	public void removeListener() {
-		textDocument.removeDocumentListener(documentListener);
-	}
 	
 	public void packFrame() {
 		this.pack();
