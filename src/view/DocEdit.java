@@ -308,6 +308,9 @@ public class DocEdit extends JFrame {
 				
 				textDocument.insertString(position, change , null);
 			} catch (BadLocationException e) {
+				System.out.println("Position: " + String.valueOf(position));
+				System.out.println("Change: " + change);
+				System.out.println(String.valueOf(textArea.getText().length()));
 				e.printStackTrace();
 			}
 			textArea.setCaretPosition(cursorPosition);
@@ -329,6 +332,9 @@ public class DocEdit extends JFrame {
 			try {
 				textDocument.remove(position, length);
 			} catch (BadLocationException e) {
+				System.out.println("Position: " + String.valueOf(position));
+				System.out.println("Length: " + String.valueOf(length));
+				System.out.println(String.valueOf(textArea.getText().length()));
 				e.printStackTrace();
 			}
 			textArea.setCaretPosition(cursorPosition);
