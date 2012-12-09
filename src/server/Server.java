@@ -1,8 +1,18 @@
 package server;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import model.Document;
@@ -33,10 +43,14 @@ public class Server {
 	private Set<String> onlineUsers;
 	private Map<Integer, String> socketUserMappings;
 	private List<PrintWriter> outputStreamWriters;
+	private Map<String, Color> userColorMappings;
 	
 	private final Object lock = new Object();
 	
 	private LinkedBlockingQueue<ServerRequest> queue;
+	
+	private final Color[] COLORS = new Color[] {Color.red, Color.blue, Color.green, Color.orange, Color.magenta, Color.pink, Color.yellow};
+	private final int NUM_COLORS = COLORS.length;
 	
 	/**
 	 * Initializes the EtherpadServer with the default port number
@@ -55,6 +69,7 @@ public class Server {
 		currentDocuments = new ArrayList<Document>();
 		serverSocket = new ServerSocket(port);
 		
+		userColorMappings = new HashMap<String, Color> ();
 		onlineUsers = new HashSet<String> ();
 		socketUserMappings = new HashMap<Integer, String> ();
 		
@@ -126,6 +141,7 @@ public class Server {
         	if (socketUserMappings.containsKey(ID)) {
         		String userName = socketUserMappings.get(ID);
         		onlineUsers.remove(userName);
+        		userColorMappings.remove(userName);
         		socketUserMappings.remove(ID);
         		
         	}
@@ -245,6 +261,14 @@ public class Server {
 		if (inputSplit.length == 6) {
 			position = Integer.valueOf(inputSplit[2]);
 			String change = inputSplit[3];
+			Color actualColor = userColorMappings.get(userName);
+			
+			int colorRed = actualColor.getRed();
+			int colorBlue = actualColor.getBlue();
+			int colorGreen = actualColor.getGreen();
+			
+			String color = String.valueOf(colorRed) + "," + String.valueOf(colorGreen) + "," + String.valueOf(colorBlue);
+			
 			length = Integer.valueOf(inputSplit[4]);
 			version = Integer.valueOf(inputSplit[5]);
 			isInsertion = true;
@@ -263,7 +287,7 @@ public class Server {
 			int versionNumber = currentDocument.getVersion();
 			
 			if (position != -1 && length != -1) {
-				return "changed|" + userName + "|" + docName + "|" + change + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion;
+				return "changed|" + userName + "|" + docName + "|" + change + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion + "|" + color;
 			}
 		} 
 		
@@ -304,6 +328,11 @@ public class Server {
     	//otherwise, the user has a unique name
 		else {
 			onlineUsers.add(userName);
+			int numUsers = onlineUsers.size() % NUM_COLORS;
+			Color color = COLORS[numUsers];
+			
+			System.out.println(userName + "-->" + color.toString());
+			userColorMappings.put(userName, color);
 			socketUserMappings.put(ID, userName);
 			
 			//this returns information about the user logged in 
@@ -333,6 +362,7 @@ public class Server {
      */
     private String logOut(String userName) {
 		onlineUsers.remove(userName);
+		userColorMappings.remove(userName);
 		return "loggedout " + userName;
     }
     

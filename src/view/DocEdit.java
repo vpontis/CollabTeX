@@ -1,5 +1,6 @@
 package view;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,6 +17,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import org.scilab.forge.jlatexmath.TeXIcon;
 
@@ -49,7 +55,7 @@ public class DocEdit extends JFrame {
 	@SuppressWarnings("unused")
 	private String collaboratorNames;
 	
-	private Document textDocument;
+	private StyledDocument textDocument;
 	
 	private int version;
 	
@@ -89,7 +95,7 @@ public class DocEdit extends JFrame {
 		scrollText = new JScrollPane(textArea);
 		scrollText.setMinimumSize(new Dimension(700, 700));
 		textArea.setText(docContent);
-		textDocument = textArea.getDocument();
+		textDocument = textArea.getStyledDocument();
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -217,10 +223,18 @@ public class DocEdit extends JFrame {
 			public void keyTyped(KeyEvent e) {
 				int position = textArea.getCaretPosition();
 				String change = String.valueOf(e.getKeyChar());
+				
+				if (! (change.equals("\b") || change.equals("\n"))) {
+					MutableAttributeSet attr = new SimpleAttributeSet();
+					
+					javax.swing.text.Style style = textArea.addStyle("BlackForecolor", null);
+			        StyleConstants.setForeground(style, Color.black);
 
-				if (! (change.equals("\b") || change.equals("\n"))) { 
-					change = change.equals("\n") ? "\t" : change;
+			        change = change.equals("\n") ? "\t" : change;
 					int length = change.length();
+			        
+			        textDocument.setCharacterAttributes(position - length, length, textArea.getStyle("BlackForecolor"), false); 
+					
 					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
 				} 
 			}
@@ -257,7 +271,7 @@ public class DocEdit extends JFrame {
 	 * @param position Position at which insertion must be made
 	 * @param versionNo New version number of the document
 	 */
-	public void insertContent(String change, int position, int versionNo) {
+	public void insertContent(String change, int position, int versionNo, Color color) {
 		this.version = versionNo;
 		
 		int length = change.length();
@@ -267,7 +281,9 @@ public class DocEdit extends JFrame {
 		
 		synchronized (textDocument) {
 			try {
-				textDocument.insertString(position, change , null);
+				Style style = textArea.addStyle("foreGround", null);
+		        StyleConstants.setForeground(style, color);
+				textDocument.insertString(position, change , style);
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}
