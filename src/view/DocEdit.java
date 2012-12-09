@@ -251,6 +251,12 @@ public class DocEdit extends JFrame {
 		this.pack();
 	}
 	
+	/**
+	 * Inserts new content at the given position in the document
+	 * @param change New content added at the position	
+	 * @param position Position at which insertion must be made
+	 * @param versionNo New version number of the document
+	 */
 	public void insertContent(String change, int position, int versionNo) {
 		this.version = versionNo;
 		
@@ -269,6 +275,12 @@ public class DocEdit extends JFrame {
 		}
 	}
 	
+	/**
+	 * Deletes all content from the given version for the given length of characters
+	 * @param position Position of start of deletion
+	 * @param length Length of deletion
+	 * @param versionNo New version number of the document
+	 */
 	public void deleteContent(int position, int length, int versionNo) {
 		this.version = versionNo;
 		
@@ -284,36 +296,6 @@ public class DocEdit extends JFrame {
 			textArea.setCaretPosition(cursorPosition);
 			
 		}
-	}
-	
-	/**
-	 * Method to update content in the text area
-	 * @param newContent New content in the text area
-	 * @throws BadLocationException 
-	 */
-	public synchronized void updateContent(String newContent, int position, int length, int versionNo, boolean isInsertion) {
-		this.version = versionNo;
-		
-		int posChange = isInsertion ? position + length : position;
-		
-		posChange = Math.min(posChange, textArea.getText().length());
-		posChange = Math.max(0, posChange);
-		
-		//removeListener();
-		synchronized(textDocument) {
-			try {
-				//textDocument.remove(0, textArea.getText().length());
-				textDocument.insertString(0, newContent, null);
-			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		//textArea.setText(newContent);
-		//addListener();
-		//TODO Need to fix the cursor issue; it's pretty annoying
-		//textArea.setCaretPosition(posChange);
 	}
 	
 	/**
