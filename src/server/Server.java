@@ -33,7 +33,28 @@ import model.Document;
  * Rep Invariants:
  * 		onlineUsers is a list of unique names
  * 		Each document has a unique name
- * 		
+ * 
+ * 
+ * Grammar of server --> client messages
+ * 		UPDATE := "update|" + docName + "|" + collaborators + "|" + colors
+ * 		OPENED := "opened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version
+ *      NOTSIGNEDUP := "notsignedup " + ID 
+ *      SIGNEDUP := "signedup " + ID
+ *      CHANGED := INSERTION | DELETION
+ * 		INSERTION := "changed|" + userName + "|" + docName + "|" + change + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion + "|" + color
+ *		DELETEION := "changed|" + userName + "|" + docName + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion
+ *		NEWDOC := CREATED | NOTCREATED
+ *		CREATED := 	"created|" + userName + "|" + docName + "|" + userName + "|" + date 
+ *		NOTCREATED := "notcreatedduplicate"
+ *		UPDATECOLLAB :=  "update|" + docName + "|" + collaborators + "|" + colors 
+ *		OPENDOC := "opened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version
+ * 		EXITDOC := "exitteddoc" userName docName //TODO this should be updated to be split up by pipes
+ * 		DOCTABLEINFO := DOCINFO+ "enddocinfo" newline
+ * 		DOCINFO := docName tab docDate tab docCollab newline
+ * 		LOGGEDIN := "loggedin " userName ID  newline DOCTABLEINFO //TODO this should be changed to pipes
+ * 		NOTLOGGEDIN := WRONGPASSWORD | DUPLICATEUSER
+ * 		WRONGPASSWORD := "wrongpassword" ID //TODO split on pipes
+ * 		DUPLICATEUSER := "notloggedin" //TODO include other information
  */
 public class Server {
 	
