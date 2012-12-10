@@ -243,7 +243,7 @@ public class Server {
 			String[] signupSplit = input.split(" ");
 			userName = signupSplit[0];
 			password = signupSplit[1];
-			return signup(userName, password);
+			return signup(userName, password, ID);
 			
 		default:
 			return "Invalid request";
@@ -254,12 +254,12 @@ public class Server {
     	
 	}
     
-    private synchronized String signup(String userName, String password) {
+    private synchronized String signup(String userName, String password, int ID) {
     	if (userPasswordMappings.containsKey(userName)) {
-    		return "notsignedup";
+    		return "notsignedup " + ID;
     	} else {
     		userPasswordMappings.put(userName, password);
-    		return "signedup";
+    		return "signedup " + ID;
     	}
     }
     
@@ -381,7 +381,7 @@ public class Server {
 				
 				return stringBuilder.toString();
 			} else {
-				return "wrongpassword";
+				return "wrongpassword " + ID;
 			}
 		}
     }
