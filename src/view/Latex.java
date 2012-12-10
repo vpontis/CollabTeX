@@ -46,7 +46,7 @@ public class Latex {
 //        "\\"=>"\\textbackslash",
 //        "{"=>"\\{",
 //        "}"=>"\\}",
-		string = string.replaceAll("\\\\(?!n)", "\\\\textbackslash");
+		string = string.replaceAll("\\\\(?!n)", "\\\\backslash");
 		string = string.replaceAll("~", "\\\\~");
 		string = string.replaceAll("#", "\\\\#");
 		string = string.replaceAll("\\$", "\\\\\\$");
