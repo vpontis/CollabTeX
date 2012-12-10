@@ -539,9 +539,14 @@ public class Server {
 	 * @param args Unused
 	 */
 	public static void main(String[] args) {
-		final Server etherpadServer;
+		final Server serverInstance;
 		try {
-			etherpadServer = new Server();
+			if(args.length == 1){
+				serverInstance = new Server(Integer.parseInt(args[0]));
+				System.out.println("Started the server on port " + args[0]);
+			}
+			else
+				serverInstance = new Server();
 			
 			//Serving thread handles new connections made to the server
 			Thread servingThread = new Thread(new Runnable() {
@@ -549,7 +554,7 @@ public class Server {
 				public void run() {
 					try {
 						System.out.println("Listening for requests");
-						etherpadServer.serve();
+						serverInstance.serve();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -562,7 +567,7 @@ public class Server {
 				public void run() {
 					try {
 						System.out.println("Attending requests");
-						etherpadServer.attendRequest();
+						serverInstance.attendRequest();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
