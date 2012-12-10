@@ -19,6 +19,11 @@ public class LatexTest {
 	}
 	
 	@Test
+	public void newLineInRegularText(){
+		assertEquals("Hello\\\\", Latex.escape("Hello\\n"));
+	}
+	
+	@Test
 	public void isLatexTest(){
 		String latex = "\\frac {V_m} {K_M+S}";
 		assertTrue(Latex.isLatex(latex));
