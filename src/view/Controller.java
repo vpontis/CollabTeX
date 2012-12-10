@@ -277,7 +277,6 @@ public class Controller {
 		
 		try {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
-				System.out.println(line);
 				//if the user exits the document, fire a thread to run the docedit
 				if (line.startsWith("exiteddoc ")) {
 					String[] lineSplit = line.split(" ");
