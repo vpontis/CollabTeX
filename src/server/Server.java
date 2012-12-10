@@ -44,10 +44,10 @@ import model.Document;
  * 		INSERTION := "changed|" + userName + "|" + docName + "|" + change + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion + "|" + color
  *		DELETEION := "changed|" + userName + "|" + docName + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion
  *		NEWDOC := CREATED | NOTCREATED
- *		CREATED := 	"created|" + userName + "|" + docName + "|" + userName + "|" + date 
+ *		CREATED := 	"created|" + userName + "|" + docName + "|" + userName + "|" + date + "|" + colors
  *		NOTCREATED := "notcreatedduplicate"
  *		UPDATECOLLAB :=  "update|" + docName + "|" + collaborators + "|" + colors 
- *		OPENDOC := "opened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version
+ *		OPENDOC := "opened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version + "|" colors
  * 		EXITDOC := "exitteddoc" userName docName //TODO this should be updated to be split up by pipes
  * 		DOCTABLEINFO := DOCINFO+ "enddocinfo" newline
  * 		DOCINFO := docName tab docDate tab docCollab newline
@@ -57,25 +57,38 @@ import model.Document;
  * 		DUPLICATEUSER := "notloggedin" //TODO include other information
  */
 public class Server {
-	
-	private List<Document> currentDocuments;
+	//default port 
 	private static int port = 4444;
+	
+	//socket where clients will access the server
 	private final ServerSocket serverSocket;
+	
+	//colors for the text of each user
+	private final Color[] COLORS = new Color[] {Color.red, Color.blue, Color.green, Color.orange, Color.magenta, Color.lightGray};
+	private final int NUM_COLORS = COLORS.length;
+
+	//list of documents on the server
+	private List<Document> currentDocuments;
+	
+	//list of users who are online at the time
 	private Set<String> onlineUsers;
-	private Map<Integer, String> socketUserMappings;
-	private List<PrintWriter> outputStreamWriters;
+	//these map usernames to both color and password
 	private Map<String, Color> userColorMappings;
 	private Map<String, String> userPasswordMappings;
 	
-	private final Object lock = new Object();
+	//mapping each socket ID to a user
+	private Map<Integer, String> socketUserMappings;
 	
+	//each output stream corresponds to a certain client
+	private List<PrintWriter> outputStreamWriters;
+	
+	//this queue contains the requests from the various clients
 	private LinkedBlockingQueue<ServerRequest> queue;
 	
-	private final Color[] COLORS = new Color[] {Color.red, Color.blue, Color.green, Color.orange, Color.magenta, Color.lightGray};
-	private final int NUM_COLORS = COLORS.length;
 	
 	/**
-	 * Initializes the EtherpadServer with the default port number
+	 * Initializes the Server with the default port number
+	 * Calls the constructor that specifies the port number
 	 * @throws IOException If there is an error creating the server socket
 	 */
 	public Server() throws IOException {
@@ -83,22 +96,27 @@ public class Server {
 	}
 	
 	/**
-	 * Initializes the EtherpadServer with the given port number
+	 * Initializes the Server with the given port number
+	 * This constructor basically just initializes all of the socket variables
+	 * Once this is ran, the server is ready to serve and is ready to accept
+	 * client connections and interact with those clients. The serve method
+	 * also needs to be called after this constructor is finished. 
 	 * @param port The port number to which the server publishes messages
 	 * @throws IOException If there is an error creating the server socket
 	 */
 	public Server(int givenPort) throws IOException {
-		currentDocuments = new ArrayList<Document>();
 		serverSocket = new ServerSocket(port);
 		
-		userColorMappings = new HashMap<String, Color> ();
-		onlineUsers = new HashSet<String> ();
-		socketUserMappings = new HashMap<Integer, String> ();
-		userPasswordMappings = new HashMap<String, String> ();
+		currentDocuments = new ArrayList<Document>();
+
+		onlineUsers = new HashSet<String>();
+		userColorMappings = new HashMap<String, Color>();
+		userPasswordMappings = new HashMap<String, String>();
+		socketUserMappings = new HashMap<Integer, String>();
 		
-		outputStreamWriters = new ArrayList<PrintWriter> ();
+		outputStreamWriters = new ArrayList<PrintWriter>();
 		
-		queue = new LinkedBlockingQueue<ServerRequest> ();
+		queue = new LinkedBlockingQueue<ServerRequest>();
 	}
 	
 	/**
@@ -111,21 +129,24 @@ public class Server {
     	int ID = 0;
         while (true) {
             // block until a client connects
+        	//TODO we might want to synchronize this so if multiple clients connect at the same time we will not have interleaving problems
             Socket socket = serverSocket.accept();
             ID++; //ID keeps track of the socket ID, to take care of users exiting
-            Thread socketThread = new Thread(new RunnableServer(socket, ID));
+            Thread socketThread = new Thread(new ConnectionHandler(socket, ID));
             socketThread.start();
         }
     }
     
     /**
      * Class defined to help start a new thread every time a new client connects to the server
+     * This class is run by the Server when it is serving a client. It just looks
+     * at the stream and handles the connection. 
      */
-    private class RunnableServer implements Runnable {
+    private class ConnectionHandler implements Runnable {
     	Socket socket;
     	int ID;
     	
-    	public RunnableServer(Socket socket, int ID) {
+    	public ConnectionHandler(Socket socket, int ID) {
     		this.socket = socket;
     		this.ID = ID;
     	}
@@ -138,12 +159,13 @@ public class Server {
 				e.printStackTrace();
 			}			
 		}
-    	
     }
+    
     
     /**
      * Handle a single client connection.  Returns when client disconnects.
      * @param socket socket where the client is connected
+     * @param ID of the client 
      * @throws IOException if connection has an error or terminates unexpectedly
      */
 	public void handleConnection(Socket socket, int ID) throws IOException {
@@ -151,14 +173,16 @@ public class Server {
         PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
         
         try {
-        	synchronized (lock) {
+        	synchronized (outputStreamWriters) {
         		outputStreamWriters.add(out);
         	}
-        	out.println("id: "+ID);
+        	out.println("id: " + ID);
+        	
+        	//as the server gets request form the client it will add these requests to a queue
+        	//these requests will be handles in order that they are added to the queue
 	        for (String line = in.readLine(); line!=null; line=in.readLine()) {
 	        	ServerRequest serverRequest = new ServerRequest(ID, line);
 	        	queue.add(serverRequest);
-	            
 	        }
         } catch (IOException e) {
         	if (socketUserMappings.containsKey(ID)) {
@@ -166,13 +190,11 @@ public class Server {
         		onlineUsers.remove(userName);
         		userColorMappings.remove(userName);
         		socketUserMappings.remove(ID);
-        		
         	}
         	outputStreamWriters.remove(out);
         	out.close();
         	in.close();
         }
-
 	}
 	
 	/**
@@ -180,14 +202,20 @@ public class Server {
 	 * @throws InterruptedException throws an interrupted exception when popping out of the block queue is interrupted
 	 */
 	public synchronized void attendRequest() throws InterruptedException {
+		//keep looping through the queue checking is there is a request in the queue
+		//we only want one of these methods running at once
 		while (true) {
 			ServerRequest serverRequest = queue.take();
+			
 			int ID = serverRequest.getID();
 			String request = serverRequest.getLine();
 			RequestType requestType = serverRequest.getType();
 			
+			//handle the request 
+			//TODO do we want to synchronize handling the request so that we do not handle multiple at once
 			String response = handleRequest(request, ID, requestType);
-
+			
+			//propagate the response of the request to all of clients
             for (PrintWriter outputStream : outputStreamWriters) {
             	outputStream.println(response);
             }
@@ -195,17 +223,19 @@ public class Server {
 	}
   
     /**
-     * handler for client input
-     * 
-     * make requested mutations on game state if applicable, then return 
+     * Handler for client input
+     * Make requested mutations on the model if applicable, then return 
      * appropriate message to the user.
-     * 
      * @param input The request from the client to the server
+     * @param ID of the client
+     * @param RequestType of the current request
      * @return Response from the server to the client
      */
     private String handleRequest(String input, int ID, RequestType requestType) {
+    	//initialize a few commonly used strings
     	String userName = "";
     	String password = "";
+    	String docName = "";
     	
     	switch (requestType) {
     	case LOGIN:
@@ -220,7 +250,7 @@ public class Server {
 			String[] newdocTokens = input.split(" ");
 			if (newdocTokens.length == 2) {
 				userName = newdocTokens[0];
-				String docName = newdocTokens[1];
+				docName = newdocTokens[1];
 				return newDoc(userName, docName);
 			}
 			break;
@@ -230,7 +260,7 @@ public class Server {
 			String[] tokens = input.split(" ");
 			if (tokens.length == 2) {
 				userName = tokens[0];
-				String docName = tokens[1];
+				docName = tokens[1];
 				return openDoc(userName, docName);
 			}
 			break;
@@ -245,14 +275,14 @@ public class Server {
 			//exits the document and returns the user to the document table screen
 			String[] exitdocSplit = input.split(" ");
 			userName = exitdocSplit[0];
-			String docName = exitdocSplit[1];
+			docName = exitdocSplit[1];
 			return exitDoc(userName, docName);
 			
 		case LOGOUT:
 			//logs the user out and returns them to the login page
 			String[] inputSplit = input.split(" ");
 			userName = inputSplit[0];
-			return logOut(userName);
+			return logOut(userName, String.valueOf(ID));
 			
 		case CORRECT_ERROR:
 			String[] correctSplit = input.split("\\|");
@@ -267,12 +297,11 @@ public class Server {
 			return signup(userName, password, ID);
 			
 		default:
-			return "Invalid request";
+			return "Invalid request: " + input;
     	}
     	
     	//catches the case where the token length is not correct
-    	return "Invalid request";
-    	
+    	return "Invalid request: " + input;
 	}
     
     private synchronized String signup(String userName, String password, int ID) {
@@ -286,10 +315,11 @@ public class Server {
     
     /**
      * Makes a change to the document, as per the instructions of the client
-     * @param input
-     * @return
+     * @param input which specifies the change as a client --> server message
+     * @return message to the clients about the document changed
      */
     private synchronized String changeDoc(String input) {
+    	//TODO change all of these splits to regexes
     	String[] inputSplit = input.split("\\|");
 
     	int version;
@@ -364,6 +394,7 @@ public class Server {
     /**
      * Logs the user in if they have a unique username
      * @param userName Username of the user who logs into the system
+     * @param ID of the client connection
      * @return the response which encodes whether or not the login was successful
      */
     private String logIn(String userName, String password, int ID) {
@@ -376,12 +407,19 @@ public class Server {
 		else {
 			String expectedPassword = userPasswordMappings.get(userName);
 			if (password.equals(expectedPassword)) {
-				onlineUsers.add(userName);
-				int numUsers = (onlineUsers.size() - 1) % NUM_COLORS;
-				Color color = COLORS[numUsers];
 				
-				System.out.println(userName + "-->" + color.toString());
-				userColorMappings.put(userName, color);
+				onlineUsers.add(userName);
+				
+				//if user does not already have a color mapping
+				if (!userColorMappings.containsKey(userName)){
+					//choose a new colors
+					int numUsers = onlineUsers.size() % NUM_COLORS;
+					Color color = COLORS[numUsers];
+					
+					//assign that color
+					userColorMappings.put(userName, color);
+					System.out.println(userName + "-->" + color.toString());
+				}	
 				socketUserMappings.put(ID, userName);
 				
 				//this returns information about the user logged in 
@@ -410,11 +448,11 @@ public class Server {
     /**
      * Logs the user out
      * @param userName The name of the user to be logged out
-     * @return
+     * @return 
      */
-    private String logOut(String userName) {
+    private String logOut(String userName, String ID) {
 		onlineUsers.remove(userName);
-		userColorMappings.remove(userName);
+		socketUserMappings.remove(ID);
 		return "loggedout " + userName;
     }
     
@@ -463,10 +501,12 @@ public class Server {
 
 			colors += color;
 		}
-		
+		for (String user : userColorMappings.keySet()){
+			System.out.println(user + "--->" + userColorMappings.get(user).toString());
+		}
 		//updates collaborators than opens the document
 		System.out.println(colors);
-		return "update|" + docName + "|" + collaborators + "|" + colors + "\nopened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version; 		
+		return "update|" + docName + "|" + collaborators + "|" + colors + "\nopened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version + "|" + colors; 		
     }
     
     private String correctError(String userName, String docName) {
