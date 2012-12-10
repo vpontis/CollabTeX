@@ -44,6 +44,7 @@ public class Server {
 	private Map<Integer, String> socketUserMappings;
 	private List<PrintWriter> outputStreamWriters;
 	private Map<String, Color> userColorMappings;
+	private Map<String, String> userPasswordMappings;
 	
 	private final Object lock = new Object();
 	
@@ -72,6 +73,7 @@ public class Server {
 		userColorMappings = new HashMap<String, Color> ();
 		onlineUsers = new HashSet<String> ();
 		socketUserMappings = new HashMap<Integer, String> ();
+		userPasswordMappings = new HashMap<String, String> ();
 		
 		outputStreamWriters = new ArrayList<PrintWriter> ();
 		
@@ -182,12 +184,15 @@ public class Server {
      */
     private String handleRequest(String input, int ID, RequestType requestType) {
     	String userName = "";
+    	String password = "";
     	
     	switch (requestType) {
     	case LOGIN:
     		//attempts to log the user in, checks if name is unique
-			userName = input;
-			return logIn(userName, ID);
+    		String[] loginSplit = input.split(" ");
+			userName = loginSplit[0];
+			password = loginSplit[1];
+			return logIn(userName, password, ID);
 			
     	case NEWDOC:
 			//creates a new document if the input is formatted validly
@@ -234,6 +239,12 @@ public class Server {
 			docName = correctSplit[1];
 			return correctError(userName, docName);
 			
+		case SIGNUP:
+			String[] signupSplit = input.split(" ");
+			userName = signupSplit[0];
+			password = signupSplit[1];
+			return signup(userName, password);
+			
 		default:
 			return "Invalid request";
     	}
@@ -242,6 +253,15 @@ public class Server {
     	return "Invalid request";
     	
 	}
+    
+    private synchronized String signup(String userName, String password) {
+    	if (userPasswordMappings.containsKey(userName)) {
+    		return "notsignedup";
+    	} else {
+    		userPasswordMappings.put(userName, password);
+    		return "signedup";
+    	}
+    }
     
     /**
      * Makes a change to the document, as per the instructions of the client
@@ -325,7 +345,7 @@ public class Server {
      * @param userName Username of the user who logs into the system
      * @return the response which encodes whether or not the login was successful
      */
-    private String logIn(String userName, int ID) {
+    private String logIn(String userName, String password, int ID) {
 		//if the username already is logged in
     	if (onlineUsers.contains(userName)) {
 			return "notloggedin";
@@ -333,31 +353,36 @@ public class Server {
 		
     	//otherwise, the user has a unique name
 		else {
-			onlineUsers.add(userName);
-			int numUsers = (onlineUsers.size() - 1) % NUM_COLORS;
-			Color color = COLORS[numUsers];
-			
-			System.out.println(userName + "-->" + color.toString());
-			userColorMappings.put(userName, color);
-			socketUserMappings.put(ID, userName);
-			
-			//this returns information about the user logged in 
-			//it then returns a list of documents and their corresponding names, dates, and collaborators
-			StringBuilder stringBuilder = new StringBuilder("loggedin " + userName + " " + ID);
-			stringBuilder.append("\n");
-			
-			for (Document document : currentDocuments){
-				stringBuilder.append(document.getName());
-				stringBuilder.append("\t");
-				stringBuilder.append(document.getDate());
-				stringBuilder.append("\t");
-				String collaborators = document.getCollab();
-				stringBuilder.append(collaborators);
+			String expectedPassword = userPasswordMappings.get(userName);
+			if (password.equals(expectedPassword)) {
+				onlineUsers.add(userName);
+				int numUsers = (onlineUsers.size() - 1) % NUM_COLORS;
+				Color color = COLORS[numUsers];
+				
+				System.out.println(userName + "-->" + color.toString());
+				userColorMappings.put(userName, color);
+				socketUserMappings.put(ID, userName);
+				
+				//this returns information about the user logged in 
+				//it then returns a list of documents and their corresponding names, dates, and collaborators
+				StringBuilder stringBuilder = new StringBuilder("loggedin " + userName + " " + ID);
 				stringBuilder.append("\n");
+				
+				for (Document document : currentDocuments){
+					stringBuilder.append(document.getName());
+					stringBuilder.append("\t");
+					stringBuilder.append(document.getDate());
+					stringBuilder.append("\t");
+					String collaborators = document.getCollab();
+					stringBuilder.append(collaborators);
+					stringBuilder.append("\n");
+				}
+				stringBuilder.append("enddocinfo");
+				
+				return stringBuilder.toString();
+			} else {
+				return "wrongpassword";
 			}
-			stringBuilder.append("enddocinfo");
-			
-			return stringBuilder.toString();
 		}
     }
     

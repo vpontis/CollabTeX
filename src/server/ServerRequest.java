@@ -74,7 +74,12 @@ public class ServerRequest {
 		} else if (input.startsWith("LOGOUT ")){
 			requestLine = requestLine.substring(7);
 			return RequestType.LOGOUT;			
-		} else {
+		} else if (input.startsWith("SIGNUP ")) {
+			requestLine = requestLine.substring(7);
+			return RequestType.SIGNUP;
+		}
+		
+		else {
 			requestLine = "";
 			return RequestType.INVALID_REQUEST;
 		}

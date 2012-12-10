@@ -120,6 +120,12 @@ public class Controller {
 				//the user gets rejected 
 				else if (line.startsWith("notloggedin")){
 					loginGUI.failedLogin();
+				} else if (line.equals("signedup")) {
+					loginGUI.resetMessage("Signed up successfully");
+				} else if (line.equals("notsignedup")) {
+					loginGUI.resetMessage("Username already taken");
+				} else if (line.equals("wrongpassword")) {
+					loginGUI.resetMessage("Wrong password");
 				}
 	        }
 		} catch (IOException e) {
