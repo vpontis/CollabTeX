@@ -213,7 +213,7 @@ public class Controller {
 						docTableGUI.addData(dataDoc);
 						
 						if(this.userName.equals(userName)){
-							this.currentDoc = new DocEdit(serverOutput, docName, userName, "", collaborators, version);							
+							this.currentDoc = new DocEdit(serverOutput, docName, userName, "", collaborators, version, "");							
 							Thread newThread = new Thread(new Runnable() {
 								@Override
 								public void run() {
@@ -233,16 +233,17 @@ public class Controller {
 				
 				else if (line.startsWith("opened")) {
 					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 6){
+					if (lineSplit.length == 7){
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
 						String docContent = lineSplit[3];
 						String collaborators = lineSplit[4];
 						int version = Integer.valueOf(lineSplit[5]);
+						String colors = lineSplit[6];
 						
 						docContent = docContent.replace("\t", "\n");
 						if(this.userName.equals(userName)){
-							this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent, collaborators, version);							
+							this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent, collaborators, version, colors);							
 							Thread newThread = new Thread(new Runnable() {
 								@Override
 								public void run() {
@@ -371,6 +372,7 @@ public class Controller {
 						String docName = lineSplit[1];
 						String collaboratorNames = lineSplit[2];
 						String colors = lineSplit[3];
+						System.out.println(colors);
 						if (currentDoc.getName().equals(docName)) {
 							currentDoc.updateCollaborators(collaboratorNames, colors);
 						}

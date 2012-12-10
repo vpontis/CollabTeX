@@ -64,7 +64,7 @@ public class DocEdit extends JFrame {
 	 * @param content Initial content of the document, when the document is loaded from the server
 	 * @param collaboratorNames The initial list of collaborators of the document at the time the document is loaded from the server
 	 */
-	public DocEdit(PrintWriter outputStream, String documentName, String user, String content, String collaboratorNames, int versionID){
+	public DocEdit(PrintWriter outputStream, String documentName, String user, String content, String collaboratorNames, int versionID, String colors){
 		super(documentName);
 		
 		this.version = versionID;
@@ -80,6 +80,7 @@ public class DocEdit extends JFrame {
 		
 		collabLabel = new JLabel("Collaborators: ");
 		collaborators = new JLabel(collaboratorNames);
+		updateCollaborators(collaboratorNames, colors);
 		
 		messageLabel = new JLabel("Messages will appear here.");
 		latexButton = new JButton("Latex View");
@@ -354,24 +355,14 @@ public class DocEdit extends JFrame {
 		String[] users = collaboratorNames.split(" ");
 		//colors is a list of hex values where the hex values are integers
 		String[] userColorList = colors.split(" ");
-		String[] hexList = new String[users.length];
-		for (int i = 0; i < userColorList.length; i++){
-			//we now have three hex colors separated by commas
-			String[] userColors = userColorList[i].split(",");
-			String hex = "";
-			for (String color : userColors){
-				Integer hexInt = Integer.parseInt(color);
-				hex += Integer.toHexString(hexInt);
-			}
-			hexList[i] = hex;
-		}
 		if (users.length != userColorList.length){
 			collaborators.setText(collaboratorNames);
 			return;
 		}
+		
 		String text = "<html>";
 		for (int i = 0; i < users.length; i++){
-			text += "<font color=" + hexList[i] + ">" + users[i].replace(",", " ") 
+			text += "<font color=rgb(" + userColorList[i] + ")>" + users[i].replace(",", " ") 
 					+ "</font>";
 		}
 		text += "</html>";
@@ -388,7 +379,7 @@ public class DocEdit extends JFrame {
 	 * @param args Unused
 	 */
 	public static void main(String[] args){
-		DocEdit main = new DocEdit(new PrintWriter(System.out), "Document name", "victor", "", "collab", 0);
+		DocEdit main = new DocEdit(new PrintWriter(System.out), "Document name", "victor", "", "collab", 0, "");
 		main.setVisible(true);
 	}
 	
