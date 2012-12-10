@@ -410,7 +410,9 @@ public class Server {
     
     private String correctError(String userName, String docName) {
     	Document currentDocument = getDoc(docName);
-    	return "changed|" + docName;
+    	String content = currentDocument.toString();
+    	content = content.replace("\n", "\t");
+    	return "corrected|" + userName + "|" + docName + "|" + content;
     }
     
     /**
