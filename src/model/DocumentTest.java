@@ -1,5 +1,9 @@
 package model;
 
+import static org.junit.Assert.*;
+
+import java.util.List;
+
 import org.junit.Test;
 
 
@@ -73,11 +77,45 @@ public class DocumentTest {
 	
 	@Test
 	public void testDate() {
-		Document testingDocument = new Document("Test3", "User"); //Initialize a new document with a fake document ID
+		Document testingDocument = new Document("TestDate", "User"); //Initialize a new document with a fake document ID
 		
 		testingDocument.setLastEditDateTime();
-		System.out.println(testingDocument.getDate());
+		System.out.println("This is a visual test to check whether updating the date works...");
+		System.out.println("Current time is " + testingDocument.getDate());
 		
+	}
+	
+	@Test
+	public void updateVersionTest() {
+		Document testingDocument = new Document("TestVersion", "User");
+		
+		int expectedVersionNumber = 0;
+		int actualVersionNumber = testingDocument.getVersion();
+		assertEquals(expectedVersionNumber , actualVersionNumber);
+		
+		//This block of code ensures that the document's version number is incremented by 1 every time updateVersion is called
+		for (int i = 0; i < 10000; ++i) {
+			expectedVersionNumber = i;
+			actualVersionNumber = testingDocument.getVersion();
+			assertEquals(expectedVersionNumber, actualVersionNumber);
+			testingDocument.updateVersion();
+		}
+	}
+	
+	@Test
+	public void addCollaboratorTest() {
+		Document testingDocument = new Document("TestCollaboratorAdding", "User");
+		
+		String expectedCollaborators = "User";
+		String actualCollaborators = testingDocument.getCollab();
+		assertEquals(expectedCollaborators, actualCollaborators);
+		
+		String collaborator = "User1";
+		testingDocument.addCollaborator(collaborator);
+		List<String> collaborators = testingDocument.getCollabList();
+		String[] newCollaborators = collaborators.toArray(new String[collaborators.size()]);
+		String[] listActualCollaborators = new String [] {"User", "User1"};
+		assertArrayEquals(listActualCollaborators, newCollaborators);
 	}
 
 }
