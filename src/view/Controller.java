@@ -291,6 +291,20 @@ public class Controller {
 						throw new RuntimeException("Invalid format");
 					}					
 				} 
+				else if (line.startsWith("corrected")) {
+					String[] lineSplit = line.split("\\|");
+					if (lineSplit.length == 4) {
+						String userName = lineSplit[1];
+						String docName = lineSplit[2];
+						String newContent = lineSplit[3];
+						if (this.userName.equals(userName)) {
+							if (currentDoc.getName().equals(docName)) {
+								currentDoc.resetText(newContent);
+							}
+						}
+					}
+					
+				}
 				//if the content of the document is changed, update the view for the user
 				else if (line.startsWith("changed")) {
 					String[] lineSplit = line.split("\\|");

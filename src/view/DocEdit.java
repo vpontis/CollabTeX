@@ -16,8 +16,6 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -318,6 +316,14 @@ public class DocEdit extends JFrame {
 			textArea.setCaretPosition(cursorPosition);
 			
 		}
+	}
+	
+	/**
+	 * Reset the text contained in the document 
+	 * @param newContent New content of the document
+	 */
+	public synchronized void resetText(String newContent) {
+		textArea.setText(newContent);
 	}
 	
 	/**
