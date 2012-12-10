@@ -224,7 +224,6 @@ public class DocEdit extends JFrame {
 				String change = String.valueOf(e.getKeyChar());
 				
 				if (! (change.equals("\b") || change.equals("\n"))) {
-					MutableAttributeSet attr = new SimpleAttributeSet();
 					
 					javax.swing.text.Style style = textArea.addStyle("BlackForecolor", null);
 			        StyleConstants.setForeground(style, Color.black);
