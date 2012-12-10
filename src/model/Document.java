@@ -211,5 +211,11 @@ public class Document {
 			return collab;
 		}
 	}
+	
+	public List<String> getCollabList(){
+		synchronized(collaborators){
+			return this.collaborators;
+		}
+	}
 		
 }

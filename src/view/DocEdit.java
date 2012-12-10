@@ -350,8 +350,32 @@ public class DocEdit extends JFrame {
 	 * Method to update the displayed set of collaborators
 	 * @param collaboratorNames The updated list of collaborators
 	 */
-	public void updateCollaborators(String collaboratorNames) {
-		collaborators.setText(collaboratorNames);
+	public void updateCollaborators(String collaboratorNames, String colors) {
+		String[] users = collaboratorNames.split(" ");
+		//colors is a list of hex values where the hex values are integers
+		String[] userColorList = colors.split(" ");
+		String[] hexList = new String[users.length];
+		for (int i = 0; i < userColorList.length; i++){
+			//we now have three hex colors separated by commas
+			String[] userColors = userColorList[i].split(",");
+			String hex = "";
+			for (String color : userColors){
+				Integer hexInt = Integer.parseInt(color);
+				hex += Integer.toHexString(hexInt);
+			}
+			hexList[i] = hex;
+		}
+		if (users.length != userColorList.length){
+			collaborators.setText(collaboratorNames);
+			return;
+		}
+		String text = "<html>";
+		for (int i = 0; i < users.length; i++){
+			text += "<font color=" + hexList[i] + ">" + users[i].replace(",", " ") 
+					+ "</font>";
+		}
+		text += "</html>";
+		collaborators.setText(text);
 	}
 	
 	
