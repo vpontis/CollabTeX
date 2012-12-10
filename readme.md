@@ -11,7 +11,11 @@ How to Run the Server
 The main file to run the server is called Server.java
 and can be found in the server package. Just run the 
 file as a Java application to get the server running on
-your local machine. 
+your local machine. If you want to specify the port the 
+server runs on (default is 4444) then you want to 
+add in the port as the first argument in runtime configurations
+of server. If launch is successful you should see a print
+statement saying what port the server is on. 
 
 How to Run the Client
 ---------------------
