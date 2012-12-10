@@ -286,6 +286,7 @@ public class DocEdit extends JFrame {
 				System.out.println("Position: " + String.valueOf(position));
 				System.out.println("Change: " + change);
 				System.out.println(String.valueOf(textArea.getText().length()));
+				out.println("CORRECTERROR|" + userName + "|" + docName);
 				e.printStackTrace();
 			}
 			textArea.setCaretPosition(cursorPosition);
@@ -311,6 +312,7 @@ public class DocEdit extends JFrame {
 				System.out.println("Position: " + String.valueOf(position));
 				System.out.println("Length: " + String.valueOf(length));
 				System.out.println(String.valueOf(textArea.getText().length()));
+				out.println("CORRECTERROR|" + userName + "|" + docName);
 				e.printStackTrace();
 			}
 			textArea.setCaretPosition(cursorPosition);

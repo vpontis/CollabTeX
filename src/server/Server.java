@@ -49,7 +49,7 @@ public class Server {
 	
 	private LinkedBlockingQueue<ServerRequest> queue;
 	
-	private final Color[] COLORS = new Color[] {Color.red, Color.blue, Color.green, Color.orange, Color.magenta, Color.pink, Color.yellow};
+	private final Color[] COLORS = new Color[] {Color.red, Color.blue, Color.green, Color.orange, Color.magenta, Color.lightGray};
 	private final int NUM_COLORS = COLORS.length;
 	
 	/**
@@ -228,6 +228,12 @@ public class Server {
 			userName = inputSplit[0];
 			return logOut(userName);
 			
+		case CORRECT_ERROR:
+			String[] correctSplit = input.split("\\|");
+			userName = correctSplit[0];
+			docName = correctSplit[1];
+			return correctError(userName, docName);
+			
 		default:
 			return "Invalid request";
     	}
@@ -328,7 +334,7 @@ public class Server {
     	//otherwise, the user has a unique name
 		else {
 			onlineUsers.add(userName);
-			int numUsers = onlineUsers.size() % NUM_COLORS;
+			int numUsers = (onlineUsers.size() - 1) % NUM_COLORS;
 			Color color = COLORS[numUsers];
 			
 			System.out.println(userName + "-->" + color.toString());
@@ -400,6 +406,11 @@ public class Server {
 		
 		//updates collaborators than opens the document
 		return "update|" + docName + "|" + collaborators + "\nopened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version; 		
+    }
+    
+    private String correctError(String userName, String docName) {
+    	Document currentDocument = getDoc(docName);
+    	return "changed|" + docName;
     }
     
     /**

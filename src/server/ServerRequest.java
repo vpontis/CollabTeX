@@ -67,6 +67,10 @@ public class ServerRequest {
 			requestLine = requestLine.substring(8);
 			return RequestType.EXITDOC;
 			
+		} else if (input.startsWith("CORRECTERROR|")) {
+			requestLine = requestLine.substring(13);
+			return RequestType.CORRECT_ERROR;
+			
 		} else if (input.startsWith("LOGOUT ")){
 			requestLine = requestLine.substring(7);
 			return RequestType.LOGOUT;			
