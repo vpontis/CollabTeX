@@ -18,6 +18,10 @@ public class Latex {
 	public static TeXIcon getLatex(String latexString){
 		String[] stringSplit = latexString.split("\\$\\$");
 		StringBuilder out = new StringBuilder();
+//		String beginning = "\\begin{tabular}{m{1cm}}";
+		String beginning = "\\begin{array}{l} ";
+		String end = "\\end{array}";
+		out.append(beginning);
 		for (int i = 0; i < stringSplit.length; i++ ){
 			if (i % 2 == 0){
 				String escaped = escape(stringSplit[i]);
@@ -27,6 +31,7 @@ public class Latex {
 				out.append(stringSplit[i]);
 			}
 		}
+		out.append(end);
 		String string = out.toString();
 		System.out.println(string);
 		TeXIcon icon = new TeXFormula(string)
