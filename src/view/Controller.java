@@ -277,6 +277,7 @@ public class Controller {
 		
 		try {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
+				System.out.println(line);
 				//if the user exits the document, fire a thread to run the docedit
 				if (line.startsWith("exiteddoc ")) {
 					String[] lineSplit = line.split(" ");
@@ -353,12 +354,16 @@ public class Controller {
 				//if the list of collaborators is changed, update the list for the user
 				else if (line.startsWith("update")) {
 					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 3) {
+					if (lineSplit.length == 4) {
 						String docName = lineSplit[1];
 						String collaboratorNames = lineSplit[2];
+						String colors = lineSplit[3];
 						if (currentDoc.getName().equals(docName)) {
-							currentDoc.updateCollaborators(collaboratorNames);
+							currentDoc.updateCollaborators(collaboratorNames, colors);
 						}
+					}
+					else{
+						System.out.println("Invalid format");
 					}
 				}
 			}

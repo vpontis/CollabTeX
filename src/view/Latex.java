@@ -38,11 +38,13 @@ public class Latex {
 		out.append(beginning);
 		for (int i = 0; i < stringSplit.length; i++ ){
 			if (i % 2 == 0){
+				out.append("\\textrm{");
 				String escaped = escape(stringSplit[i]);
 				out.append(escaped);
+				out.append("}");
 			}
 			else{
-				out.append(stringSplit[i]);
+				out.append(handleNewLines(stringSplit[i]));
 			}
 		}
 		out.append(end);
@@ -51,7 +53,8 @@ public class Latex {
 		System.out.println(string);
 		
 		TeXIcon icon = new TeXFormula(string)
-					.createTeXIcon(TeXConstants.STYLE_DISPLAY,20);
+					.createTeXIcon(TeXConstants.STYLE_TEXT, (float) 20.,
+							TeXConstants.UNIT_CM, (float) 10.5, 0);
 		icon.setInsets(new Insets(5,5,5,5));
 		
 		//TODO figure out how to wrap the text
@@ -76,14 +79,21 @@ public class Latex {
 		string = string.replaceAll("\\^","\\\\^{}");
 		string = string.replaceAll("\\@","\\\\@");
 		string = string.replaceAll("\\&","\\\\&");
-		StringBuilder out = new StringBuilder();
-		String[] lines = string.split("\\n");
-		for (int i = 0; i < lines.length; i++){
-			out.append("\\textrm{");
-			out.append(lines[i]);
-			out.append("} \\\\ ");
-		}
-		return out.toString();
+		string = string.replaceAll("\\n", "\\} \\\\\\\\ \\\\textrm\\{");
+//		StringBuilder out = new StringBuilder();
+//		String[] lines = string.split("\\n");
+//		for (int i = 0; i < lines.length; i++){
+//			out.append("\\textrm{");
+//			out.append(lines[i]);
+//			if (i != lines.length - 1 || string.substring(lines.length - 4).equals("\\n"))
+//				out.append("} \\\\ ");
+//		}
+		return string;
 	}
 	
+	
+	public static String handleNewLines(String string){
+		string = string.replaceAll("\\n", "\\\\\\\\");
+		return string;
+	}
 }

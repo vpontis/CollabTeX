@@ -429,8 +429,23 @@ public class Server {
 		String collaborators = currentDocument.getCollab();
 		int version = currentDocument.getVersion();
 		
+		String colors = "";
+		String color;
+		for (String username : currentDocument.getCollabList()){
+			Color actualColor = userColorMappings.get(username);
+			
+			int colorRed = actualColor.getRed();
+			int colorBlue = actualColor.getBlue();
+			int colorGreen = actualColor.getGreen();
+			
+			color = String.valueOf(colorRed) + "," + String.valueOf(colorGreen) + "," + String.valueOf(colorBlue) + " ";
+
+			colors += color;
+		}
+		
 		//updates collaborators than opens the document
-		return "update|" + docName + "|" + collaborators + "\nopened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version; 		
+		System.out.println(colors);
+		return "update|" + docName + "|" + collaborators + "|" + colors + "\nopened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version; 		
     }
     
     private String correctError(String userName, String docName) {
