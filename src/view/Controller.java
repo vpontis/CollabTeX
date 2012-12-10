@@ -338,7 +338,7 @@ public class Controller {
 						Color color = new Color(Integer.parseInt(colors[0]), Integer.parseInt(colors[1]), Integer.parseInt(colors[2]));
 
 						int version = Integer.valueOf(lineSplit[6]);
-						boolean isInsertion = Boolean.valueOf(lineSplit[7]); //Boolean value to determine whether edit made is insertion or deletion
+//						boolean isInsertion = Boolean.valueOf(lineSplit[7]); //Boolean value to determine whether edit made is insertion or deletion
 						
 						change = change.replace("\t", "\n");
 						if (currentDoc.getName().equals(docName)) {
@@ -354,7 +354,7 @@ public class Controller {
 						int length = Integer.valueOf(lineSplit[4]);
 
 						int version = Integer.valueOf(lineSplit[5]);
-						boolean isInsertion = Boolean.valueOf(lineSplit[6]); //Boolean value to determine whether edit made is insertion or deletion
+//						boolean isInsertion = Boolean.valueOf(lineSplit[6]); //Boolean value to determine whether edit made is insertion or deletion
 						
 						if (currentDoc.getName().equals(docName)) {
 							if (! this.userName.equals(userName)) {
