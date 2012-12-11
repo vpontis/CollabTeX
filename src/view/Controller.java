@@ -104,11 +104,11 @@ public class Controller {
 				//the user should log in 
 				else if (line.startsWith("loggedin")) {
 					String[] lineSplit = line.split(" ");
-					this.userName = lineSplit[1];
+					userName = lineSplit[1];
 					int ID = Integer.valueOf(lineSplit[2]);
 					
 					if (ID == this.ID) {
-						this.docTableGUI = new DocTable(serverOutput, userName);
+						docTableGUI = new DocTable(serverOutput, userName);
 						updateDocTable();
 						
 						//fire off a new thread to handle the doctable
@@ -141,8 +141,6 @@ public class Controller {
 	 * This method accesses the server to get a list of documents. With this list it updates
 	 * the data in the tableModel and refreshes the display. The method assumes that the 
 	 * next output from the server will be information about a list of documents. 
-	 * 
-	 * TODO: Think about adding a refresh button that will call this function 
 	 */
 	private void updateDocTable() {
 		try{
@@ -310,7 +308,6 @@ public class Controller {
 							}
 						}
 					}
-					
 				}
 				//if the content of the document is changed, update the view for the user
 				else if (line.startsWith("changed")) {
@@ -322,34 +319,25 @@ public class Controller {
 						int position = Integer.valueOf(lineSplit[4]);
 						String[] colors = lineSplit[8].split(",");
 						Color color = new Color(Integer.parseInt(colors[0]), Integer.parseInt(colors[1]), Integer.parseInt(colors[2]));
-
 						int version = Integer.valueOf(lineSplit[6]);
-//						boolean isInsertion = Boolean.valueOf(lineSplit[7]); //Boolean value to determine whether edit made is insertion or deletion
-						
 						change = change.replace("\t", "\n");
 						if (currentDoc.getName().equals(docName)) {
 							if (! this.userName.equals(userName)) {
 								currentDoc.insertContent(change, position, version, color);
 							}
-
 						}
 					} else if (lineSplit.length == 7) {
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
 						int position = Integer.valueOf(lineSplit[3]);
 						int length = Integer.valueOf(lineSplit[4]);
-
-						int version = Integer.valueOf(lineSplit[5]);
-//						boolean isInsertion = Boolean.valueOf(lineSplit[6]); //Boolean value to determine whether edit made is insertion or deletion
-						
+						int version = Integer.valueOf(lineSplit[5]);						
 						if (currentDoc.getName().equals(docName)) {
 							if (! this.userName.equals(userName)) {
 								currentDoc.deleteContent(position,length, version);
 							}
-
 						}
 					}
-					
 				} 
 				//if the list of collaborators is changed, update the list for the user
 				else if (line.startsWith("update")) {
@@ -377,16 +365,17 @@ public class Controller {
 	/**
 	 * This method should be run by clients to connect to the server. It uses the default constructor
 	 * and assumes that you are connecting on to a server which is on the same machine over port 4444. 
+	 * default IP is 127.0.0.1
+	 * default port is 4444
+	 * 
+	 * There are three different commandline options
+	 * 1. no arguments
+	 * 2. [port]
+	 * 3. [IP address] [port]
 	 * @param args Unused
 	 */
 	public static void main(final String[] args) {
 		final Controller main;
-		//There are three different commandline options
-		//no arguments
-		//[port]
-		//[IP address] [port]
-		//default IP is 127.0.0.1
-		//default port is 4444
 		try {
 			if (args.length == 0){
 				main = new Controller();				
@@ -405,7 +394,7 @@ public class Controller {
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("IO Exception caught while setting up the GUI");
-		}
+		} 
 		
 		Thread newThread = new Thread(new Runnable() {
 			@Override
@@ -414,6 +403,5 @@ public class Controller {
 			}
 		});
 		newThread.start();
-		
 	}
 }

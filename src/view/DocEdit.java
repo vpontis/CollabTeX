@@ -43,7 +43,7 @@ public class DocEdit extends JFrame {
 	private JLabel messageLabel;
 	private JButton latexButton;
 	private JButton closeLatexButton;
-	private MyPanel latexDisplay;
+	private LatexPanel latexDisplay;
 	
 	private PrintWriter out;
 	private String docName;
@@ -80,7 +80,7 @@ public class DocEdit extends JFrame {
 		
 		messageLabel = new JLabel("Messages will appear here.");
 		latexButton = new JButton("Latex View");
-		latexDisplay = new MyPanel();
+		latexDisplay = new LatexPanel();
 		closeLatexButton = new JButton("<");
 		closeLatexButton.setVisible(false);
 		latexDisplay.setVisible(false);

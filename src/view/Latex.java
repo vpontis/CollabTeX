@@ -14,8 +14,7 @@ public class Latex {
 		try{
 			new TeXFormula(string);
 			return true;
-		}
-		catch(Exception e){
+		} catch(Exception e){
 			return false;
 		}
 	}
@@ -80,14 +79,6 @@ public class Latex {
 		string = string.replaceAll("\\@","\\\\@");
 		string = string.replaceAll("\\&","\\\\&");
 		string = string.replaceAll("\\n", "\\} \\\\\\\\ \\\\textrm\\{");
-//		StringBuilder out = new StringBuilder();
-//		String[] lines = string.split("\\n");
-//		for (int i = 0; i < lines.length; i++){
-//			out.append("\\textrm{");
-//			out.append(lines[i]);
-//			if (i != lines.length - 1 || string.substring(lines.length - 4).equals("\\n"))
-//				out.append("} \\\\ ");
-//		}
 		return string;
 	}
 	

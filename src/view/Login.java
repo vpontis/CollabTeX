@@ -8,7 +8,6 @@ import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 
@@ -34,7 +33,7 @@ public class Login extends JFrame{
 	 * @param outputStream PrintWriter onto which the login screen published requests to the server
 	 */
 	public Login(PrintWriter outputStream) {
-		super("Etherpad GUI");
+		super("Login to the collaborative editor!");
 		out = outputStream;
 		
 		//Initializing the login button
