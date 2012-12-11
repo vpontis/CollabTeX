@@ -355,7 +355,7 @@ public class Server {
      * @param ID of the client connection
      * @return the response which encodes whether or not the login was successful
      */
-    private String logIn(String userName, int ID) {
+    String logIn(String userName, int ID) {
 		//if the username already is logged in
     	if (onlineUsers.contains(userName)) {
 			return "notloggedin";

@@ -2,6 +2,7 @@ package server;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -93,6 +94,13 @@ public class ServerTest {
 		assertEquals("document", getField("docName", input));
 		assertEquals("vpontis", getField("userName", input));
 		assertEquals("2\\&adf3", getField("version", input));
+	}
+	
+	@Test
+	public void loginTest() throws IOException {
+		Server serverInstance = new Server();
+		String loginResponse = serverInstance.logIn("deepak", 2);
+		
 	}
 }
 
