@@ -49,8 +49,6 @@ public class DocEdit extends JFrame {
 	private String docName;
 	private String userName;
 	private String docContent;
-	@SuppressWarnings("unused")
-	private String collaboratorNames;
 	
 	private StyledDocument textDocument;
 	
@@ -68,12 +66,10 @@ public class DocEdit extends JFrame {
 		super(documentName);
 		
 		this.version = versionID;
-		
-		out = outputStream;
+		this.out = outputStream; 
 		this.docName = documentName;
 		this.userName = user;
 		this.docContent = content;
-		this.collaboratorNames = collaboratorNames;
 
 		welcomeLabel = new JLabel("Welcome " + userName + "!");
 		exitButton = new JButton("Exit Doc");
@@ -152,42 +148,21 @@ public class DocEdit extends JFrame {
 					);
 		layout.setVerticalGroup(vGroup);
 		
+		
+		//latex button will both open the latex display then change into a render button
 		latexButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e){
-				//render the latex
-				if (latexDisplay.isVisible()){
-					String content = textArea.getText();
-					if (Latex.isLatex(content)){
-						TeXIcon icon = Latex.getLatex(content);
-						BufferedImage b = new BufferedImage(icon.getIconWidth(),
-								icon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
-						icon.paintIcon(new JLabel(), b.getGraphics(), 0, 0);
-						b.getGraphics().drawImage(b, 0, 0, null);
-						latexDisplay.updateImage(b);
-						latexDisplay.repaint();
-						System.out.println("hello");
-					}
-				}
-				//show latex display and the close button
-				else{
-					latexDisplay.setVisible(true);
-					int height = scrollText.getHeight();
-					int width = scrollText.getWidth();
-					latexDisplay.setMinimumSize(new Dimension(width/2, height));
-					scrollText.setMinimumSize(new Dimension(width/2, height));
-					latexButton.setText("Render");
-					closeLatexButton.setVisible(true);
-					packFrame();
-				}
+				if (latexDisplay.isVisible())
+					renderLatex();
+				else
+					showLatexDisplay();
 			}
 		});
 		
 		textArea.addKeyListener(new KeyListener() {
-
 			@Override
 			public void keyPressed(KeyEvent e) {
-				
 				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
 					int position = textArea.getCaretPosition();
 					
@@ -204,15 +179,11 @@ public class DocEdit extends JFrame {
 					String change = "\t";
 					
 					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
-
 				}
 			}
 
 			@Override
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void keyReleased(KeyEvent IGNORE) {}
 
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -260,6 +231,36 @@ public class DocEdit extends JFrame {
 	}
 	
 	/**
+	 * This renders the latex in the display
+	 */
+	public void renderLatex(){
+		String content = textArea.getText();
+		if (Latex.isLatex(content)){
+			TeXIcon icon = Latex.getLatex(content);
+			BufferedImage b = new BufferedImage(icon.getIconWidth(),
+					icon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+			icon.paintIcon(new JLabel(), b.getGraphics(), 0, 0);
+			b.getGraphics().drawImage(b, 0, 0, null);
+			latexDisplay.updateImage(b);
+			latexDisplay.repaint();
+		}
+	}
+	
+	/**
+	 * This shows the latex pane and allows people to render
+	 */
+	public void showLatexDisplay(){
+		latexDisplay.setVisible(true);
+		int height = scrollText.getHeight();
+		int width = scrollText.getWidth();
+		latexDisplay.setMinimumSize(new Dimension(width/2, height));
+		scrollText.setMinimumSize(new Dimension(width/2, height));
+		latexButton.setText("Render");
+		closeLatexButton.setVisible(true);
+		packFrame();
+	}
+	
+	/**
 	 * Inserts new content at the given position in the document
 	 * @param change New content added at the position	
 	 * @param position Position at which insertion must be made
@@ -270,12 +271,14 @@ public class DocEdit extends JFrame {
 		
 		int length = change.length();
 		int cursorPosition = textArea.getCaretPosition();
+		//update the cursor position if the change comes before the cursor
 		cursorPosition = cursorPosition > position ? cursorPosition + length : cursorPosition;
 		//TODO Fix concurrency bug
 		
 		synchronized (textDocument) {
 			try {
 				Style style = textArea.addStyle("foreGround", null);
+				//TODO fix bug that the most recent character is the wrong color if multiple people are editing
 		        StyleConstants.setForeground(style, color);
 				textDocument.insertString(position, change , style);
 			} catch (BadLocationException e) {
@@ -350,6 +353,7 @@ public class DocEdit extends JFrame {
 	/**
 	 * Method to update the displayed set of collaborators
 	 * @param collaboratorNames The updated list of collaborators
+	 * @param collors list of hex colors that corresponds to each collaborator
 	 */
 	public void updateCollaborators(String collaboratorNames, String colors) {
 		String[] users = collaboratorNames.split(" ");
