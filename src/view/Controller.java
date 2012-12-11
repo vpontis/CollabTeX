@@ -372,7 +372,7 @@ public class Controller {
 	 * 1. no arguments
 	 * 2. [port]
 	 * 3. [IP address] [port]
-	 * @param args Unused
+	 * @param args are specified above, there are three different argument combos, they specify IP and port
 	 */
 	public static void main(final String[] args) {
 		final Controller main;
