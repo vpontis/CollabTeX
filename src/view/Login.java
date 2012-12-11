@@ -21,12 +21,9 @@ import javax.swing.JTextField;
 @SuppressWarnings("serial")
 public class Login extends JFrame{
 	private JButton loginButton;
-	private JButton signupButton;
 	
 	private JTextField userName;
-	private JPasswordField password;
 	private JLabel userNameLabel;
-	private JLabel passwordLabel;
 	
 	private JLabel messageLabel;
 	
@@ -44,27 +41,15 @@ public class Login extends JFrame{
 		loginButton = new JButton();
 		loginButton.setName("newLoginButton");
 		loginButton.setText("Login");
-		
-		//Initializing the login button
-		signupButton = new JButton();
-		signupButton.setName("signupButton");
-		signupButton.setText("Sign Up!!!");
 				
 		//Initializing the username text field
 		userName = new JTextField();
 		userName.setName("userNameField");
 		
-		password = new JPasswordField();
-		password.setName("passwordField");
-		
 		userNameLabel = new JLabel();
 		userNameLabel.setName("userNameLabel");
 		userNameLabel.setText("Username: ");
 		
-		passwordLabel = new JLabel();
-		passwordLabel.setName("passwordLabel");
-		passwordLabel.setText("Password: ");
-
 		// Initialize the message label to contain a welcome message
 		messageLabel = new JLabel("Hello there, enter a username and login.");
 		
@@ -91,13 +76,7 @@ public class Login extends JFrame{
                         )
                 .addGroup(
                 		completeLayout.createSequentialGroup()
-                			.addComponent(passwordLabel)
-                			.addComponent(password)
-                		)
-                .addGroup(
-                		completeLayout.createSequentialGroup()
                 			.addComponent(loginButton)
-                			.addComponent(signupButton)
                 		)
                 
 			);
@@ -116,13 +95,7 @@ public class Login extends JFrame{
 						)
 				.addGroup(
 						completeLayout.createParallelGroup()
-							.addComponent(passwordLabel)
-							.addComponent(password)
-						)
-				.addGroup(
-						completeLayout.createParallelGroup()
 							.addComponent(loginButton)
-							.addComponent(signupButton)
 						)
 			);
 		
@@ -141,20 +114,6 @@ public class Login extends JFrame{
 				login();
 			}
 		});
-		
-		password.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				login();
-			}
-		});
-		
-		signupButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				signup();
-			}
-		});
 				
 		this.pack();
 	}
@@ -166,40 +125,16 @@ public class Login extends JFrame{
 	 */
 	private void login() {
 		String name = userName.getText().trim();
-		char[] pw = password.getPassword();
-		resetPassword();
 		resetName();
 		if (name.contains(" ")){
 			messageLabel.setText("Your login cannot have spaces");
 			return;
 		}
-		if(name.equals("") || pw.length == 0){
-			messageLabel.setText("Name/password cannot be empty string.");
+		if(name.equals("")){
+			messageLabel.setText("Name cannot be empty string.");
 			return;
 		}
-		String stringPW = new String(pw);
-		String output = "LOGIN " + name + " " + stringPW;
-		out.println(output);
-	}
-	
-	/**
-	 * Tries to sign the current user into the server
-	 */
-	private void signup() {
-		String name = userName.getText().trim();
-		char[] pw = password.getPassword();
-		resetPassword();
-		resetName();
-		if (name.contains(" ")){
-			messageLabel.setText("Your login cannot have spaces");
-			return;
-		}
-		if(name.equals("") || pw.length == 0){
-			messageLabel.setText("Name/password cannot be empty string.");
-			return;
-		}
-		String stringPW = new String(pw);
-		String output = "SIGNUP " + name + " " + stringPW;
+		String output = "LOGIN " + name;
 		out.println(output);
 	}
 	
@@ -208,13 +143,6 @@ public class Login extends JFrame{
 	 */
 	private void resetName() {
 		userName.setText("");
-	}
-	
-	/**
-	 * Resets the password field within the GUI element, so that it no longer contains text
-	 */
-	private void resetPassword() {
-		password.setText("");
 	}
 	
 	void resetMessage() {

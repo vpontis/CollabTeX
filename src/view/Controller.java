@@ -120,27 +120,7 @@ public class Controller {
 				//the user gets rejected 
 				else if (line.startsWith("notloggedin")){
 					loginGUI.failedLogin();
-				} else if (line.startsWith("signedup")) {
-					String[] lineSplit = line.split(" ");
-					int ID = Integer.valueOf(lineSplit[1]);
-					if (ID == this.ID) {
-						loginGUI.resetMessage("Signed up successfully");
-					}
-					
-				} else if (line.startsWith("notsignedup")) {
-					String[] lineSplit = line.split(" ");
-					int ID = Integer.valueOf(lineSplit[1]);
-					System.out.println(ID + " " + this.ID);
-					if (ID == this.ID) {
-						loginGUI.resetMessage("Username already taken");
-					}
-				} else if (line.startsWith("wrongpassword")) {
-					String[] lineSplit = line.split(" ");
-					int ID = Integer.valueOf(lineSplit[1]);
-					if (ID == this.ID) {
-						loginGUI.resetMessage("Wrong password");
-					}
-				}
+				} 
 	        }
 		} catch (IOException e) {
 			throw new RuntimeException("IO Exception encountered");
