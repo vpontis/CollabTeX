@@ -203,13 +203,9 @@ public class Server {
 		while (true) {
 			ServerRequest serverRequest = queue.take();
 			
-			int ID = serverRequest.getID();
-			String request = serverRequest.getLine();
-			RequestType requestType = serverRequest.getType();
-			
 			//handle the request 
 			//TODO do we want to synchronize handling the request so that we do not handle multiple at once
-			String response = handleRequest(request, ID, requestType);
+			String response = handleRequest(serverRequest);
 			
 			//propagate the response of the request to all of clients
             for (PrintWriter outputStream : outputStreamWriters) {
@@ -222,74 +218,77 @@ public class Server {
      * Handler for client input
      * Make requested mutations on the model if applicable, then return 
      * appropriate message to the user.
-     * @param input The request from the client to the server
-     * @param ID of the client
-     * @param RequestType of the current request
-     * @return Response from the server to the client
+     * @param serverRequest ServerRequest object
      */
-    private String handleRequest(String input, int ID, RequestType requestType) {
+    private String handleRequest(ServerRequest serverRequest) {
     	//initialize a few commonly used strings
     	String userName = "";
     	String docName = "";
     	
+    	RequestType requestType = serverRequest.getType();
+    	String[] requestTokens = serverRequest.getTokens();
+    	int ID = serverRequest.getID();
+    	
     	switch (requestType) {
     	case LOGIN:
     		//attempts to log the user in, checks if name is unique
-    		String[] loginSplit = input.split(" ");
-			userName = loginSplit[0];
+			userName = requestTokens[0];
 			return logIn(userName, ID);
 			
     	case NEWDOC:
 			//creates a new document if the input is formatted validly
-			String[] newdocTokens = input.split(" ");
-			if (newdocTokens.length == 2) {
-				userName = newdocTokens[0];
-				docName = newdocTokens[1];
-				return newDoc(userName, docName);
-			}
-			break;
+			userName = requestTokens[0];
+			docName = requestTokens[1];
+			return newDoc(userName, docName);
 			
 		case OPENDOC: 
 			//opens a document if the input is validly formatted
-			String[] tokens = input.split(" ");
-			if (tokens.length == 2) {
-				userName = tokens[0];
-				docName = tokens[1];
-				return openDoc(userName, docName);
-			}
-			break;
-		
+			userName = requestTokens[0];
+			docName = requestTokens[1];
+			return openDoc(userName, docName);		
 	
 		case CHANGEDOC:
 			//passes off the input to a helper method
 			//this is called when a user inserts or deletes a character in a document
-			return changeDoc(input);
+			if (requestTokens.length == 6) {
+				userName = requestTokens[0];
+				docName = requestTokens[1];
+				int position = Integer.valueOf(requestTokens[2]);
+				String change = requestTokens[3];
+				int length = Integer.valueOf(requestTokens[4]);
+				int version = Integer.valueOf(requestTokens[5]);
+				return changeDoc(userName, docName, position, change, length, version);
+				
+			} else if (requestTokens.length == 5) {
+				userName = requestTokens[0];
+				docName = requestTokens[1];
+				int position = Integer.valueOf(requestTokens[2]);
+				int length = Integer.valueOf(requestTokens[3]);
+				int version = Integer.valueOf(requestTokens[4]); 
+				return changeDoc(userName, docName, position, length, version);
+			}
+			return "Invalid request";
 			
 		case EXITDOC:
 			//exits the document and returns the user to the document table screen
-			String[] exitdocSplit = input.split(" ");
-			userName = exitdocSplit[0];
-			docName = exitdocSplit[1];
+			userName = requestTokens[0];
+			docName = requestTokens[1];
 			return exitDoc(userName, docName);
 			
 		case LOGOUT:
 			//logs the user out and returns them to the login page
-			String[] inputSplit = input.split(" ");
-			userName = inputSplit[0];
+			userName = requestTokens[0];
 			return logOut(userName, String.valueOf(ID));
 			
 		case CORRECT_ERROR:
-			String[] correctSplit = input.split("\\|");
-			userName = correctSplit[0];
-			docName = correctSplit[1];
+			userName = requestTokens[0];
+			docName = requestTokens[1];
 			return correctError(userName, docName);
 			
 		default:
-			return "Invalid request: " + input;
+			return "Invalid request";
     	}
-    	
-    	//catches the case where the token length is not correct
-    	return "Invalid request: " + input;
+
 	}
     
     /**
@@ -297,78 +296,59 @@ public class Server {
      * @param input which specifies the change as a client --> server message
      * @return message to the clients about the document changed
      */
-    private synchronized String changeDoc(String input) {
-    	//TODO change all of these splits to regexes
-    	String[] inputSplit = input.split("\\|");
-
-    	int version;
-    	//insertion is in the form docName | position | change | length | version
-    	//deletion is in the form docName | position | length | version
-		String docName = inputSplit[1];
-		String userName = inputSplit[0];
-		Document currentDocument = getDoc(docName);
-				
-		//initializes our variables
-		int position = -1;
-		int length = -1;
-		boolean isInsertion = false;
-
-		//if the user wants to insert a letter
-		if (inputSplit.length == 6) {
-			position = Integer.valueOf(inputSplit[2]);
-			String change = inputSplit[3];
-			Color actualColor = userColorMappings.get(userName);
-			
-			int colorRed = actualColor.getRed();
-			int colorBlue = actualColor.getBlue();
-			int colorGreen = actualColor.getGreen();
-			
-			String color = String.valueOf(colorRed) + "," + String.valueOf(colorGreen) + "," + String.valueOf(colorBlue);
-			
-			length = Integer.valueOf(inputSplit[4]);
-			version = Integer.valueOf(inputSplit[5]);
-			isInsertion = true;
-			
-			//update the model of the data
-			//a tab character represents a newline so that socket input is not broken over multiple lines
-			//the user is not able to enter tabs so we don't have to worry about how to represent tabs
-			if (change.equals("\t")) {
-				currentDocument.insertContent("\n", position, version);
-			} else {
-				currentDocument.insertContent(change, position, version);
-			}
-			currentDocument.setLastEditDateTime();
-			
-			//version updating is handled by the insertion/deletion of content
-			int versionNumber = currentDocument.getVersion();
-			
-			if (position != -1 && length != -1) {
-				return "changed|" + userName + "|" + docName + "|" + change + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion + "|" + color;
-			}
-		} 
+    private synchronized String changeDoc(String userName, String docName, int position, String change, int length, int version) {
+    	Document currentDocument = getDoc(docName);
+		Color actualColor = userColorMappings.get(userName);
 		
-		//if the user wants to delete a letter
-		else if (inputSplit.length == 5) {
-			position = Integer.valueOf(inputSplit[2]);
-			length = Integer.valueOf(inputSplit[3]);
-			version = Integer.valueOf(inputSplit[4]);
-			
-			//update the model of the data
-			currentDocument.deleteContent(position, length, version);
-			
-			currentDocument.setLastEditDateTime();
-			
-			//version updating is handled by the insertion/deletion of content
-			int versionNumber = currentDocument.getVersion();
-			
-			if (position != -1 && length != -1) {
-				return "changed|" + userName + "|" + docName + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion;
-			}
-
+		int colorRed = actualColor.getRed();
+		int colorBlue = actualColor.getBlue();
+		int colorGreen = actualColor.getGreen();
+		
+		String color = String.valueOf(colorRed) + "," + String.valueOf(colorGreen) + "," + String.valueOf(colorBlue);
+		
+		//update the model of the data
+		//a tab character represents a newline so that socket input is not broken over multiple lines
+		//the user is not able to enter tabs so we don't have to worry about how to represent tabs
+		if (change.equals("\t")) {
+			currentDocument.insertContent("\n", position, version);
+		} else {
+			currentDocument.insertContent(change, position, version);
+		}
+		currentDocument.setLastEditDateTime();
+		
+		//version updating is handled by the insertion/deletion of content
+		int versionNumber = currentDocument.getVersion();
+		
+		if (position != -1 && length != -1) {
+			return "changed|" + userName + "|" + docName + "|" + change + "|" + position + "|" + length + "|" + versionNumber + "|" + color;
 		}
 		
-		throw new RuntimeException("Should not reach here");
+		return "Invalid request";
     }
+    
+    /**
+     * Makes a change to the document, as per the instructions of the client
+     * @param input which specifies the change as a client --> server message
+     * @return message to the clients about the document changed
+     */
+    private synchronized String changeDoc(String userName, String docName, int position, int length, int version) {		
+    	Document currentDocument = getDoc(docName);
+    	
+		//update the model of the data
+		currentDocument.deleteContent(position, length, version);
+		
+		currentDocument.setLastEditDateTime();
+		
+		//version updating is handled by the insertion/deletion of content
+		int versionNumber = currentDocument.getVersion();
+		
+		if (position != -1 && length != -1) {
+			return "changed|" + userName + "|" + docName + "|" + position + "|" + length + "|" + versionNumber;
+		}
+		
+		return "Invalid request";
+    }
+
     
     /**
      * Logs the user in if they have a unique username
