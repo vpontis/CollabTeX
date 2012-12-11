@@ -5,7 +5,8 @@ import java.awt.Image;
 
 import javax.swing.JPanel;
 
-class MyPanel extends JPanel{
+@SuppressWarnings("serial")
+class LatexPanel extends JPanel{
 	private Image image = null;
 	
 	public void updateImage(Image image){

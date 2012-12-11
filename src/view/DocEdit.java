@@ -43,14 +43,12 @@ public class DocEdit extends JFrame {
 	private JLabel messageLabel;
 	private JButton latexButton;
 	private JButton closeLatexButton;
-	private MyPanel latexDisplay;
+	private LatexPanel latexDisplay;
 	
 	private PrintWriter out;
 	private String docName;
 	private String userName;
 	private String docContent;
-	@SuppressWarnings("unused")
-	private String collaboratorNames;
 	
 	private StyledDocument textDocument;
 	
@@ -68,12 +66,10 @@ public class DocEdit extends JFrame {
 		super(documentName);
 		
 		this.version = versionID;
-		
-		out = outputStream;
+		this.out = outputStream; 
 		this.docName = documentName;
 		this.userName = user;
 		this.docContent = content;
-		this.collaboratorNames = collaboratorNames;
 
 		welcomeLabel = new JLabel("Welcome " + userName + "!");
 		exitButton = new JButton("Exit Doc");
@@ -84,7 +80,7 @@ public class DocEdit extends JFrame {
 		
 		messageLabel = new JLabel("Messages will appear here.");
 		latexButton = new JButton("Latex View");
-		latexDisplay = new MyPanel();
+		latexDisplay = new LatexPanel();
 		closeLatexButton = new JButton("<");
 		closeLatexButton.setVisible(false);
 		latexDisplay.setVisible(false);
@@ -152,83 +148,49 @@ public class DocEdit extends JFrame {
 					);
 		layout.setVerticalGroup(vGroup);
 		
+		
+		//latex button will both open the latex display then change into a render button
 		latexButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e){
-				//render the latex
-				if (latexDisplay.isVisible()){
-					String content = textArea.getText();
-					if (Latex.isLatex(content)){
-						TeXIcon icon = Latex.getLatex(content);
-						BufferedImage b = new BufferedImage(icon.getIconWidth(),
-								icon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
-						icon.paintIcon(new JLabel(), b.getGraphics(), 0, 0);
-						b.getGraphics().drawImage(b, 0, 0, null);
-						latexDisplay.updateImage(b);
-						latexDisplay.repaint();
-						System.out.println("hello");
-					}
-				}
-				//show latex display and the close button
-				else{
-					latexDisplay.setVisible(true);
-					int height = scrollText.getHeight();
-					int width = scrollText.getWidth();
-					latexDisplay.setMinimumSize(new Dimension(width/2, height));
-					scrollText.setMinimumSize(new Dimension(width/2, height));
-					latexButton.setText("Render");
-					closeLatexButton.setVisible(true);
-					packFrame();
-				}
+				if (latexDisplay.isVisible())
+					renderLatex();
+				else
+					showLatexDisplay();
 			}
 		});
 		
 		textArea.addKeyListener(new KeyListener() {
-
 			@Override
 			public void keyPressed(KeyEvent e) {
-				
-				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-					int position = textArea.getCaretPosition();
-					
+				int position = textArea.getCaretPosition();
+				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {					
 					if (position > 0) {
 						position --;
 						int length = 1;
-
 						out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + length + "|" + version);
 					}					
 				} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					int position = textArea.getCaretPosition();
-					
 					int length = 1;
-					String change = "\t";
-					
+					String change = "\t";	
 					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
-
 				}
 			}
 
 			@Override
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void keyReleased(KeyEvent IGNORE) {}
 
 			@Override
 			public void keyTyped(KeyEvent e) {
+				//TODO fix that most recent character is wrong color
 				int position = textArea.getCaretPosition();
 				String change = String.valueOf(e.getKeyChar());
-				
 				if (! (change.equals("\b") || change.equals("\n"))) {
-					
 					javax.swing.text.Style style = textArea.addStyle("BlackForecolor", null);
 			        StyleConstants.setForeground(style, Color.black);
-
 			        change = change.equals("\n") ? "\t" : change;
 					int length = change.length();
-			        
 			        textDocument.setCharacterAttributes(position - length, length, textArea.getStyle("BlackForecolor"), false); 
-					
 					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
 				} 
 			}
@@ -244,7 +206,6 @@ public class DocEdit extends JFrame {
 				closeLatexButton.setVisible(false);
 				latexButton.setText("Latex View");
 			}	
-			
 		});
 		
 		
@@ -256,7 +217,37 @@ public class DocEdit extends JFrame {
 			}
 		});	
 		
-		this.pack();
+		packFrame();
+	}
+	
+	/**
+	 * This renders the latex in the display
+	 */
+	public void renderLatex(){
+		String content = textArea.getText();
+		if (Latex.isLatex(content)){
+			TeXIcon icon = Latex.getLatex(content);
+			BufferedImage b = new BufferedImage(icon.getIconWidth(),
+					icon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+			icon.paintIcon(new JLabel(), b.getGraphics(), 0, 0);
+			b.getGraphics().drawImage(b, 0, 0, null);
+			latexDisplay.updateImage(b);
+			latexDisplay.repaint();
+		}
+	}
+	
+	/**
+	 * This shows the latex pane and allows people to render
+	 */
+	public void showLatexDisplay(){
+		latexDisplay.setVisible(true);
+		int height = scrollText.getHeight();
+		int width = scrollText.getWidth();
+		latexDisplay.setMinimumSize(new Dimension(width/2, height));
+		scrollText.setMinimumSize(new Dimension(width/2, height));
+		latexButton.setText("Render");
+		closeLatexButton.setVisible(true);
+		packFrame();
 	}
 	
 	/**
@@ -270,12 +261,14 @@ public class DocEdit extends JFrame {
 		
 		int length = change.length();
 		int cursorPosition = textArea.getCaretPosition();
+		//update the cursor position if the change comes before the cursor
 		cursorPosition = cursorPosition > position ? cursorPosition + length : cursorPosition;
 		//TODO Fix concurrency bug
 		
 		synchronized (textDocument) {
 			try {
 				Style style = textArea.addStyle("foreGround", null);
+				//TODO fix bug that the most recent character is the wrong color if multiple people are editing
 		        StyleConstants.setForeground(style, color);
 				textDocument.insertString(position, change , style);
 			} catch (BadLocationException e) {
@@ -297,10 +290,8 @@ public class DocEdit extends JFrame {
 	 */
 	public void deleteContent(int position, int length, int versionNo) {
 		this.version = versionNo;
-		
 		int cursorPosition = textArea.getCaretPosition();
 		cursorPosition = cursorPosition > position ? cursorPosition - length : cursorPosition;
-
 		synchronized(textDocument) {
 			try {
 				textDocument.remove(position, length);
@@ -312,7 +303,6 @@ public class DocEdit extends JFrame {
 				e.printStackTrace();
 			}
 			textArea.setCaretPosition(cursorPosition);
-			
 		}
 	}
 	
@@ -350,6 +340,7 @@ public class DocEdit extends JFrame {
 	/**
 	 * Method to update the displayed set of collaborators
 	 * @param collaboratorNames The updated list of collaborators
+	 * @param collors list of hex colors that corresponds to each collaborator
 	 */
 	public void updateCollaborators(String collaboratorNames, String colors) {
 		String[] users = collaboratorNames.split(" ");
@@ -369,7 +360,10 @@ public class DocEdit extends JFrame {
 		collaborators.setText(text);
 	}
 	
-	
+	/**
+	 * This packs the frame after resizing. It makes sure that everything on the frame
+	 * fits within the JFrame
+	 */
 	public void packFrame() {
 		this.pack();
 	}
@@ -382,6 +376,4 @@ public class DocEdit extends JFrame {
 		DocEdit main = new DocEdit(new PrintWriter(System.out), "Document name", "victor", "", "collab", 0, "");
 		main.setVisible(true);
 	}
-	
-	
 }

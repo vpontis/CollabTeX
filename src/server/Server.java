@@ -172,6 +172,7 @@ public class Server {
         	synchronized (outputStreamWriters) {
         		outputStreamWriters.add(out);
         	}
+        	//only print to the server which made the connection
         	out.println("id: " + ID);
         	
         	//as the server gets request form the client it will add these requests to a queue

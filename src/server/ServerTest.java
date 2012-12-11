@@ -1,5 +1,12 @@
 package server;
 
+import static org.junit.Assert.*;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.junit.Test;
+
 
 /*
  * Overall Testing Strategy: 
@@ -63,4 +70,44 @@ package server;
  */
 public class ServerTest {
 	//TODO Write tests
+	
+	
+	public String getField(String field, String input){
+		String regexPattern = "(?<=" + field + "\\=)(.*?)(?=((?<![\\\\])\\&))";
+		System.out.println(regexPattern);
+		Pattern regex = Pattern.compile(regexPattern);
+		Matcher matcher = regex.matcher(input);
+		matcher.find();
+		String response = matcher.group();
+		return response;
+	}
+	
+	public String escapeText(String text){
+		text.replaceAll("\\&", "\\\\\\&");
+		text.replaceAll("\\=", "\\\\\\=");
+		return text;
+	}
+	
+	@Test
+	public void regexTest(){
+		String input = "opendoc&docName=document&userName=vpontis&version=23&\n";
+		assertEquals("document", getField("docName", input));
+	}
+
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

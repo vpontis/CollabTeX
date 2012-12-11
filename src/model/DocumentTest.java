@@ -62,14 +62,7 @@ public class DocumentTest {
 				}
 			}
 		});
-		
-		Thread deletingThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
 				
-			}
-		});
-		
 		changingThread.start();
 		otherChangingThread.start();
 

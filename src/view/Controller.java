@@ -11,7 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ * This is the controller class. It makes requests from the server
+ * and receives responses. It's requests are based off user interaction
+ * in the GUI and with the responses it receives it modifies the view. 
+ * It's request prompt the model to change.
  * 
  * Rep Invariants:
  * 		Only one GUI is visible at a time
@@ -24,7 +27,10 @@ public class Controller {
 	
 	private BufferedReader serverInput;
 	private PrintWriter serverOutput;
+	
 	private String userName;
+	
+	//ID of the client which is given by the server
 	private int ID;
 	
 	private DocEdit currentDoc = null;
@@ -98,11 +104,11 @@ public class Controller {
 				//the user should log in 
 				else if (line.startsWith("loggedin")) {
 					String[] lineSplit = line.split(" ");
-					this.userName = lineSplit[1];
+					userName = lineSplit[1];
 					int ID = Integer.valueOf(lineSplit[2]);
 					
 					if (ID == this.ID) {
-						this.docTableGUI = new DocTable(serverOutput, userName);
+						docTableGUI = new DocTable(serverOutput, userName);
 						updateDocTable();
 						
 						//fire off a new thread to handle the doctable
@@ -135,8 +141,6 @@ public class Controller {
 	 * This method accesses the server to get a list of documents. With this list it updates
 	 * the data in the tableModel and refreshes the display. The method assumes that the 
 	 * next output from the server will be information about a list of documents. 
-	 * 
-	 * TODO: Think about adding a refresh button that will call this function 
 	 */
 	private void updateDocTable() {
 		try{
@@ -304,7 +308,6 @@ public class Controller {
 							}
 						}
 					}
-					
 				}
 				//if the content of the document is changed, update the view for the user
 				else if (line.startsWith("changed")) {
@@ -316,32 +319,25 @@ public class Controller {
 						int position = Integer.valueOf(lineSplit[4]);
 						String[] colors = lineSplit[7].split(",");
 						Color color = new Color(Integer.parseInt(colors[0]), Integer.parseInt(colors[1]), Integer.parseInt(colors[2]));
-
 						int version = Integer.valueOf(lineSplit[6]);
-						
 						change = change.replace("\t", "\n");
 						if (currentDoc.getName().equals(docName)) {
 							if (! this.userName.equals(userName)) {
 								currentDoc.insertContent(change, position, version, color);
 							}
-
 						}
 					} else if (lineSplit.length == 6) {
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
 						int position = Integer.valueOf(lineSplit[3]);
 						int length = Integer.valueOf(lineSplit[4]);
-
-						int version = Integer.valueOf(lineSplit[5]);
-						
+						int version = Integer.valueOf(lineSplit[5]);						
 						if (currentDoc.getName().equals(docName)) {
 							if (! this.userName.equals(userName)) {
 								currentDoc.deleteContent(position,length, version);
 							}
-
 						}
 					}
-					
 				} 
 				//if the list of collaborators is changed, update the list for the user
 				else if (line.startsWith("update")) {
@@ -369,16 +365,17 @@ public class Controller {
 	/**
 	 * This method should be run by clients to connect to the server. It uses the default constructor
 	 * and assumes that you are connecting on to a server which is on the same machine over port 4444. 
-	 * @param args Unused
+	 * default IP is 127.0.0.1
+	 * default port is 4444
+	 * 
+	 * There are three different commandline options
+	 * 1. no arguments
+	 * 2. [port]
+	 * 3. [IP address] [port]
+	 * @param args are specified above, there are three different argument combos, they specify IP and port
 	 */
 	public static void main(final String[] args) {
 		final Controller main;
-		//There are three different commandline options
-		//no arguments
-		//[port]
-		//[IP address] [port]
-		//default IP is 127.0.0.1
-		//default port is 4444
 		try {
 			if (args.length == 0){
 				main = new Controller();				
@@ -393,11 +390,15 @@ public class Controller {
 				main = new Controller(IP, port);
 			}
 			else{
-				throw new RuntimeException("Invalid input");
+				ErrorMessage error = new ErrorMessage("Invalid Controller Arguments", "Please revise your arguments to the controller.");
+				error.setVisible(true);
+				return;
 			}
 		} catch (IOException e) {
-			throw new RuntimeException("IO Exception caught while setting up the GUI");
-		}
+			ErrorMessage error = new ErrorMessage("Server not set up", "Set up a server before running the client");
+			error.setVisible(true);
+			return;
+		} 
 		
 		Thread newThread = new Thread(new Runnable() {
 			@Override
@@ -406,6 +407,5 @@ public class Controller {
 			}
 		});
 		newThread.start();
-		
 	}
 }
