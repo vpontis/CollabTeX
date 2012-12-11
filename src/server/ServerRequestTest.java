@@ -14,7 +14,6 @@ import org.junit.Test;
  * 	3. Check that incorrect server requests are identified correctly
  */
 public class ServerRequestTest {
-	//TODO Write tests
 	
 	@Test
 	public void invalidRequestTest() {
@@ -33,8 +32,9 @@ public class ServerRequestTest {
 		RequestType requestType = testingRequest.getType();
 		assertEquals(RequestType.LOGIN, requestType);
 		
-		String requestLine = testingRequest.getLine();
-		assertEquals("deepak", requestLine);
+		String[] requestTokens = testingRequest.getTokens();
+		String[] expectedTokens = new String[] {"deepak"};
+		assertArrayEquals(expectedTokens, requestTokens);
 	}
 	
 	@Test
@@ -45,8 +45,9 @@ public class ServerRequestTest {
 		RequestType requestType = testingRequest.getType();
 		assertEquals(RequestType.NEWDOC, requestType);
 		
-		String requestLine = testingRequest.getLine();
-		assertEquals("deepak doc1", requestLine);
+		String[] requestTokens = testingRequest.getTokens();
+		String[] expectedTokens = new String[] {"deepak", "doc1"};
+		assertArrayEquals(expectedTokens, requestTokens);
 	}
 	
 	@Test
@@ -56,6 +57,10 @@ public class ServerRequestTest {
 		
 		RequestType requestType = testingRequest.getType();
 		assertEquals(RequestType.OPENDOC, requestType);
+		
+		String[] requestTokens = testingRequest.getTokens();
+		String[] expectedTokens = new String[] {"deepak", "doc1"};
+		assertArrayEquals(expectedTokens, requestTokens);
 	}
 	
 	@Test
@@ -65,6 +70,10 @@ public class ServerRequestTest {
 		
 		RequestType requestType = testingRequest.getType();
 		assertEquals(RequestType.CHANGEDOC, requestType);
+		
+		String[] requestTokens = testingRequest.getTokens();
+		String[] expectedTokens = new String[] {"deepak", "doc1", "34", "1", "5"};
+		assertArrayEquals(expectedTokens, requestTokens);
 	}
 	
 	@Test
@@ -74,6 +83,10 @@ public class ServerRequestTest {
 		
 		RequestType requestType = testingRequest.getType();
 		assertEquals(RequestType.EXITDOC, requestType);
+		
+		String[] requestTokens = testingRequest.getTokens();
+		String[] expectedTokens = new String[] {"deepak", "doc1"};
+		assertArrayEquals(expectedTokens, requestTokens);
 	}
 	
 	@Test
@@ -83,6 +96,10 @@ public class ServerRequestTest {
 		
 		RequestType requestType = testingRequest.getType();
 		assertEquals(RequestType.LOGOUT, requestType);
+		
+		String[] requestTokens = testingRequest.getTokens();
+		String[] expectedTokens = new String[] {"deepak"};
+		assertArrayEquals(expectedTokens, requestTokens);
 	}
 	
 	@Test
@@ -92,5 +109,9 @@ public class ServerRequestTest {
 		
 		RequestType requestType = testingRequest.getType();
 		assertEquals(RequestType.CORRECT_ERROR, requestType);
+		
+		String[] requestTokens = testingRequest.getTokens();
+		String[] expectedTokens = new String[] {"deepak", "doc1"};
+		assertArrayEquals(expectedTokens, requestTokens);
 	}
 }
