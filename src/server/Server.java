@@ -583,6 +583,7 @@ public class Server {
 						serverInstance.attendRequest();
 					} catch (InterruptedException e) {
 						ErrorMessage error = new ErrorMessage("Attending requests", "Error attending requests");
+						error.setVisible(true);
 						return;
 					}
 				}
