@@ -302,6 +302,7 @@ public class Controller {
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
 						String newContent = lineSplit[3];
+						newContent = newContent.replace("\t", "\n");
 						if (this.userName.equals(userName)) {
 							if (currentDoc.getName().equals(docName)) {
 								currentDoc.resetText(newContent);
