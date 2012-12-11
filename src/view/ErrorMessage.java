@@ -3,6 +3,7 @@ package view;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+@SuppressWarnings("serial")
 public class ErrorMessage extends JFrame{
 	
 	private JLabel errorLabel;
