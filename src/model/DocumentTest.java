@@ -167,7 +167,7 @@ public class DocumentTest {
 	}
 	
 	@Test
-	public void simpleInsetionTest() {
+	public void simpleBeginningInsertionTest() {
 		Document testingDocument = new Document("TestInsertion", "User");
 		
 		String expectedContent = "";
@@ -179,7 +179,85 @@ public class DocumentTest {
 		actualContent = testingDocument.toString();
 		assertEquals(expectedContent, actualContent);
 		
-		// TODO Work on this test
+		testingDocument.insertContent("b", 0, 0);
+		expectedContent = "ba";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.insertContent("a", 0, 1);
+		expectedContent = "aba";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.insertContent("a", 0, 2);
+		expectedContent = "aaba";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+	}
+	
+	@Test
+	public void simpleEndingInsertionTest() {
+		Document testingDocument = new Document("TestInsertion", "User");
+		
+		String expectedContent = "";
+		String actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.insertContent("a", 0, 0);
+		expectedContent = "a";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.insertContent("#", 0, 0);
+		expectedContent = "#a";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.insertContent("5", 2, 1);
+		expectedContent = "#a5";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.insertContent("@", 3, 2);
+		expectedContent = "#a5@";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+	}
+	
+	@Test
+	public void simpleMiddleInsertionTest() {
+		Document testingDocument = new Document("TestInsertion", "User");
+		
+		String expectedContent = "";
+		String actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.insertContent("a", 0, 0);
+		expectedContent = "a";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.insertContent("9", 0, 0);
+		expectedContent = "9a";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.insertContent("%", 1, 1);
+		expectedContent = "9%a";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.insertContent(",", 1, 2);
+		expectedContent = "9,%a";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.insertContent(".", 1, 3);
+		expectedContent = "9.,%a";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
 		
 	}
 
