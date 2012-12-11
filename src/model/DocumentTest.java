@@ -103,7 +103,7 @@ public class DocumentTest {
 	}
 	
 	@Test
-	public void addCollaboratorTest() {
+	public void addSimpleCollaboratorTest() {
 		Document testingDocument = new Document("TestCollaboratorAdding", "User");
 		
 		String expectedCollaborators = "User";
@@ -116,6 +116,71 @@ public class DocumentTest {
 		String[] newCollaborators = collaborators.toArray(new String[collaborators.size()]);
 		String[] listActualCollaborators = new String [] {"User", "User1"};
 		assertArrayEquals(listActualCollaborators, newCollaborators);
+	}
+	
+	@Test
+	public void addDuplicateCollaboratorTest() {
+		Document testingDocument = new Document("TestCollaboratorAddingDuplicate", "User");
+		
+		String expectedCollaborators = "User";
+		String actualCollaborators = testingDocument.getCollab();
+		assertEquals(expectedCollaborators, actualCollaborators);
+		
+		String collaborator = "User";
+		testingDocument.addCollaborator(collaborator);
+		List<String> collaborators = testingDocument.getCollabList();
+		String[] newCollaborators = collaborators.toArray(new String[collaborators.size()]);
+		String[] listActualCollaborators = new String [] {"User"};
+		assertArrayEquals(listActualCollaborators, newCollaborators);
+	}
+	
+	@Test
+	public void removeAbsentCollaboratorTest() {
+		Document testingDocument = new Document("TestCollaboratorRemovingAbsent", "User");
+		
+		String expectedCollaborators = "User";
+		String actualCollaborators = testingDocument.getCollab();
+		assertEquals(expectedCollaborators, actualCollaborators);
+		
+		String collaborator = "User1";
+		testingDocument.removeCollaborator(collaborator);
+		List<String> collaborators = testingDocument.getCollabList();
+		String[] newCollaborators = collaborators.toArray(new String[collaborators.size()]);
+		String[] listActualCollaborators = new String [] {"User"};
+		assertArrayEquals(listActualCollaborators, newCollaborators);
+	}
+	
+	@Test
+	public void removeSimpleCollaboratorTest() {
+		Document testingDocument = new Document("TestCollaboratorRemoving", "User");
+		
+		String expectedCollaborators = "User";
+		String actualCollaborators = testingDocument.getCollab();
+		assertEquals(expectedCollaborators, actualCollaborators);
+		
+		String collaborator = "User";
+		testingDocument.removeCollaborator(collaborator);
+		List<String> collaborators = testingDocument.getCollabList();
+		String[] newCollaborators = collaborators.toArray(new String[collaborators.size()]);
+		String[] listActualCollaborators = new String [] {};
+		assertArrayEquals(listActualCollaborators, newCollaborators);
+	}
+	
+	@Test
+	public void simpleInsetionTest() {
+		Document testingDocument = new Document("TestInsertion", "User");
+		
+		String expectedContent = "";
+		String actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.insertContent("a", 0, 0);
+		expectedContent = "a";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		// TODO Work on this test
+		
 	}
 
 }
