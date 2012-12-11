@@ -149,6 +149,8 @@ public class Controller {
 					docTableGUI.updateTable(documentInfo);
 					return ;
 				} else{
+					// Parses data containing information contained in the table; and then adds it to the document table
+					
 					System.out.println(line);
 					String docName = getField("docName", line);
 					String docDate = getField("date", line);
@@ -280,7 +282,9 @@ public class Controller {
 							return ;
 						}
 					}else{
-						throw new RuntimeException("Invalid format");
+						ErrorMessage error = new ErrorMessage("Illegal server response", "Illegal response from the server");
+						error.setVisible(true);
+						return ;
 					}					
 				} 
 				else if (line.startsWith("corrected")) {
@@ -301,6 +305,8 @@ public class Controller {
 					String docName = getField("docName", line);
 					int position = Integer.valueOf(getField("position", line));
 					int version = Integer.valueOf(getField("version", line));
+					
+					
 					if(type.equals("insertion")){						
 						String change = getField("change", line);
 						String[] colors = getField("color", line).split(",");

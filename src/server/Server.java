@@ -39,8 +39,8 @@ import model.Document;
  * 		UPDATE := "update|" + docName + "|" + collaborators + "|" + colors
  * 		OPENED := "opened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version
  *      CHANGED := INSERTION | DELETION
- * 		INSERTION := "changed|" + userName + "|" + docName + "|" + change + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion + "|" + color
- *		DELETION := "changed|" + userName + "|" + docName + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion
+ * 		INSERTION := "changed|" + userName + "|" + docName + "|" + change + "|" + position + "|" + length + "|" + versionNumber + "|" + color
+ *		DELETION := "changed|" + userName + "|" + docName + "|" + position + "|" + length + "|" + versionNumber
  *		NEWDOC := CREATED | NOTCREATED
  *		CREATED := 	"created|" + userName + "|" + docName + "|" + userName + "|" + date + "|" + colors
  *		NOTCREATED := "notcreatedduplicate"

@@ -23,25 +23,17 @@ public class Document {
 		
 	private List<Change> changeList;
 	/*
-	 * Idea for keeping up with changes -->
+	 * Idea for keeping up with changes using Operational transforms-->
+	 * 
 	 * Have a changelist which stores the list of changes and the positions of each change
-	 * Each version of the document corresponds with a certain change
+	 * Each version of the document corresponds to a certain change made in the document
+	 *
+	 * When a change is received, the version number is looked at and if the version number 
+	 * is different from the starting version number, all changes made since that
+	 * version number are looked at.
+	 * If previous changes affect the position of the change in the document, the change is 
+	 * appended onto the changelist, and the position at which the current change is made is modified
 	 * 
-	 * This list may become really long, we can flush the list when we are not editing the document
-	 * 
-	 * Do we want a list or an array? 
-	 * 
-	 * If we have an array we will have to dynamically resize it. Are there dynamically resizing
-	 * arrays in java?
-	 * 
-	 * we could do a list and still iterate over the indices of the list by keeping track of the 
-	 * first value of the list
-	 * 
-	 * now when we get a change, we look at the version number and if it is different
-	 * we start at that version and look at all of the changes we have made since then
-	 * and if they affect the thing we are going to change, then we append that change onto 
-	 * our changelist, we append the modified change because we keep track of the modified
-	 * value and check with regards to that
 	 */
 
 	
@@ -72,6 +64,10 @@ public class Document {
 	/**
 	 * Inserts new content into the given position in the document
 	 * The content should be a letter that results from the user typing. 
+	 * <p>
+	 * For example, insertion into the word "abcd" at position 1 with newLetter "e" will
+	 * result in the new string "aebcd". Insertion into the word "acd" at position 3 with
+	 * newLetter "f" results in the new string "acdf"
 	 * @param newLetter New letter to be inserted into the document
 	 * @param position Position in the document at which new content should be inserted
 	 * @return New content of the document
@@ -79,7 +75,6 @@ public class Document {
 	public synchronized void insertContent(String newLetter, int position, int version) {
 		synchronized(content) {
 			
-			//TODO use version information to modify position
 			position = transformPosition(position, version);
 			position = Math.min(position, content.length());
 			content = content.substring(0, position) + newLetter + content.substring(position);
@@ -122,6 +117,8 @@ public class Document {
 	}
 	
 	/**
+	 * Method that represents the content of the document in the form of a string. Does not contain meta data
+	 * about the document
 	 * @return a String that represents the content of the document
 	 */
 	@Override
@@ -169,7 +166,7 @@ public class Document {
 	}
 	
 	/**
-	 * Updates the version number of the document saved on the server
+	 * Increments the version number of the document saved on the server
 	 */
 	public void updateVersion() {
 		synchronized(content){
@@ -212,6 +209,11 @@ public class Document {
 		}
 	}
 	
+	/**
+	 * Returns collaborators in a document in the form of a list of strings
+	 * @return A list of strings representing the collaborators of the document. These collaborators
+	 * do not necessarily have to have the document open at the current time instance
+	 */
 	public List<String> getCollabList(){
 		synchronized(collaborators){
 			return this.collaborators;

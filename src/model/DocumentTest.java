@@ -253,5 +253,60 @@ public class DocumentTest {
 		assertEquals(expectedContent, actualContent);
 		
 	}
+	
+	@Test
+	public void simpleDeletionTest() {
+		Document testingDocument = new Document("TestDeletion", "User");
+		
+		String expectedContent = "";
+		String actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.insertContent("abcd", 0, 0);
+		
+		testingDocument.deleteContent(0, 1, 0);
+		expectedContent = "bcd";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.deleteContent(0, 1, 1);
+		expectedContent = "cd";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.deleteContent(0, 2, 2);
+		expectedContent = "";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+	}
+	
+	@Test
+	public void simpleEndingDeletionTest() {
+		Document testingDocument = new Document("TestDeletion", "User");
+		
+		String expectedContent = "";
+		String actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.insertContent("a#5@", 0, 0);
+
+		testingDocument.deleteContent(2, 1, 0);
+		expectedContent = "a#@";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.deleteContent(1, 2, 1);
+		expectedContent = "a";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+		testingDocument.deleteContent(0, 1, 2);
+		expectedContent = "";
+		actualContent = testingDocument.toString();
+		assertEquals(expectedContent, actualContent);
+		
+	}
+
 
 }
