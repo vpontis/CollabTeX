@@ -74,7 +74,6 @@ public class ServerTest {
 	
 	public String getField(String field, String input){
 		String regexPattern = "(?<=" + field + "\\=)(.*?)(?=((?<![\\\\])\\&))";
-		System.out.println(regexPattern);
 		Pattern regex = Pattern.compile(regexPattern);
 		Matcher matcher = regex.matcher(input);
 		matcher.find();
@@ -90,8 +89,10 @@ public class ServerTest {
 	
 	@Test
 	public void regexTest(){
-		String input = "opendoc&docName=document&userName=vpontis&version=23&\n";
+		String input = "opendoc&docName=document&userName=vpontis&version=2\\&adf3&\n";
 		assertEquals("document", getField("docName", input));
+		assertEquals("vpontis", getField("userName", input));
+		assertEquals("2\\&adf3", getField("version", input));
 	}
 
 	
