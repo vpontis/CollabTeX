@@ -94,8 +94,6 @@ public class ServerTest {
 		assertEquals("vpontis", getField("userName", input));
 		assertEquals("2\\&adf3", getField("version", input));
 	}
-
-	
 }
 
 

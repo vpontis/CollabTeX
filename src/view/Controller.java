@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This is the controller class. It makes requests from the server
@@ -97,17 +99,14 @@ public class Controller {
 		try {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
 				//set the ID of the client
-				if (line.startsWith("id:")) {
-					String[] lineSplit = line.split(" ");
-					this.ID = Integer.valueOf(lineSplit[1]);
+				if (line.startsWith("id=")) {
+					this.ID = Integer.valueOf(getField("id", line));
 				} 
 				//the user should log in 
 				else if (line.startsWith("loggedin")) {
-					String[] lineSplit = line.split(" ");
-					userName = lineSplit[1];
-					int ID = Integer.valueOf(lineSplit[2]);
-					
-					if (ID == this.ID) {
+					userName = getField("userName", line);
+					int docID = Integer.valueOf(getField("id", line));
+					if (docID == this.ID) {
 						docTableGUI = new DocTable(serverOutput, userName);
 						updateDocTable();
 						
@@ -150,10 +149,10 @@ public class Controller {
 					docTableGUI.updateTable(documentInfo);
 					return ;
 				} else{
-					String[] lineSplit = line.split("\t");
-					String docName = lineSplit[0];
-					String docDate = lineSplit[1];
-					String docCollab = lineSplit[2];
+					System.out.println(line);
+					String docName = getField("docName", line);
+					String docDate = getField("date", line);
+					String docCollab = getField("collab", line);
 					documentInfo.add(new String[]{docName, docDate, docCollab});
 				}
 			}
@@ -181,64 +180,52 @@ public class Controller {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
 				//if the user has created a new document, open that document
 				if (line.startsWith("created")) {
-					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 5){
-						
-						String userName = lineSplit[1];
-						String docName = lineSplit[2];
-						String collaborators = lineSplit[3];
-						String date = lineSplit[4];
-						int version = 0;
+					String userName = getField("userName", line);
+					String docName = getField("docName", line);
+					String date = getField("date", line);
+					int version = 0;
 
-						String[] dataDoc = new String [3];
-						dataDoc[0] = docName;
-						dataDoc[1] = date;
-						dataDoc[2] = userName;
-						docTableGUI.addData(dataDoc);
-						
-						if(this.userName.equals(userName)){
-							this.currentDoc = new DocEdit(serverOutput, docName, userName, "", collaborators, version, "");							
-							Thread newThread = new Thread(new Runnable() {
-								@Override
-								public void run() {
-									runDocEdit();
-								}
-							});
-							newThread.start();
-							return;
-						}
-					}else{
-						throw new RuntimeException("Invalid format");
-					}					
+					String[] dataDoc = new String [3];
+					dataDoc[0] = docName;
+					dataDoc[1] = date;
+					dataDoc[2] = userName;
+					docTableGUI.addData(dataDoc);
+					
+					if(this.userName.equals(userName)){
+						this.currentDoc = new DocEdit(serverOutput, docName, userName, "", userName, version, "");							
+						Thread newThread = new Thread(new Runnable() {
+							@Override
+							public void run() {
+								runDocEdit();
+							}
+						});
+						newThread.start();
+						return;
+					}
 				} 
 				else if(line.startsWith("notcreatedduplicate")){
 					docTableGUI.setDuplicateErrorMessage();
 				}
 				
 				else if (line.startsWith("opened")) {
-					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 7){
-						String userName = lineSplit[1];
-						String docName = lineSplit[2];
-						String docContent = lineSplit[3];
-						String collaborators = lineSplit[4];
-						int version = Integer.valueOf(lineSplit[5]);
-						String colors = lineSplit[6];
+					String userName = getField("userName", line);
+					String docName = getField("docName", line);
+					String docContent = getField("docContent", line);
+					String collaborators = getField("collaborators", line);
+					int version = Integer.valueOf(getField("version", line));
+					String colors = getField("colors", line);
 						
-						docContent = docContent.replace("\t", "\n");
-						if(this.userName.equals(userName)){
-							this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent, collaborators, version, colors);							
-							Thread newThread = new Thread(new Runnable() {
-								@Override
-								public void run() {
-									runDocEdit();
-								}
-							});
-							newThread.start();
-							return;
-						}
-					}else{
-						throw new RuntimeException("Invalid format");
+					docContent = docContent.replace("\t", "\n");
+					if(this.userName.equals(userName)){
+						this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent, collaborators, version, colors);							
+						Thread newThread = new Thread(new Runnable() {
+							@Override
+							public void run() {
+								runDocEdit();
+							}
+						});
+						newThread.start();
+						return;
 					}					
 				} else if (line.startsWith("loggedout")) {
 					String[] lineSplit = line.split(" ");
@@ -297,63 +284,50 @@ public class Controller {
 					}					
 				} 
 				else if (line.startsWith("corrected")) {
-					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 4) {
-						String userName = lineSplit[1];
-						String docName = lineSplit[2];
-						String newContent = lineSplit[3];
-						newContent = newContent.replace("\t", "\n");
-						if (this.userName.equals(userName)) {
-							if (currentDoc.getName().equals(docName)) {
-								currentDoc.resetText(newContent);
-							}
+					String userName = getField("userName", line);
+					String docName = getField("docName", line);
+					String newContent = getField("newContent", line);
+					newContent = newContent.replace("\t", "\n");
+					if (this.userName.equals(userName)) {
+						if (currentDoc.getName().equals(docName)) {
+							currentDoc.resetText(newContent);
 						}
 					}
 				}
 				//if the content of the document is changed, update the view for the user
 				else if (line.startsWith("changed")) {
-					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 8) {
-						String userName = lineSplit[1];
-						String docName = lineSplit[2];
-						String change = lineSplit[3];
-						int position = Integer.valueOf(lineSplit[4]);
-						String[] colors = lineSplit[7].split(",");
+					String type = getField("type", line);
+					String userName = getField("userName", line);
+					String docName = getField("docName", line);
+					int position = Integer.valueOf(getField("position", line));
+					int version = Integer.valueOf(getField("version", line));
+					if(type.equals("insertion")){						
+						String change = getField("change", line);
+						String[] colors = getField("color", line).split(",");
 						Color color = new Color(Integer.parseInt(colors[0]), Integer.parseInt(colors[1]), Integer.parseInt(colors[2]));
-						int version = Integer.valueOf(lineSplit[6]);
 						change = change.replace("\t", "\n");
 						if (currentDoc.getName().equals(docName)) {
 							if (! this.userName.equals(userName)) {
 								currentDoc.insertContent(change, position, version, color);
 							}
 						}
-					} else if (lineSplit.length == 6) {
-						String userName = lineSplit[1];
-						String docName = lineSplit[2];
-						int position = Integer.valueOf(lineSplit[3]);
-						int length = Integer.valueOf(lineSplit[4]);
-						int version = Integer.valueOf(lineSplit[5]);						
+					}
+					else if(type.equals("deletion")){
+						int length = Integer.valueOf(getField("length", line));
 						if (currentDoc.getName().equals(docName)) {
 							if (! this.userName.equals(userName)) {
 								currentDoc.deleteContent(position,length, version);
 							}
-						}
+						}						
 					}
 				} 
 				//if the list of collaborators is changed, update the list for the user
 				else if (line.startsWith("update")) {
-					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 4) {
-						String docName = lineSplit[1];
-						String collaboratorNames = lineSplit[2];
-						String colors = lineSplit[3];
-						System.out.println(colors);
-						if (currentDoc.getName().equals(docName)) {
-							currentDoc.updateCollaborators(collaboratorNames, colors);
-						}
-					}
-					else{
-						System.out.println("Invalid format");
+					String docName = getField("docName", line);
+					String collaborators = getField("collaborators", line);
+					String colors = getField("colors", line);
+					if (currentDoc.getName().equals(docName)) {
+						currentDoc.updateCollaborators(collaborators, colors);
 					}
 				}
 			}
@@ -363,6 +337,32 @@ public class Controller {
 
 	}
 
+	
+	/**
+	 * Returns a field of a regular expression
+	 * @param field 
+	 * @param input to find the field 
+	 * @return the field from the input
+	 */
+	public String getField(String field, String input){
+		String regexPattern = "(?<=" + field + "\\=)(.*?)(?=((?<![\\\\])\\&))";
+		Pattern regex = Pattern.compile(regexPattern);
+		Matcher matcher = regex.matcher(input);
+		matcher.find();
+		String response = matcher.group();
+		return response;
+	}
+	
+	/**
+	 * Escapes the text
+	 * @param regular text
+	 * @return escaped text
+	 */
+	public String escapeText(String text){
+		text.replaceAll("\\&", "\\\\\\&");
+		text.replaceAll("\\=", "\\\\\\=");
+		return text;
+	}
 	/**
 	 * This method should be run by clients to connect to the server. It uses the default constructor
 	 * and assumes that you are connecting on to a server which is on the same machine over port 4444. 

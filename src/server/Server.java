@@ -173,7 +173,7 @@ public class Server {
         		outputStreamWriters.add(out);
         	}
         	//only print to the server which made the connection
-        	out.println("id: " + ID);
+        	out.println("id=" + ID + "&");
         	
         	//as the server gets request form the client it will add these requests to a queue
         	//these requests will be handles in order that they are added to the queue
@@ -321,7 +321,8 @@ public class Server {
 		int versionNumber = currentDocument.getVersion();
 		
 		if (position != -1 && length != -1) {
-			return "changed|" + userName + "|" + docName + "|" + change + "|" + position + "|" + length + "|" + versionNumber + "|" + color;
+			return "changed&type=insertion&userName=" + userName + "&docName=" + docName + "&change=" + change + "&" +
+					"position=" + position + "&length=" + length + "&version=" + versionNumber + "&color=" + color + "&";
 		}
 		
 		return "Invalid request";
@@ -344,7 +345,8 @@ public class Server {
 		int versionNumber = currentDocument.getVersion();
 		
 		if (position != -1 && length != -1) {
-			return "changed|" + userName + "|" + docName + "|" + position + "|" + length + "|" + versionNumber;
+			return "changed&type=deletion&userName=" + userName + "&docName=" + docName + "&position=" + position + "&" +
+					"length=" + length + "&version=" + versionNumber + "&";
 		}
 		
 		return "Invalid request";
@@ -381,17 +383,17 @@ public class Server {
 			
 			//this returns information about the user logged in 
 			//it then returns a list of documents and their corresponding names, dates, and collaborators
-			StringBuilder stringBuilder = new StringBuilder("loggedin " + userName + " " + ID);
+			StringBuilder stringBuilder = new StringBuilder("loggedin&userName=" + userName + "&id=" + ID + "&");
 			stringBuilder.append("\n");
 			
 			for (Document document : currentDocuments){
+				stringBuilder.append("docName=");
 				stringBuilder.append(document.getName());
-				stringBuilder.append("\t");
+				stringBuilder.append("&date=");
 				stringBuilder.append(document.getDate());
-				stringBuilder.append("\t");
-				String collaborators = document.getCollab();
-				stringBuilder.append(collaborators);
-				stringBuilder.append("\n");
+				stringBuilder.append("&collab=");
+				stringBuilder.append(document.getCollab());
+				stringBuilder.append("&\n");
 			}
 			stringBuilder.append("enddocinfo");
 			
@@ -426,7 +428,9 @@ public class Server {
     	Document newDoc = new Document(docName, userName);
 		currentDocuments.add(newDoc);
 		String date = newDoc.getDate();
-		return "created|" + userName + "|" + docName + "|" + userName + "|" + date; 
+		
+		//TODO add color to this so when you open a doc you can see your color
+		return "created&userName=" + userName + "&docName=" + docName + "&date=" + date + "&"; 
     }
     
     /**
@@ -460,15 +464,16 @@ public class Server {
 			System.out.println(user + "--->" + userColorMappings.get(user).toString());
 		}
 		//updates collaborators than opens the document
-		System.out.println(colors);
-		return "update|" + docName + "|" + collaborators + "|" + colors + "\nopened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version + "|" + colors; 		
+		return "update&docName=" + docName + "&collaborators=" + collaborators + "&colors" + colors + "&\n" +
+				"opened&userName=" + userName + "&docName=" + docName + "&docContent=" + docContent + 
+				"&collaborators=" + collaborators + "&version=" + version + "&colors=" + colors + "&"; 		
     }
     
     private String correctError(String userName, String docName) {
     	Document currentDocument = getDoc(docName);
     	String content = currentDocument.toString();
     	content = content.replace("\n", "\t");
-    	return "corrected|" + userName + "|" + docName + "|" + content;
+    	return "corrected&userName=" + userName + "&docName=" + docName + "&content=" + content + "&";
     }
     
     /**
@@ -480,16 +485,16 @@ public class Server {
     private String exitDoc(String userName, String docName) {
 		StringBuilder stringBuilder = new StringBuilder("exiteddoc " + userName + " " + docName);
 		stringBuilder.append("\n");
-		
+				
 		//add information about all the documents in the database
 		for (Document document : currentDocuments){
+			stringBuilder.append("docName=");
 			stringBuilder.append(document.getName());
-			stringBuilder.append("\t");
+			stringBuilder.append("&date=");
 			stringBuilder.append(document.getDate());
-			stringBuilder.append("\t");
-			String collaborators = document.getCollab();
-			stringBuilder.append(collaborators);
-			stringBuilder.append("\n");
+			stringBuilder.append("&collab=");
+			stringBuilder.append(document.getCollab());
+			stringBuilder.append("&\n");
 		}
 		stringBuilder.append("enddocinfo");
 		
