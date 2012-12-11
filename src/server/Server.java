@@ -173,7 +173,7 @@ public class Server {
         		outputStreamWriters.add(out);
         	}
         	//only print to the server which made the connection
-        	out.println("id=" + ID + "&");
+        	out.println("id&id=" + ID + "&");
         	
         	//as the server gets request form the client it will add these requests to a queue
         	//these requests will be handles in order that they are added to the queue
@@ -382,20 +382,31 @@ public class Server {
 			StringBuilder stringBuilder = new StringBuilder("loggedin&userName=" + userName + "&id=" + ID + "&");
 			stringBuilder.append("\n");
 			
-			for (Document document : currentDocuments){
-				stringBuilder.append("docName=");
-				stringBuilder.append(document.getName());
-				stringBuilder.append("&date=");
-				stringBuilder.append(document.getDate());
-				stringBuilder.append("&collab=");
-				stringBuilder.append(document.getCollab());
-				stringBuilder.append("&\n");
-			}
-			stringBuilder.append("enddocinfo");
+			stringBuilder.append(getDocumentInfo());
 			
 			return stringBuilder.toString();
 
 		}
+    }
+
+    /**
+     * Gets the document info for doctable
+     * @return
+     */
+    private String getDocumentInfo(){
+    	StringBuilder stringBuilder = new StringBuilder();
+		for (Document document : currentDocuments){
+			stringBuilder.append("docinfo&");
+			stringBuilder.append("docName=");
+			stringBuilder.append(document.getName());
+			stringBuilder.append("&date=");
+			stringBuilder.append(document.getDate());
+			stringBuilder.append("&collab=");
+			stringBuilder.append(document.getCollab());
+			stringBuilder.append("&\n");
+		}
+		stringBuilder.append("enddocinfo");
+		return stringBuilder.toString();
     }
     
     /**
@@ -406,7 +417,7 @@ public class Server {
     private String logOut(String userName, String ID) {
 		onlineUsers.remove(userName);
 		socketUserMappings.remove(ID);
-		return "loggedout " + userName;
+		return "loggedout&userName=" + userName + "&";
     }
     
     /**
@@ -480,21 +491,11 @@ public class Server {
      * @return Response from the server to the client
      */
     private String exitDoc(String userName, String docName) {
-		StringBuilder stringBuilder = new StringBuilder("exiteddoc " + userName + " " + docName);
+		StringBuilder stringBuilder = new StringBuilder("exiteddoc&userName=" + userName + "&docName=" + docName + "&");
 		stringBuilder.append("\n");
-				
-		//add information about all the documents in the database
-		for (Document document : currentDocuments){
-			stringBuilder.append("docName=");
-			stringBuilder.append(document.getName());
-			stringBuilder.append("&date=");
-			stringBuilder.append(document.getDate());
-			stringBuilder.append("&collab=");
-			stringBuilder.append(document.getCollab());
-			stringBuilder.append("&\n");
-		}
-		stringBuilder.append("enddocinfo");
 		
+		stringBuilder.append(getDocumentInfo());
+						
 		//returns exitdoc response then the information about the document list for the document table
 		return stringBuilder.toString();
     }

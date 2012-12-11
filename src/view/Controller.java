@@ -9,10 +9,15 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import server.Regex;
+import server.ServerRequest;
+import view.ControllerRequest.Type;
 
 /**
  * This is the controller class. It makes requests from the server
@@ -38,6 +43,9 @@ public class Controller {
 	private int ID;
 	
 	private DocEdit currentDoc = null;
+	
+	//this thread contains the requests from the client to the server
+	private LinkedBlockingQueue<ControllerRequest> queue;
 
 	/**
 	 * This is the constructor for the controller. A client runs an instance of controller
@@ -77,6 +85,7 @@ public class Controller {
 		this.serverOutput = new PrintWriter(serverSocket.getOutputStream(), true);
 
 		this.loginGUI = new Login(serverOutput);
+		this.queue = new LinkedBlockingQueue<ControllerRequest>();
 	}
 	
 	/**
@@ -89,8 +98,9 @@ public class Controller {
 	 * The GUI will progress to the document table page after the server sends both an ID
 	 * and a logged in message for a username. When the user logs in, a new thread is fired to 
 	 * handle the document table GUI. 
+	 * @throws InterruptedException throws an exception if taking from the queue is interrupted
 	 */
-	private void runLogin() {
+	private void runLogin()  {
 		//make loginGUI the only thing that is visible, maintain the rep invariant
 		loginGUI.setVisible(true);
 		loginGUI.resetMessage();
@@ -98,39 +108,47 @@ public class Controller {
 			docTableGUI.setVisible(false);
 		}
 		
-		try {
-			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
-				//set the ID of the client
-				if (line.startsWith("id=")) {
-					this.ID = Integer.valueOf(Regex.getField("id", line));
-				} 
-				//the user should log in 
-				else if (line.startsWith("loggedin")) {
-					userName = Regex.getField("userName", line);
-					int docID = Integer.valueOf(Regex.getField("id", line));
-					if (docID == this.ID) {
-						docTableGUI = new DocTable(serverOutput, userName);
-						updateDocTable();
-						
-						//fire off a new thread to handle the doctable
-						Thread newThread = new Thread(new Runnable() {
-							@Override
-							public void run() {
-								runDocTable();
-							}
-						});
-						
-						newThread.start();
-						return;
-					}
-				} 
-				//the user gets rejected 
-				else if (line.startsWith("notloggedin")){
-					loginGUI.failedLogin();
-				} 
-	        }
-		} catch (IOException e) {
-			throw new RuntimeException("IO Exception encountered");
+		while(true){
+			ControllerRequest request;
+			try {
+				request = queue.take();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				ErrorMessage error = new ErrorMessage("Error handling messages", "Unable to pull things from queue in controller.");
+				error.setVisible(true);
+				return;
+			}
+			Map<String, String> requestMap = request.getMap();
+			Type type = request.getType();
+			switch(type){
+			case ID:
+				this.ID = Integer.valueOf(requestMap.get("id"));
+				break;
+			case LOGGEDIN:
+				userName = requestMap.get("userName");
+				int docID = Integer.valueOf(requestMap.get("id"));
+				if (docID == this.ID) {
+					docTableGUI = new DocTable(serverOutput, userName);
+					updateDocTable();
+					//fire off a new thread to handle the doctable
+					Thread newThread = new Thread(new Runnable() {
+						@Override
+						public void run() {
+							runDocTable();
+						}
+					});
+					newThread.start();
+					return;
+				}
+				break;
+			case NOTLOGGEDIN:
+				loginGUI.failedLogin();
+				break;
+			default:
+				System.out.println("Incorrect type found");
+				throw new RuntimeException("incorrect type found");
+//				continue;
+			}
 		}
 	}
 	
@@ -144,24 +162,32 @@ public class Controller {
 	 * next output from the server will be information about a list of documents. 
 	 */
 	private void updateDocTable() {
-		try{
-			List<String[]> documentInfo = new ArrayList<String[]>();
-			for (String line = serverInput.readLine(); line!= null; line=serverInput.readLine()) {
-				if (line.startsWith("enddocinfo")){
-					docTableGUI.updateTable(documentInfo);
-					return ;
-				} else{
-					// Parses data containing information contained in the table; and then adds it to the document table
-					
-					System.out.println(line);
-					String docName = Regex.getField("docName", line);
-					String docDate = Regex.getField("date", line);
-					String docCollab = Regex.getField("collab", line);
-					documentInfo.add(new String[]{docName, docDate, docCollab});
-				}
+		List<String[]> documentInfo = new ArrayList<String[]>();
+		while(true){
+			ControllerRequest request;
+			try {
+				request = queue.take();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				ErrorMessage error = new ErrorMessage("Error handling messages", "Unable to pull things from queue in controller.");
+				error.setVisible(true);
+				return;
 			}
-		} catch(IOException e){
-			throw new RuntimeException();
+			Map<String, String> requestMap = request.getMap();
+			switch(request.getType()){
+			case ENDDOCINFO:				
+				docTableGUI.updateTable(documentInfo);
+				return;
+			case DOCINFO:
+				// Parses data containing information contained in the table; and then adds it to the document table
+				String docName = requestMap.get("docName");
+				String docDate = requestMap.get("date");
+				String docCollab = requestMap.get("collab");
+				documentInfo.add(new String[]{docName, docDate, docCollab});
+				break;
+			default:
+				continue;
+			}
 		}
 	}
 
@@ -180,76 +206,87 @@ public class Controller {
 			currentDoc.setVisible(false);
 		docTableGUI.setVisible(true);
 		
-		try {
-			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
-				//if the user has created a new document, open that document
-				if (line.startsWith("created")) {
-					String userName = Regex.getField("userName", line);
-					String docName = Regex.getField("docName", line);
-					String date = Regex.getField("date", line);
-					int version = 0;
-
-					String[] dataDoc = new String [3];
-					dataDoc[0] = docName;
-					dataDoc[1] = date;
-					dataDoc[2] = userName;
-					docTableGUI.addData(dataDoc);
-					
-					if(this.userName.equals(userName)){
-						this.currentDoc = new DocEdit(serverOutput, docName, userName, "", userName, version, "");							
-						Thread newThread = new Thread(new Runnable() {
-							@Override
-							public void run() {
-								runDocEdit();
-							}
-						});
-						newThread.start();
-						return;
-					}
-				} 
-				else if(line.startsWith("notcreatedduplicate")){
-					docTableGUI.setDuplicateErrorMessage();
-				}
-				
-				else if (line.startsWith("opened")) {
-					String userName = Regex.getField("userName", line);
-					String docName = Regex.getField("docName", line);
-					String docContent = Regex.getField("docContent", line);
-					String collaborators = Regex.getField("collaborators", line);
-					int version = Integer.valueOf(Regex.getField("version", line));
-					String colors = Regex.getField("colors", line);
-						
-					docContent = docContent.replace("\t", "\n");
-					if(this.userName.equals(userName)){
-						this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent, collaborators, version, colors);							
-						Thread newThread = new Thread(new Runnable() {
-							@Override
-							public void run() {
-								runDocEdit();
-							}
-						});
-						newThread.start();
-						return;
-					}					
-				} else if (line.startsWith("loggedout")) {
-					String[] lineSplit = line.split(" ");
-					if (lineSplit.length == 2) {
-						String userName = lineSplit[1];
-						if (this.userName.equals(userName)) {
-							Thread newThread = new Thread(new Runnable() {
-								@Override
-								public void run() {
-									runLogin();
-								}
-							});
-							newThread.start();
-							return;
-						}
-					}
-				}
+		while(true){
+			ControllerRequest request;
+			try {
+				request = queue.take();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				ErrorMessage error = new ErrorMessage("Error handling messages", "Unable to pull things from queue in controller.");
+				error.setVisible(true);
+				return;
 			}
-		} catch (IOException e) {
-			throw new RuntimeException("IO Exception encountered");
+			Map<String, String> requestMap = request.getMap();
+			
+			String userName;
+			String docName;
+			String date;
+			int version;
+			System.out.println(request.getLine());
+			switch(request.getType()){
+			case CREATED:
+				docName = requestMap.get("docName");
+				userName = requestMap.get("userName");
+				date = requestMap.get("date");
+				version = 0;
+				
+				String[] dataDoc = new String [3];
+				dataDoc[0] = docName;
+				dataDoc[1] = date;
+				dataDoc[2] = userName;
+				docTableGUI.addData(dataDoc);
+				
+				if(this.userName.equals(userName)){
+					this.currentDoc = new DocEdit(serverOutput, docName, userName, "", userName, version, "");							
+					Thread newThread = new Thread(new Runnable() {
+						@Override
+						public void run() {
+							runDocEdit();
+						}
+					});
+					newThread.start();
+					return;
+				}
+				break;
+			case NOTCREATED:
+				docTableGUI.setDuplicateErrorMessage();
+				break;
+			case LOGGEDOUT:
+				String name = requestMap.get("userName");
+				if (this.userName.equals(name)) {
+					Thread loginThread = new Thread(new Runnable() {
+						@Override
+						public void run() {
+							runLogin();
+						}
+					});
+					loginThread.start();
+					return;
+				}
+				break;
+			case OPENED:
+				userName = requestMap.get("userName");
+				docName = requestMap.get("docName");
+				String docContent = requestMap.get("docContent");
+				String collaborators = requestMap.get("collaborators");
+				version = Integer.valueOf(requestMap.get("version"));
+				String colors = requestMap.get("colors");
+				docContent = docContent.replace("\t", "\n");
+				if(this.userName.equals(userName)){
+					this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent, collaborators, version, colors);							
+					Thread newThread = new Thread(new Runnable() {
+						@Override
+						public void run() {
+							runDocEdit();
+						}
+					});
+					newThread.start();
+					return;
+				}
+				break;
+			default:
+				continue;
+			}
 		}
 	}
 	
@@ -265,86 +302,98 @@ public class Controller {
 		docTableGUI.setVisible(false);
 		currentDoc.setVisible(true);
 		
-		try {
-			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
-				//if the user exits the document, fire a thread to run the docedit
-				if (line.startsWith("exiteddoc ")) {
-					String[] lineSplit = line.split(" ");
-					if (lineSplit.length == 3){
-						String userName = lineSplit[1];
-						updateDocTable();
-						if(this.userName.equals(userName)){							
-							Thread newThread = new Thread(new Runnable() {
-								@Override
-								public void run() {
-									runDocTable();
-								}
-							});
-							newThread.start();
-							return ;
-						}
-					}else{
-						ErrorMessage error = new ErrorMessage("Illegal server response", "Illegal response from the server");
-						error.setVisible(true);
-						return ;
-					}					
-				} 
-				else if (line.startsWith("corrected")) {
-					String userName = Regex.getField("userName", line);
-					String docName = Regex.getField("docName", line);
-					String newContent = Regex.getField("newContent", line);
-					newContent = newContent.replace("\t", "\n");
-					if (this.userName.equals(userName)) {
-						if (currentDoc.getName().equals(docName)) {
-							currentDoc.resetText(newContent);
-						}
-					}
-				}
-				//if the content of the document is changed, update the view for the user
-				else if (line.startsWith("changed")) {
-					String type = Regex.getField("type", line);
-					String userName = Regex.getField("userName", line);
-					String docName = Regex.getField("docName", line);
-					int position = Integer.valueOf(Regex.getField("position", line));
-					int version = Integer.valueOf(Regex.getField("version", line));
-					
-					
-					if(type.equals("insertion")){						
-						String change = Regex.getField("change", line);
-						String[] colors = Regex.getField("color", line).split(",");
-						Color color = new Color(Integer.parseInt(colors[0]), Integer.parseInt(colors[1]), Integer.parseInt(colors[2]));
-						change = change.replace("\t", "\n");
-						if (currentDoc.getName().equals(docName)) {
-							if (! this.userName.equals(userName)) {
-								currentDoc.insertContent(change, position, version, color);
-							}
-						}
-					}
-					else if(type.equals("deletion")){
-						int length = Integer.valueOf(Regex.getField("length", line));
-						if (currentDoc.getName().equals(docName)) {
-							if (! this.userName.equals(userName)) {
-								currentDoc.deleteContent(position,length, version);
-							}
-						}						
-					}
-				} 
-				//if the list of collaborators is changed, update the list for the user
-				else if (line.startsWith("update")) {
-					String docName = Regex.getField("docName", line);
-					String collaborators = Regex.getField("collaborators", line);
-					String colors = Regex.getField("colors", line);
-					if (currentDoc.getName().equals(docName)) {
-						currentDoc.updateCollaborators(collaborators, colors);
-					}
-				}
+		while(true){
+			ControllerRequest request;
+			try {
+				request = queue.take();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				ErrorMessage error = new ErrorMessage("Error handling messages", "Unable to pull things from queue in controller.");
+				error.setVisible(true);
+				return;
 			}
-		} catch (IOException e) {
-			throw new RuntimeException("IO Exception encountered");
+			Map<String, String> requestMap = request.getMap();
+			
+			String userName;
+			String docName;
+			int version;
+			switch(request.getType()){
+			case EXITEDDOC:
+				userName = requestMap.get("userName");
+				updateDocTable();
+				if(this.userName.equals(userName)){							
+					Thread newThread = new Thread(new Runnable() {
+						@Override
+						public void run() {
+							runDocTable();
+						}
+					});
+					newThread.start();
+					return;
+				}
+				break;
+			case CORRECTED:
+				String newContent = requestMap.get("newContent");
+				userName = requestMap.get("userName");
+				docName = requestMap.get("docName");
+				newContent = newContent.replace("\t", "\n");
+				if (this.userName.equals(userName)) {
+					if (currentDoc.getName().equals(docName)) {
+						currentDoc.resetText(newContent);
+					}
+				}
+				break;
+			case CHANGED:
+				String type = requestMap.get("type");
+				int position = Integer.valueOf(requestMap.get("position"));
+				userName = requestMap.get("userName");
+				docName = requestMap.get("docName");
+				version = Integer.valueOf(requestMap.get("version"));
+				if(type.equals("insertion")){						
+					String change = requestMap.get("change");
+					String[] colors = requestMap.get("color").split(",");
+					Color color = new Color(Integer.parseInt(colors[0]), Integer.parseInt(colors[1]), Integer.parseInt(colors[2]));
+					change = change.replace("\t", "\n");
+					if (currentDoc.getName().equals(docName)) {
+						if (! this.userName.equals(userName)) {
+							currentDoc.insertContent(change, position, version, color);
+						}
+					}
+				}
+				else if(type.equals("deletion")){
+					int length = Integer.valueOf(requestMap.get("length"));
+					if (currentDoc.getName().equals(docName)) {
+						if (! this.userName.equals(userName)) {
+							currentDoc.deleteContent(position, length, version);
+						}
+					}						
+				}
+				break;
+			case UPDATE:
+				String collaborators = requestMap.get("collaborators");
+				String colors = requestMap.get("colors");
+				docName = requestMap.get("docName");
+				if (currentDoc.getName().equals(docName)) {
+					currentDoc.updateCollaborators(collaborators, colors);
+				}
+				break;
+			default:
+				continue;
+			}
 		}
-
 	}
 	
+	private void manageQueue() {		
+		try {
+			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
+				ControllerRequest request = new ControllerRequest(line);
+				queue.add(request);
+			}
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+	}
 	
 	/**
 	 * This method should be run by clients to connect to the server. It uses the default constructor
@@ -384,12 +433,23 @@ public class Controller {
 			return;
 		} 
 		
-		Thread newThread = new Thread(new Runnable() {
+		Thread mainThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				System.out.println("Taking requests from queue");
 				main.runLogin();
 			}
 		});
-		newThread.start();
+		
+		Thread queueThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				main.manageQueue();
+			}
+		});
+		
+		mainThread.start();
+		queueThread.start();
 	}
+
 }
