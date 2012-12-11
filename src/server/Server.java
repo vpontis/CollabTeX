@@ -159,6 +159,17 @@ public class Server {
 		}
     }
     
+    /**
+     * Closes the server socket.
+     */
+    void shutDown() {
+    	try {
+			serverSocket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+    
     
     /**
      * Handle a single client connection.  Returns when client disconnects.
@@ -416,7 +427,7 @@ public class Server {
      * @param userName The name of the user to be logged out
      * @return 
      */
-    private String logOut(String userName, String ID) {
+    String logOut(String userName, String ID) {
 		onlineUsers.remove(userName);
 		socketUserMappings.remove(ID);
 		return "loggedout&userName=" + userName + "&";
@@ -428,7 +439,7 @@ public class Server {
      * @param docName The name of the newly created document
      * @return Response from the server to the client
      */
-    private synchronized String newDoc(String userName, String docName) {
+    synchronized String newDoc(String userName, String docName) {
     	for (Document doc : currentDocuments){
     		if(docName.equals(doc.getName())){
     			return "notcreatedduplicate";

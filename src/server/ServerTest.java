@@ -98,10 +98,81 @@ public class ServerTest {
 	
 	@Test
 	public void loginTest() throws IOException {
-		Server serverInstance = new Server();
-		String loginResponse = serverInstance.logIn("deepak", 2);
+		Server serverInstance = new Server(1111);
+		try {
+			String loginResponse = serverInstance.logIn("deepak", 2);
+			
+			String userName = getField("userName", loginResponse);
+			assertEquals("deepak", userName);
+			
+			String ID = getField("id", loginResponse);
+			assertEquals("2", ID);
+			
+			loginResponse = serverInstance.logOut("deepak", "2");
+			
+			userName = getField("userName", loginResponse);
+			assertEquals("deepak", userName);
+		} finally {
+			serverInstance.shutDown();
+		}
+
+	}
+	
+	@Test
+	public void duplicateLoginTest() throws IOException {
+		Server serverInstance = new Server(1111);
+		try {
+			String loginResponse = serverInstance.logIn("deepak", 2);
+			
+			String userName = getField("userName", loginResponse);
+			assertEquals("deepak", userName);
+			
+			String ID = getField("id", loginResponse);
+			assertEquals("2", ID);
+			
+			loginResponse = serverInstance.logIn("deepak", 3);
+			
+			assertEquals("notloggedin", loginResponse);
+		} finally {
+			serverInstance.shutDown();
+		}		
 		
 	}
+	
+	@Test
+	public void newDocTest() throws IOException {
+		Server serverInstance = new Server(1111);
+		try {
+			String loginResponse = serverInstance.newDoc("deepak", "doc1");
+			
+			String userName = getField("userName", loginResponse);
+			assertEquals("deepak", userName);
+			
+			String docName = getField("docName", loginResponse);
+			assertEquals("doc1", docName);
+			
+			String date = getField("date", loginResponse);
+			System.out.println("This is a visual check to see if date works..." + date);
+
+		} finally {
+			serverInstance.shutDown();
+		}
+	}
+	
+	@Test
+	public void duplicateDocTest() throws IOException {
+		Server serverInstance = new Server(1111);
+		try {
+			String loginResponse = serverInstance.newDoc("deepak", "doc1");
+			loginResponse = serverInstance.newDoc("victor", "doc1");
+			
+			assertEquals("notcreatedduplicate", loginResponse);
+
+		} finally {
+			serverInstance.shutDown();
+		}
+	}
+	
 }
 
 
