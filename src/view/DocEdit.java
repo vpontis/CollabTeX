@@ -163,21 +163,16 @@ public class DocEdit extends JFrame {
 		textArea.addKeyListener(new KeyListener() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-					int position = textArea.getCaretPosition();
-					
+				int position = textArea.getCaretPosition();
+				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {					
 					if (position > 0) {
 						position --;
 						int length = 1;
-
 						out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + length + "|" + version);
 					}					
 				} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					int position = textArea.getCaretPosition();
-					
 					int length = 1;
-					String change = "\t";
-					
+					String change = "\t";	
 					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
 				}
 			}
@@ -187,19 +182,15 @@ public class DocEdit extends JFrame {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
+				//TODO fix that most recent character is wrong color
 				int position = textArea.getCaretPosition();
 				String change = String.valueOf(e.getKeyChar());
-				
 				if (! (change.equals("\b") || change.equals("\n"))) {
-					
 					javax.swing.text.Style style = textArea.addStyle("BlackForecolor", null);
 			        StyleConstants.setForeground(style, Color.black);
-
 			        change = change.equals("\n") ? "\t" : change;
 					int length = change.length();
-			        
 			        textDocument.setCharacterAttributes(position - length, length, textArea.getStyle("BlackForecolor"), false); 
-					
 					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
 				} 
 			}
@@ -215,7 +206,6 @@ public class DocEdit extends JFrame {
 				closeLatexButton.setVisible(false);
 				latexButton.setText("Latex View");
 			}	
-			
 		});
 		
 		
@@ -227,7 +217,7 @@ public class DocEdit extends JFrame {
 			}
 		});	
 		
-		this.pack();
+		packFrame();
 	}
 	
 	/**
@@ -300,10 +290,8 @@ public class DocEdit extends JFrame {
 	 */
 	public void deleteContent(int position, int length, int versionNo) {
 		this.version = versionNo;
-		
 		int cursorPosition = textArea.getCaretPosition();
 		cursorPosition = cursorPosition > position ? cursorPosition - length : cursorPosition;
-
 		synchronized(textDocument) {
 			try {
 				textDocument.remove(position, length);
@@ -315,7 +303,6 @@ public class DocEdit extends JFrame {
 				e.printStackTrace();
 			}
 			textArea.setCaretPosition(cursorPosition);
-			
 		}
 	}
 	
@@ -373,7 +360,10 @@ public class DocEdit extends JFrame {
 		collaborators.setText(text);
 	}
 	
-	
+	/**
+	 * This packs the frame after resizing. It makes sure that everything on the frame
+	 * fits within the JFrame
+	 */
 	public void packFrame() {
 		this.pack();
 	}
@@ -386,6 +376,4 @@ public class DocEdit extends JFrame {
 		DocEdit main = new DocEdit(new PrintWriter(System.out), "Document name", "victor", "", "collab", 0, "");
 		main.setVisible(true);
 	}
-	
-	
 }

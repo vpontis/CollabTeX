@@ -11,7 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ * This is the controller class. It makes requests from the server
+ * and receives responses. It's requests are based off user interaction
+ * in the GUI and with the responses it receives it modifies the view. 
+ * It's request prompt the model to change.
  * 
  * Rep Invariants:
  * 		Only one GUI is visible at a time
@@ -24,7 +27,10 @@ public class Controller {
 	
 	private BufferedReader serverInput;
 	private PrintWriter serverOutput;
+	
 	private String userName;
+	
+	//ID of the client which is given by the server
 	private int ID;
 	
 	private DocEdit currentDoc = null;
