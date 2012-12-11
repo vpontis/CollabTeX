@@ -299,7 +299,7 @@ public class DocEdit extends JFrame {
 				System.out.println("Position: " + String.valueOf(position));
 				System.out.println("Length: " + String.valueOf(length));
 				System.out.println(String.valueOf(textArea.getText().length()));
-				out.println("CORRECTERROR|" + userName + "|" + docName);
+				out.println("CORRECTERROR|" + userName + "|" + docName); //In case client is out of sync, send request to the server to reupdate the client
 				e.printStackTrace();
 			}
 			textArea.setCaretPosition(cursorPosition);
@@ -351,6 +351,7 @@ public class DocEdit extends JFrame {
 			return;
 		}
 		
+		//Code to change to color of the legend of collaborators
 		String text = "<html>";
 		for (int i = 0; i < users.length; i++){
 			text += "<font color=rgb(" + userColorList[i] + ")>" + users[i].replace(",", " ") 

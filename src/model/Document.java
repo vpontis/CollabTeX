@@ -173,6 +173,7 @@ public class Document {
 			versionNumber++;
 		}
 	}
+	
 	/**
 	 * Method that adds the name of a new collaborator to the list of currently online
 	 * collaborators

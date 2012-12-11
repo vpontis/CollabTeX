@@ -86,6 +86,7 @@ public class DocTable extends JFrame{
 		completeLayout.setAutoCreateGaps(true);
         completeLayout.setAutoCreateContainerGaps(true);
         
+        //Horizontal layout of the document table
 		completeLayout.setHorizontalGroup(completeLayout
 				.createParallelGroup()
 				.addGroup(
@@ -108,6 +109,7 @@ public class DocTable extends JFrame{
                 		)               
 			);
 		
+		//Vertical layout of the document table
 		completeLayout.setVerticalGroup(completeLayout
 				.createSequentialGroup()
 				.addGroup(
