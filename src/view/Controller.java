@@ -312,12 +312,12 @@ public class Controller {
 				//if the content of the document is changed, update the view for the user
 				else if (line.startsWith("changed")) {
 					String[] lineSplit = line.split("\\|");
-					if (lineSplit.length == 9) {
+					if (lineSplit.length == 8) {
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
 						String change = lineSplit[3];
 						int position = Integer.valueOf(lineSplit[4]);
-						String[] colors = lineSplit[8].split(",");
+						String[] colors = lineSplit[7].split(",");
 						Color color = new Color(Integer.parseInt(colors[0]), Integer.parseInt(colors[1]), Integer.parseInt(colors[2]));
 						int version = Integer.valueOf(lineSplit[6]);
 						change = change.replace("\t", "\n");
@@ -326,7 +326,7 @@ public class Controller {
 								currentDoc.insertContent(change, position, version, color);
 							}
 						}
-					} else if (lineSplit.length == 7) {
+					} else if (lineSplit.length == 6) {
 						String userName = lineSplit[1];
 						String docName = lineSplit[2];
 						int position = Integer.valueOf(lineSplit[3]);

@@ -6,6 +6,7 @@ package server;
 public class ServerRequest {
 	private int ID;
 	private String requestLine;
+	private String[] requestTokens;
 	private RequestType requestType;
 	
 	/**
@@ -35,6 +36,14 @@ public class ServerRequest {
 	}
 	
 	/**
+	 * 
+	 * @return Return line tokens
+	 */
+	public String[] getTokens() {
+		return requestTokens;
+	}
+	
+	/**
 	 * @return RequestType type of the instance of ServerRequest
 	 */
 	public RequestType getType() {
@@ -49,30 +58,37 @@ public class ServerRequest {
 	private RequestType getType(String input) {
 		if (input.startsWith("LOGIN ")) {
 			requestLine = requestLine.substring(6);
+			requestTokens = requestLine.split(" ");
 			return RequestType.LOGIN;
 			
 		} else if (input.startsWith("NEWDOC ")){
 			requestLine = requestLine.substring(7);
+			requestTokens = requestLine.split(" ");
 			return RequestType.NEWDOC;	
 			
 		} else if (input.startsWith("OPENDOC ")){
 			requestLine = requestLine.substring(8);
+			requestTokens = requestLine.split(" ");
 			return RequestType.OPENDOC;
 			
 		} else if (input.startsWith("CHANGE|")){
 			requestLine = requestLine.substring(7);
+			requestTokens = requestLine.split("\\|");
 			return RequestType.CHANGEDOC;
 			
 		} else if (input.startsWith("EXITDOC ")){
 			requestLine = requestLine.substring(8);
+			requestTokens = requestLine.split(" ");
 			return RequestType.EXITDOC;
 			
 		} else if (input.startsWith("CORRECTERROR|")) {
 			requestLine = requestLine.substring(13);
+			requestTokens = requestLine.split("\\|");
 			return RequestType.CORRECT_ERROR;
 			
 		} else if (input.startsWith("LOGOUT ")){
 			requestLine = requestLine.substring(7);
+			requestTokens = requestLine.split(" ");
 			return RequestType.LOGOUT;			
 		} 
 		
