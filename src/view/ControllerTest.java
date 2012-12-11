@@ -4,6 +4,14 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+
+/*
+ * Testing strategy -->
+ * 
+ * The aim of this class is to test parsing of the messages from the server to the client
+ * This is tested by checking if all types of messages are parsed correctly.
+ */
+
 public class ControllerTest {
 
 	@Test
