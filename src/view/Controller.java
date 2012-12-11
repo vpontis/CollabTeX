@@ -390,10 +390,14 @@ public class Controller {
 				main = new Controller(IP, port);
 			}
 			else{
-				throw new RuntimeException("Invalid input");
+				ErrorMessage error = new ErrorMessage("Invalid Controller Arguments", "Please revise your arguments to the controller.");
+				error.setVisible(true);
+				return;
 			}
 		} catch (IOException e) {
-			throw new RuntimeException("IO Exception caught while setting up the GUI");
+			ErrorMessage error = new ErrorMessage("Server not set up", "Set up a server before running the client");
+			error.setVisible(true);
+			return;
 		} 
 		
 		Thread newThread = new Thread(new Runnable() {

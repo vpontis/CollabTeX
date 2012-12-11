@@ -63,4 +63,30 @@ package server;
  */
 public class ServerTest {
 	//TODO Write tests
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
