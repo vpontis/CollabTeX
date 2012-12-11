@@ -168,12 +168,15 @@ public class DocEdit extends JFrame {
 					if (position > 0) {
 						position --;
 						int length = 1;
-						out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + length + "|" + version);
+						//TODO reformat all of the out.println
+						out.println("CHANGE&type=deletion&userName=" + userName + "&docName=" + docName + "&" +
+								"position=" + position + "&length=" + length + "&version=" + version + "&");
 					}					
 				} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					int length = 1;
 					String change = "\t";	
-					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
+					out.println("CHANGE&type=insertion&userName=" + userName + "&docName=" + docName + "&" +
+							"position=" + position + "&change=" + change + "&length=" + length + "&version=" + version + "&");
 				}
 			}
 
@@ -191,7 +194,8 @@ public class DocEdit extends JFrame {
 			        change = change.equals("\n") ? "\t" : change;
 					int length = change.length();
 			        textDocument.setCharacterAttributes(position - length, length, textArea.getStyle("BlackForecolor"), false); 
-					out.println("CHANGE|" + userName + "|" + docName + "|" + position + "|" + change + "|" + length + "|" + version);
+					out.println("CHANGE&type=insertion&userName=" + userName + "&docName=" + docName + "&" +
+							"position=" + position + "&change=" + change + "&length=" + length + "&version=" + version +"&");
 				} 
 			}
 			
@@ -275,7 +279,7 @@ public class DocEdit extends JFrame {
 				System.out.println("Position: " + String.valueOf(position));
 				System.out.println("Change: " + change);
 				System.out.println(String.valueOf(textArea.getText().length()));
-				out.println("CORRECTERROR|" + userName + "|" + docName);
+				out.println("CORRECTERROR&userName=" + userName + "&docName=" + docName + "&");
 				e.printStackTrace();
 			}
 			textArea.setCaretPosition(cursorPosition);
@@ -299,7 +303,7 @@ public class DocEdit extends JFrame {
 				System.out.println("Position: " + String.valueOf(position));
 				System.out.println("Length: " + String.valueOf(length));
 				System.out.println(String.valueOf(textArea.getText().length()));
-				out.println("CORRECTERROR|" + userName + "|" + docName); //In case client is out of sync, send request to the server to reupdate the client
+				out.println("CORRECTERROR&userName=" + userName + "&docName=" + docName + "&"); //In case client is out of sync, send request to the server to reupdate the client
 				e.printStackTrace();
 			}
 			textArea.setCaretPosition(cursorPosition);
@@ -327,7 +331,7 @@ public class DocEdit extends JFrame {
 	 * Method for the user to exit the given document
 	 */
 	private synchronized void exitDocument() {
-		out.println("EXITDOC " + userName + " " + docName);	
+		out.println("EXITDOC&userName=" + userName + "&docName=" + docName + "&");	
 	}
 	
 	/**

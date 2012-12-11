@@ -2,6 +2,8 @@ package server;
 
 import static org.junit.Assert.*;
 
+import java.util.Map;
+
 import org.junit.Test;
 
 /*
@@ -26,15 +28,19 @@ public class ServerRequestTest {
 	
 	@Test
 	public void loginRequestTest() {
-		String inputRequest = "LOGIN deepak";
+		String inputRequest = "LOGIN&userName=deepak&";
 		ServerRequest testingRequest = new ServerRequest(0, inputRequest);
 		
 		RequestType requestType = testingRequest.getType();
+		Map<String,String> map = testingRequest.getMap();
 		assertEquals(RequestType.LOGIN, requestType);
+		assertEquals("deepak", map.get("userName"));
 		
-		String[] requestTokens = testingRequest.getTokens();
-		String[] expectedTokens = new String[] {"deepak"};
-		assertArrayEquals(expectedTokens, requestTokens);
+		String input = "LOGIN&userName=vic&";
+		ServerRequest request = new ServerRequest(0, input);
+		Map<String,String> requestMap = request.getMap();
+		assertEquals("vic", requestMap.get("userName"));
+
 	}
 	
 	@Test
@@ -44,10 +50,6 @@ public class ServerRequestTest {
 		
 		RequestType requestType = testingRequest.getType();
 		assertEquals(RequestType.NEWDOC, requestType);
-		
-		String[] requestTokens = testingRequest.getTokens();
-		String[] expectedTokens = new String[] {"deepak", "doc1"};
-		assertArrayEquals(expectedTokens, requestTokens);
 	}
 	
 	@Test
@@ -57,10 +59,6 @@ public class ServerRequestTest {
 		
 		RequestType requestType = testingRequest.getType();
 		assertEquals(RequestType.OPENDOC, requestType);
-		
-		String[] requestTokens = testingRequest.getTokens();
-		String[] expectedTokens = new String[] {"deepak", "doc1"};
-		assertArrayEquals(expectedTokens, requestTokens);
 	}
 	
 	@Test
@@ -70,10 +68,6 @@ public class ServerRequestTest {
 		
 		RequestType requestType = testingRequest.getType();
 		assertEquals(RequestType.CHANGEDOC, requestType);
-		
-		String[] requestTokens = testingRequest.getTokens();
-		String[] expectedTokens = new String[] {"deepak", "doc1", "34", "1", "5"};
-		assertArrayEquals(expectedTokens, requestTokens);
 	}
 	
 	@Test
@@ -83,10 +77,6 @@ public class ServerRequestTest {
 		
 		RequestType requestType = testingRequest.getType();
 		assertEquals(RequestType.EXITDOC, requestType);
-		
-		String[] requestTokens = testingRequest.getTokens();
-		String[] expectedTokens = new String[] {"deepak", "doc1"};
-		assertArrayEquals(expectedTokens, requestTokens);
 	}
 	
 	@Test
@@ -96,10 +86,6 @@ public class ServerRequestTest {
 		
 		RequestType requestType = testingRequest.getType();
 		assertEquals(RequestType.LOGOUT, requestType);
-		
-		String[] requestTokens = testingRequest.getTokens();
-		String[] expectedTokens = new String[] {"deepak"};
-		assertArrayEquals(expectedTokens, requestTokens);
 	}
 	
 	@Test
@@ -109,9 +95,5 @@ public class ServerRequestTest {
 		
 		RequestType requestType = testingRequest.getType();
 		assertEquals(RequestType.CORRECT_ERROR, requestType);
-		
-		String[] requestTokens = testingRequest.getTokens();
-		String[] expectedTokens = new String[] {"deepak", "doc1"};
-		assertArrayEquals(expectedTokens, requestTokens);
 	}
 }

@@ -179,7 +179,7 @@ public class DocTable extends JFrame{
 	 * @param docName Name of the new document. User-defined
 	 */
 	void openDocument(String docName) {
-		out.println("OPENDOC " + userName + " " + docName);
+		out.println("OPENDOC&userName=" + userName + "&docName=" + docName + "&");
 	}
 
 	/**
@@ -235,7 +235,7 @@ public class DocTable extends JFrame{
 	 * Method that publishes a request to the server to log the current user out
 	 */
 	private void logout() {
-		out.println("LOGOUT " + userName);
+		out.println("LOGOUT&userName=" + userName + "&");
 	}
 
 	/**
@@ -249,7 +249,7 @@ public class DocTable extends JFrame{
 			return;
 		}
 		// setMessage("");
-		out.println("NEWDOC " + userName + " " + docName);
+		out.println("NEWDOC&userName=" + userName + "&docName=" + docName + "&");
 	}
 	
 	/**

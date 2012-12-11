@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import server.Regex;
+
 /**
  * This is the controller class. It makes requests from the server
  * and receives responses. It's requests are based off user interaction
@@ -100,12 +102,12 @@ public class Controller {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
 				//set the ID of the client
 				if (line.startsWith("id=")) {
-					this.ID = Integer.valueOf(getField("id", line));
+					this.ID = Integer.valueOf(Regex.getField("id", line));
 				} 
 				//the user should log in 
 				else if (line.startsWith("loggedin")) {
-					userName = getField("userName", line);
-					int docID = Integer.valueOf(getField("id", line));
+					userName = Regex.getField("userName", line);
+					int docID = Integer.valueOf(Regex.getField("id", line));
 					if (docID == this.ID) {
 						docTableGUI = new DocTable(serverOutput, userName);
 						updateDocTable();
@@ -152,9 +154,9 @@ public class Controller {
 					// Parses data containing information contained in the table; and then adds it to the document table
 					
 					System.out.println(line);
-					String docName = getField("docName", line);
-					String docDate = getField("date", line);
-					String docCollab = getField("collab", line);
+					String docName = Regex.getField("docName", line);
+					String docDate = Regex.getField("date", line);
+					String docCollab = Regex.getField("collab", line);
 					documentInfo.add(new String[]{docName, docDate, docCollab});
 				}
 			}
@@ -182,9 +184,9 @@ public class Controller {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {
 				//if the user has created a new document, open that document
 				if (line.startsWith("created")) {
-					String userName = getField("userName", line);
-					String docName = getField("docName", line);
-					String date = getField("date", line);
+					String userName = Regex.getField("userName", line);
+					String docName = Regex.getField("docName", line);
+					String date = Regex.getField("date", line);
 					int version = 0;
 
 					String[] dataDoc = new String [3];
@@ -210,12 +212,12 @@ public class Controller {
 				}
 				
 				else if (line.startsWith("opened")) {
-					String userName = getField("userName", line);
-					String docName = getField("docName", line);
-					String docContent = getField("docContent", line);
-					String collaborators = getField("collaborators", line);
-					int version = Integer.valueOf(getField("version", line));
-					String colors = getField("colors", line);
+					String userName = Regex.getField("userName", line);
+					String docName = Regex.getField("docName", line);
+					String docContent = Regex.getField("docContent", line);
+					String collaborators = Regex.getField("collaborators", line);
+					int version = Integer.valueOf(Regex.getField("version", line));
+					String colors = Regex.getField("colors", line);
 						
 					docContent = docContent.replace("\t", "\n");
 					if(this.userName.equals(userName)){
@@ -288,9 +290,9 @@ public class Controller {
 					}					
 				} 
 				else if (line.startsWith("corrected")) {
-					String userName = getField("userName", line);
-					String docName = getField("docName", line);
-					String newContent = getField("newContent", line);
+					String userName = Regex.getField("userName", line);
+					String docName = Regex.getField("docName", line);
+					String newContent = Regex.getField("newContent", line);
 					newContent = newContent.replace("\t", "\n");
 					if (this.userName.equals(userName)) {
 						if (currentDoc.getName().equals(docName)) {
@@ -300,16 +302,16 @@ public class Controller {
 				}
 				//if the content of the document is changed, update the view for the user
 				else if (line.startsWith("changed")) {
-					String type = getField("type", line);
-					String userName = getField("userName", line);
-					String docName = getField("docName", line);
-					int position = Integer.valueOf(getField("position", line));
-					int version = Integer.valueOf(getField("version", line));
+					String type = Regex.getField("type", line);
+					String userName = Regex.getField("userName", line);
+					String docName = Regex.getField("docName", line);
+					int position = Integer.valueOf(Regex.getField("position", line));
+					int version = Integer.valueOf(Regex.getField("version", line));
 					
 					
 					if(type.equals("insertion")){						
-						String change = getField("change", line);
-						String[] colors = getField("color", line).split(",");
+						String change = Regex.getField("change", line);
+						String[] colors = Regex.getField("color", line).split(",");
 						Color color = new Color(Integer.parseInt(colors[0]), Integer.parseInt(colors[1]), Integer.parseInt(colors[2]));
 						change = change.replace("\t", "\n");
 						if (currentDoc.getName().equals(docName)) {
@@ -319,7 +321,7 @@ public class Controller {
 						}
 					}
 					else if(type.equals("deletion")){
-						int length = Integer.valueOf(getField("length", line));
+						int length = Integer.valueOf(Regex.getField("length", line));
 						if (currentDoc.getName().equals(docName)) {
 							if (! this.userName.equals(userName)) {
 								currentDoc.deleteContent(position,length, version);
@@ -329,9 +331,9 @@ public class Controller {
 				} 
 				//if the list of collaborators is changed, update the list for the user
 				else if (line.startsWith("update")) {
-					String docName = getField("docName", line);
-					String collaborators = getField("collaborators", line);
-					String colors = getField("colors", line);
+					String docName = Regex.getField("docName", line);
+					String collaborators = Regex.getField("collaborators", line);
+					String colors = Regex.getField("colors", line);
 					if (currentDoc.getName().equals(docName)) {
 						currentDoc.updateCollaborators(collaborators, colors);
 					}
@@ -344,31 +346,8 @@ public class Controller {
 	}
 
 	
-	/**
-	 * Returns a field of a regular expression
-	 * @param field 
-	 * @param input to find the field 
-	 * @return the field from the input
-	 */
-	public String getField(String field, String input){
-		String regexPattern = "(?<=" + field + "\\=)(.*?)(?=((?<![\\\\])\\&))";
-		Pattern regex = Pattern.compile(regexPattern);
-		Matcher matcher = regex.matcher(input);
-		matcher.find();
-		String response = matcher.group();
-		return response;
-	}
 	
-	/**
-	 * Escapes the text
-	 * @param regular text
-	 * @return escaped text
-	 */
-	public String escapeText(String text){
-		text.replaceAll("\\&", "\\\\\\&");
-		text.replaceAll("\\=", "\\\\\\=");
-		return text;
-	}
+	
 	/**
 	 * This method should be run by clients to connect to the server. It uses the default constructor
 	 * and assumes that you are connecting on to a server which is on the same machine over port 4444. 

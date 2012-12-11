@@ -133,7 +133,7 @@ public class Login extends JFrame{
 			messageLabel.setText("Name cannot be empty string.");
 			return;
 		}
-		String output = "LOGIN " + name;
+		String output = "LOGIN&userName=" + name + "&";
 		out.println(output);
 	}
 	

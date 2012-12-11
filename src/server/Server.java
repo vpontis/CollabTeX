@@ -224,66 +224,62 @@ public class Server {
     private String handleRequest(ServerRequest serverRequest) {
     	//initialize a few commonly used strings
     	String userName = "";
-    	String docName = "";
+    	String docName = "";	
     	
     	RequestType requestType = serverRequest.getType();
-    	String[] requestTokens = serverRequest.getTokens();
+    	Map<String, String> requestMap = serverRequest.getMap();
     	int ID = serverRequest.getID();
     	
     	switch (requestType) {
     	case LOGIN:
     		//attempts to log the user in, checks if name is unique
-			userName = requestTokens[0];
+			userName = requestMap.get("userName");
 			return logIn(userName, ID);
 			
     	case NEWDOC:
 			//creates a new document if the input is formatted validly
-			userName = requestTokens[0];
-			docName = requestTokens[1];
+			userName = requestMap.get("userName");
+			docName = requestMap.get("docName");
 			return newDoc(userName, docName);
 			
 		case OPENDOC: 
 			//opens a document if the input is validly formatted
-			userName = requestTokens[0];
-			docName = requestTokens[1];
+			userName = requestMap.get("userName");
+			docName = requestMap.get("docName");
 			return openDoc(userName, docName);		
 	
 		case CHANGEDOC:
 			//passes off the input to a helper method
 			//this is called when a user inserts or deletes a character in a document
-			if (requestTokens.length == 6) {
-				userName = requestTokens[0];
-				docName = requestTokens[1];
-				int position = Integer.valueOf(requestTokens[2]);
-				String change = requestTokens[3];
-				int length = Integer.valueOf(requestTokens[4]);
-				int version = Integer.valueOf(requestTokens[5]);
+			userName = requestMap.get("userName");
+			docName = requestMap.get("docName");
+			int position = Integer.valueOf(requestMap.get("position"));
+			int length = Integer.valueOf(requestMap.get("length"));
+			int version = Integer.valueOf(requestMap.get("version"));
+			String type = requestMap.get("type");
+			if (type.equals("insertion")) {
+				String change = requestMap.get("change");
 				return changeDoc(userName, docName, position, change, length, version);
 				
-			} else if (requestTokens.length == 5) {
-				userName = requestTokens[0];
-				docName = requestTokens[1];
-				int position = Integer.valueOf(requestTokens[2]);
-				int length = Integer.valueOf(requestTokens[3]);
-				int version = Integer.valueOf(requestTokens[4]); 
+			} else if (type.equals("deletion")) {
 				return changeDoc(userName, docName, position, length, version);
 			}
 			return "Invalid request";
 			
 		case EXITDOC:
 			//exits the document and returns the user to the document table screen
-			userName = requestTokens[0];
-			docName = requestTokens[1];
+			userName = requestMap.get("userName");
+			docName = requestMap.get("docName");
 			return exitDoc(userName, docName);
 			
 		case LOGOUT:
 			//logs the user out and returns them to the login page
-			userName = requestTokens[0];
+			userName = requestMap.get("userName");
 			return logOut(userName, String.valueOf(ID));
 			
 		case CORRECT_ERROR:
-			userName = requestTokens[0];
-			docName = requestTokens[1];
+			userName = requestMap.get("userName");
+			docName = requestMap.get("docName");
 			return correctError(userName, docName);
 			
 		default:
@@ -430,7 +426,8 @@ public class Server {
 		String date = newDoc.getDate();
 		
 		//TODO add color to this so when you open a doc you can see your color
-		return "created&userName=" + userName + "&docName=" + docName + "&date=" + date + "&"; 
+		String response =  "created&userName=" + userName + "&docName=" + docName + "&date=" + date + "&"; 
+		return response;
     }
     
     /**
