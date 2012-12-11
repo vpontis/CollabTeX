@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import view.ErrorMessage;
+
 import model.Document;
 
 /**
@@ -472,7 +474,7 @@ public class Server {
 			System.out.println(user + "--->" + userColorMappings.get(user).toString());
 		}
 		//updates collaborators than opens the document
-		return "update&docName=" + docName + "&collaborators=" + collaborators + "&colors" + colors + "&\n" +
+		return "update&docName=" + docName + "&collaborators=" + collaborators + "&colors=" + colors + "&\n" +
 				"opened&userName=" + userName + "&docName=" + docName + "&docContent=" + docContent + 
 				"&collaborators=" + collaborators + "&version=" + version + "&colors=" + colors + "&"; 		
     }
@@ -554,7 +556,9 @@ public class Server {
 						System.out.println("Listening for requests");
 						serverInstance.serve();
 					} catch (IOException e) {
-						e.printStackTrace();
+						ErrorMessage error = new ErrorMessage("Setting up server", "Error setting up the server. Check your IP.");
+						error.setVisible(true);
+						return;
 					}
 				}
 			});
@@ -567,7 +571,8 @@ public class Server {
 						System.out.println("Attending requests");
 						serverInstance.attendRequest();
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						ErrorMessage error = new ErrorMessage("Attending requests", "Error attending requests");
+						return;
 					}
 				}
 			});
@@ -577,6 +582,10 @@ public class Server {
 			
 		} catch (IOException e1) {
 			e1.printStackTrace();
+			ErrorMessage error = new ErrorMessage("Setting up server", "Error setting up the server.\n Check your IP.");
+			error.setVisible(true);
+			return;
+
 		}
 	}
 }

@@ -354,7 +354,6 @@ public class DocEdit extends JFrame {
 			collaborators.setText(collaboratorNames);
 			return;
 		}
-		
 		//Code to change to color of the legend of collaborators
 		String text = "<html>";
 		for (int i = 0; i < users.length; i++){
