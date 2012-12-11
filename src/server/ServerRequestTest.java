@@ -1,5 +1,9 @@
 package server;
 
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
 /*
  * Testing strategy:
  * 
@@ -11,4 +15,13 @@ package server;
  */
 public class ServerRequestTest {
 	//TODO Write tests
+	
+	@Test
+	public void invalidRequestTest() {
+		String inputRequest = "Hello there";
+		ServerRequest testingRequest = new ServerRequest(0, inputRequest);
+		
+		RequestType requestType = testingRequest.getType();
+		assertEquals(RequestType.INVALID_REQUEST, requestType);
+	}
 }

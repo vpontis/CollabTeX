@@ -38,11 +38,9 @@ import model.Document;
  * Grammar of server --> client messages
  * 		UPDATE := "update|" + docName + "|" + collaborators + "|" + colors
  * 		OPENED := "opened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version
- *      NOTSIGNEDUP := "notsignedup " + ID 
- *      SIGNEDUP := "signedup " + ID
  *      CHANGED := INSERTION | DELETION
  * 		INSERTION := "changed|" + userName + "|" + docName + "|" + change + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion + "|" + color
- *		DELETEION := "changed|" + userName + "|" + docName + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion
+ *		DELETION := "changed|" + userName + "|" + docName + "|" + position + "|" + length + "|" + versionNumber + "|" + isInsertion
  *		NEWDOC := CREATED | NOTCREATED
  *		CREATED := 	"created|" + userName + "|" + docName + "|" + userName + "|" + date + "|" + colors
  *		NOTCREATED := "notcreatedduplicate"
@@ -74,7 +72,6 @@ public class Server {
 	private Set<String> onlineUsers;
 	//these map usernames to both color and password
 	private Map<String, Color> userColorMappings;
-	private Map<String, String> userPasswordMappings;
 	
 	//mapping each socket ID to a user
 	private Map<Integer, String> socketUserMappings;
@@ -111,7 +108,6 @@ public class Server {
 
 		onlineUsers = new HashSet<String>();
 		userColorMappings = new HashMap<String, Color>();
-		userPasswordMappings = new HashMap<String, String>();
 		socketUserMappings = new HashMap<Integer, String>();
 		
 		outputStreamWriters = new ArrayList<PrintWriter>();
@@ -234,7 +230,6 @@ public class Server {
     private String handleRequest(String input, int ID, RequestType requestType) {
     	//initialize a few commonly used strings
     	String userName = "";
-    	String password = "";
     	String docName = "";
     	
     	switch (requestType) {
@@ -242,8 +237,7 @@ public class Server {
     		//attempts to log the user in, checks if name is unique
     		String[] loginSplit = input.split(" ");
 			userName = loginSplit[0];
-			password = loginSplit[1];
-			return logIn(userName, password, ID);
+			return logIn(userName, ID);
 			
     	case NEWDOC:
 			//creates a new document if the input is formatted validly
@@ -290,12 +284,6 @@ public class Server {
 			docName = correctSplit[1];
 			return correctError(userName, docName);
 			
-		case SIGNUP:
-			String[] signupSplit = input.split(" ");
-			userName = signupSplit[0];
-			password = signupSplit[1];
-			return signup(userName, password, ID);
-			
 		default:
 			return "Invalid request: " + input;
     	}
@@ -303,15 +291,6 @@ public class Server {
     	//catches the case where the token length is not correct
     	return "Invalid request: " + input;
 	}
-    
-    private synchronized String signup(String userName, String password, int ID) {
-    	if (userPasswordMappings.containsKey(userName)) {
-    		return "notsignedup " + ID;
-    	} else {
-    		userPasswordMappings.put(userName, password);
-    		return "signedup " + ID;
-    	}
-    }
     
     /**
      * Makes a change to the document, as per the instructions of the client
@@ -397,51 +376,46 @@ public class Server {
      * @param ID of the client connection
      * @return the response which encodes whether or not the login was successful
      */
-    private String logIn(String userName, String password, int ID) {
+    private String logIn(String userName, int ID) {
 		//if the username already is logged in
     	if (onlineUsers.contains(userName)) {
 			return "notloggedin";
 		} 
 		
     	//otherwise, the user has a unique name
-		else {
-			String expectedPassword = userPasswordMappings.get(userName);
-			if (password.equals(expectedPassword)) {
+		else {				
+			onlineUsers.add(userName);
+			
+			//if user does not already have a color mapping
+			if (!userColorMappings.containsKey(userName)){
+				//choose a new colors
+				int numUsers = onlineUsers.size() % NUM_COLORS;
+				Color color = COLORS[numUsers];
 				
-				onlineUsers.add(userName);
-				
-				//if user does not already have a color mapping
-				if (!userColorMappings.containsKey(userName)){
-					//choose a new colors
-					int numUsers = onlineUsers.size() % NUM_COLORS;
-					Color color = COLORS[numUsers];
-					
-					//assign that color
-					userColorMappings.put(userName, color);
-					System.out.println(userName + "-->" + color.toString());
-				}	
-				socketUserMappings.put(ID, userName);
-				
-				//this returns information about the user logged in 
-				//it then returns a list of documents and their corresponding names, dates, and collaborators
-				StringBuilder stringBuilder = new StringBuilder("loggedin " + userName + " " + ID);
+				//assign that color
+				userColorMappings.put(userName, color);
+				System.out.println(userName + "-->" + color.toString());
+			}	
+			socketUserMappings.put(ID, userName);
+			
+			//this returns information about the user logged in 
+			//it then returns a list of documents and their corresponding names, dates, and collaborators
+			StringBuilder stringBuilder = new StringBuilder("loggedin " + userName + " " + ID);
+			stringBuilder.append("\n");
+			
+			for (Document document : currentDocuments){
+				stringBuilder.append(document.getName());
+				stringBuilder.append("\t");
+				stringBuilder.append(document.getDate());
+				stringBuilder.append("\t");
+				String collaborators = document.getCollab();
+				stringBuilder.append(collaborators);
 				stringBuilder.append("\n");
-				
-				for (Document document : currentDocuments){
-					stringBuilder.append(document.getName());
-					stringBuilder.append("\t");
-					stringBuilder.append(document.getDate());
-					stringBuilder.append("\t");
-					String collaborators = document.getCollab();
-					stringBuilder.append(collaborators);
-					stringBuilder.append("\n");
-				}
-				stringBuilder.append("enddocinfo");
-				
-				return stringBuilder.toString();
-			} else {
-				return "wrongpassword " + ID;
 			}
+			stringBuilder.append("enddocinfo");
+			
+			return stringBuilder.toString();
+
 		}
     }
     
