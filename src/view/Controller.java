@@ -350,7 +350,7 @@ public class Controller {
 	 * @param input to find the field 
 	 * @return the field from the input
 	 */
-	public String getField(String field, String input){
+	public static String getField(String field, String input){
 		String regexPattern = "(?<=" + field + "\\=)(.*?)(?=((?<![\\\\])\\&))";
 		Pattern regex = Pattern.compile(regexPattern);
 		Matcher matcher = regex.matcher(input);
