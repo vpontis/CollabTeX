@@ -24,7 +24,8 @@ public class ControllerRequest {
 		NOTLOGGEDIN,
 		ID, 
 		ENDDOCINFO, 
-		DOCINFO
+		DOCINFO,
+		INVALID_REQUEST
 	}
 
 	private String requestLine;
@@ -96,7 +97,7 @@ public class ControllerRequest {
 			return Type.ENDDOCINFO;
 		if(input.startsWith("docinfo"))
 			return Type.DOCINFO;
-		throw new RuntimeException("Input not valid: "+input);
+		return Type.INVALID_REQUEST;
 	}
 	
 	

@@ -35,26 +35,6 @@ import model.Document;
  * Rep Invariants:
  * 		onlineUsers is a list of unique names
  * 		Each document has a unique name
- * 
- * 
- * Grammar of server --> client messages
- * 		UPDATE := "update|" + docName + "|" + collaborators + "|" + colors
- * 		OPENED := "opened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version
- *      CHANGED := INSERTION | DELETION
- * 		INSERTION := "changed|" + userName + "|" + docName + "|" + change + "|" + position + "|" + length + "|" + versionNumber + "|" + color
- *		DELETION := "changed|" + userName + "|" + docName + "|" + position + "|" + length + "|" + versionNumber
- *		NEWDOC := CREATED | NOTCREATED
- *		CREATED := 	"created|" + userName + "|" + docName + "|" + userName + "|" + date + "|" + colors
- *		NOTCREATED := "notcreatedduplicate"
- *		UPDATECOLLAB :=  "update|" + docName + "|" + collaborators + "|" + colors 
- *		OPENDOC := "opened|" + userName + "|" + docName + "|" + docContent + "|" + collaborators + "|" + version + "|" colors
- * 		EXITDOC := "exitteddoc" userName docName //TODO this should be updated to be split up by pipes
- * 		DOCTABLEINFO := DOCINFO+ "enddocinfo" newline
- * 		DOCINFO := docName tab docDate tab docCollab newline
- * 		LOGGEDIN := "loggedin " userName ID  newline DOCTABLEINFO //TODO this should be changed to pipes
- * 		NOTLOGGEDIN := WRONGPASSWORD | DUPLICATEUSER
- * 		WRONGPASSWORD := "wrongpassword" ID //TODO split on pipes
- * 		DUPLICATEUSER := "notloggedin" //TODO include other information
  */
 public class Server {
 	//default port 
@@ -218,7 +198,6 @@ public class Server {
 			ServerRequest serverRequest = queue.take();
 			
 			//handle the request 
-			//TODO do we want to synchronize handling the request so that we do not handle multiple at once
 			String response = handleRequest(serverRequest);
 			
 			synchronized (outputStreamWriters) {
@@ -373,7 +352,7 @@ public class Server {
     String logIn(String userName, int ID) {
 		//if the username already is logged in
     	if (onlineUsers.contains(userName)) {
-			return "notloggedin";
+			return "notloggedin&id=" + String.valueOf(ID) + "&";
 		} 
 		
     	//otherwise, the user has a unique name
@@ -398,7 +377,7 @@ public class Server {
 			StringBuilder stringBuilder = new StringBuilder("loggedin&userName=" + userName + "&id=" + ID + "&");
 			stringBuilder.append("\n");
 			
-			stringBuilder.append(getDocumentInfo());
+			stringBuilder.append(getDocumentInfo(userName));
 			
 			return stringBuilder.toString();
 
@@ -409,7 +388,7 @@ public class Server {
      * Gets the document info for doctable
      * @return
      */
-    private String getDocumentInfo(){
+    private String getDocumentInfo(String userName){
     	StringBuilder stringBuilder = new StringBuilder();
 		for (Document document : currentDocuments){
 			stringBuilder.append("docinfo&");
@@ -419,9 +398,11 @@ public class Server {
 			stringBuilder.append(document.getDate());
 			stringBuilder.append("&collab=");
 			stringBuilder.append(document.getCollab());
+			stringBuilder.append("&userName=");
+			stringBuilder.append(userName);
 			stringBuilder.append("&\n");
 		}
-		stringBuilder.append("enddocinfo");
+		stringBuilder.append("enddocinfo&userName=" + userName + "&");
 		return stringBuilder.toString();
     }
     
@@ -445,7 +426,7 @@ public class Server {
     synchronized String newDoc(String userName, String docName) {
     	for (Document doc : currentDocuments){
     		if(docName.equals(doc.getName())){
-    			return "notcreatedduplicate";
+    			return "notcreatedduplicate&userName=" + userName + "&";
     		}
     	}
     	Document newDoc = new Document(docName, userName);
@@ -508,7 +489,7 @@ public class Server {
 		StringBuilder stringBuilder = new StringBuilder("exiteddoc&userName=" + userName + "&docName=" + docName + "&");
 		stringBuilder.append("\n");
 		
-		stringBuilder.append(getDocumentInfo());
+		stringBuilder.append(getDocumentInfo(userName));
 						
 		//returns exitdoc response then the information about the document list for the document table
 		return stringBuilder.toString();
@@ -542,7 +523,7 @@ public class Server {
 				return document;
 			}
 		}
-		throw new RuntimeException("Document not found");
+		return null;
 	}
 	
 	/**

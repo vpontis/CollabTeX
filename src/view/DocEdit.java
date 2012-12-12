@@ -185,7 +185,6 @@ public class DocEdit extends JFrame {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
-				//TODO fix that most recent character is wrong color
 				int position = textArea.getCaretPosition();
 				String change = String.valueOf(e.getKeyChar());
 				if (! (change.equals("\b") || change.equals("\n"))) {

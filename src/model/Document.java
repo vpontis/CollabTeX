@@ -11,7 +11,12 @@ import java.util.List;
  * 
  * Thread safety argument:
  * 
- * TODO fill this in
+ * This document is thread safe because the only public methods are 
+ * either getters that we do not need to worry about or mutators
+ * that are synchronized around the object the mutate. Our insert and 
+ * delete content methods are synchronized so that only one of these can be 
+ * editing the content of the document at once. Also the objects that we do return
+ * are not the actual objects if they are mutable, we return clones or immutable objects. 
  */
 public class Document {
 	
@@ -20,23 +25,7 @@ public class Document {
 	private Calendar lastEditDateTime;
 	private List<String> collaborators;
 	private int versionNumber;
-		
-	private List<Change> changeList;
-	/*
-	 * Idea for keeping up with changes using Operational transforms-->
-	 * 
-	 * Have a changelist which stores the list of changes and the positions of each change
-	 * Each version of the document corresponds to a certain change made in the document
-	 *
-	 * When a change is received, the version number is looked at and if the version number 
-	 * is different from the starting version number, all changes made since that
-	 * version number are looked at.
-	 * If previous changes affect the position of the change in the document, the change is 
-	 * appended onto the changelist, and the position at which the current change is made is modified
-	 * 
-	 */
-
-	
+	private List<Change> changeList;	
 	
 	/**
 	 * Constructor of the class Document. Creates a new document with the given document ID, document name and collaborator
@@ -65,7 +54,6 @@ public class Document {
 	 * Inserts new content into the given position in the document
 	 * The content should be a letter that results from the user typing. 
 	 * The position should be less than the lenth of the text in the document
-	 * <p>
 	 * For example, insertion into the word "abcd" at position 1 with newLetter "e" will
 	 * result in the new string "aebcd". Insertion into the word "acd" at position 3 with
 	 * newLetter "f" results in the new string "acdf"
@@ -75,7 +63,6 @@ public class Document {
 	 */
 	public synchronized void insertContent(String newLetter, int position, int version) {
 		synchronized(content) {
-			
 			position = transformPosition(position, version);
 			position = Math.min(position, content.length());
 			content = content.substring(0, position) + newLetter + content.substring(position);
@@ -88,7 +75,6 @@ public class Document {
 	/**
 	 * Deletes old content from the document at the given position. 
 	 * The position should be less than the length of the text in the document
-	 * <p>
 	 * For example, deletion from the word "abcd" at position 1  will
 	 * result in the new string "acd". Deletion from the word "acd" at
 	 * position 2 results in the new string "ac"
@@ -223,7 +209,7 @@ public class Document {
 	 */
 	public List<String> getCollabList(){
 		synchronized(collaborators){
-			return this.collaborators;
+			return new ArrayList<String>(this.collaborators);
 		}
 	}
 		

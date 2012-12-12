@@ -105,6 +105,7 @@ public class Controller {
 		
 		while(true){
 			ControllerRequest request;
+			int docID;
 			try {
 				request = queue.take();
 			} catch (InterruptedException e) {
@@ -121,7 +122,7 @@ public class Controller {
 				break;
 			case LOGGEDIN:
 				userName = requestMap.get("userName");
-				int docID = Integer.valueOf(requestMap.get("id"));
+				docID = Integer.valueOf(requestMap.get("id"));
 				if (docID == this.ID) {
 					docTableGUI = new DocTable(serverOutput, userName);
 					updateDocTable();
@@ -137,9 +138,11 @@ public class Controller {
 				}
 				break;
 			case NOTLOGGEDIN:
-				loginGUI.failedLogin();
+				docID = Integer.valueOf(requestMap.get("id"));
+				if (docID == this.ID)
+					loginGUI.failedLogin();
 				break;
-			default:
+			default:	
 				System.out.println(request.getLine());
 				continue;
 			}
@@ -168,16 +171,22 @@ public class Controller {
 				return;
 			}
 			Map<String, String> requestMap = request.getMap();
+			String userName;
 			switch(request.getType()){
 			case ENDDOCINFO:				
-				docTableGUI.updateTable(documentInfo);
+				userName = requestMap.get("userName");
+				if (userName.equals(this.userName))
+					docTableGUI.updateTable(documentInfo);
 				return;
 			case DOCINFO:
-				// Parses data containing information contained in the table; and then adds it to the document table
-				String docName = requestMap.get("docName");
-				String docDate = requestMap.get("date");
-				String docCollab = requestMap.get("collab");
-				documentInfo.add(new String[]{docName, docDate, docCollab});
+				userName = requestMap.get("userName");
+				if (userName.equals(this.userName)){					
+					// Parses data containing information contained in the table; and then adds it to the document table
+					String docName = requestMap.get("docName");
+					String docDate = requestMap.get("date");
+					String docCollab = requestMap.get("collab");
+					documentInfo.add(new String[]{docName, docDate, docCollab});
+				}
 				break;
 			default:
 				continue;
@@ -212,7 +221,7 @@ public class Controller {
 			}
 			Map<String, String> requestMap = request.getMap();
 			
-			String userName;
+			String requestUser;
 			String docName;
 			String date;
 			int version;
@@ -220,18 +229,18 @@ public class Controller {
 			switch(request.getType()){
 			case CREATED:
 				docName = requestMap.get("docName");
-				userName = requestMap.get("userName");
+				requestUser = requestMap.get("userName");
 				date = requestMap.get("date");
 				version = 0;
 				
 				String[] dataDoc = new String [3];
 				dataDoc[0] = docName;
 				dataDoc[1] = date;
-				dataDoc[2] = userName;
+				dataDoc[2] = requestUser;
 				docTableGUI.addData(dataDoc);
 				
-				if(this.userName.equals(userName)){
-					this.currentDoc = new DocEdit(serverOutput, docName, userName, "", userName, version, "");							
+				if(this.userName.equals(requestUser)){
+					this.currentDoc = new DocEdit(serverOutput, docName, requestUser, "", requestUser, version, "");							
 					Thread newThread = new Thread(new Runnable() {
 						@Override
 						public void run() {
@@ -243,11 +252,13 @@ public class Controller {
 				}
 				break;
 			case NOTCREATED:
-				docTableGUI.setDuplicateErrorMessage();
+				requestUser = requestMap.get("userName");
+				if(requestUser.equals(userName))
+					docTableGUI.setDuplicateErrorMessage();
 				break;
 			case LOGGEDOUT:
-				String name = requestMap.get("userName");
-				if (this.userName.equals(name)) {
+				requestUser = requestMap.get("userName");
+				if (this.userName.equals(requestUser)) {
 					Thread loginThread = new Thread(new Runnable() {
 						@Override
 						public void run() {
@@ -259,15 +270,15 @@ public class Controller {
 				}
 				break;
 			case OPENED:
-				userName = requestMap.get("userName");
+				requestUser = requestMap.get("userName");
 				docName = requestMap.get("docName");
 				String docContent = requestMap.get("docContent");
 				String collaborators = requestMap.get("collaborators");
 				version = Integer.valueOf(requestMap.get("version"));
 				String colors = requestMap.get("colors");
 				docContent = docContent.replace("\t", "\n");
-				if(this.userName.equals(userName)){
-					this.currentDoc = new DocEdit(serverOutput, docName, userName, docContent, collaborators, version, colors);							
+				if(this.userName.equals(requestUser)){
+					this.currentDoc = new DocEdit(serverOutput, docName, requestUser, docContent, collaborators, version, colors);							
 					Thread newThread = new Thread(new Runnable() {
 						@Override
 						public void run() {
@@ -308,14 +319,14 @@ public class Controller {
 			}
 			Map<String, String> requestMap = request.getMap();
 			
-			String userName;
+			String requestUser;
 			String docName;
 			int version;
 			switch(request.getType()){
 			case EXITEDDOC:
-				userName = requestMap.get("userName");
+				requestUser = requestMap.get("userName");
 				updateDocTable();
-				if(this.userName.equals(userName)){							
+				if(this.userName.equals(requestUser)){							
 					Thread newThread = new Thread(new Runnable() {
 						@Override
 						public void run() {
@@ -328,46 +339,44 @@ public class Controller {
 				break;
 			case CORRECTED:
 				String newContent = requestMap.get("content");
-				userName = requestMap.get("userName");
+				requestUser = requestMap.get("userName");
 				docName = requestMap.get("docName");
 				newContent = newContent.replace("\t", "\n");
-				if (this.userName.equals(userName)) {
+				if (this.userName.equals(requestUser)) {
 					if (currentDoc.getName().equals(docName)) {
 						currentDoc.resetText(newContent);
 					}
 				}
 				break;
 			case CHANGED:
-				String type = requestMap.get("type");
-				int position = Integer.valueOf(requestMap.get("position"));
-				userName = requestMap.get("userName");
 				docName = requestMap.get("docName");
-				version = Integer.valueOf(requestMap.get("version"));
-				if(type.equals("insertion")){						
-					String change = requestMap.get("change");
-					String[] colors = requestMap.get("color").split(",");
-					Color color = new Color(Integer.parseInt(colors[0]), Integer.parseInt(colors[1]), Integer.parseInt(colors[2]));
-					change = change.replace("\t", "\n");
-					if (currentDoc.getName().equals(docName)) {
-						if (! this.userName.equals(userName)) {
-							currentDoc.insertContent(change, position, version, color);
+				if (currentDoc.getName().equals(docName)) {
+					String type = requestMap.get("type");
+					int position = Integer.valueOf(requestMap.get("position"));
+					requestUser = requestMap.get("userName");
+					version = Integer.valueOf(requestMap.get("version"));
+					if(type.equals("insertion")){						
+						String change = requestMap.get("change");
+						String[] colors = requestMap.get("color").split(",");
+						Color color = new Color(Integer.parseInt(colors[0]), Integer.parseInt(colors[1]), Integer.parseInt(colors[2]));
+						change = change.replace("\t", "\n");
+							if (! this.userName.equals(requestUser)) {
+								currentDoc.insertContent(change, position, version, color);
+							}
 						}
+					else if(type.equals("deletion")){
+						int length = Integer.valueOf(requestMap.get("length"));
+						if (currentDoc.getName().equals(docName)) {
+								currentDoc.deleteContent(position, length, version);
+						}						
 					}
-				}
-				else if(type.equals("deletion")){
-					int length = Integer.valueOf(requestMap.get("length"));
-					if (currentDoc.getName().equals(docName)) {
-						if (! this.userName.equals(userName)) {
-							currentDoc.deleteContent(position, length, version);
-						}
-					}						
 				}
 				break;
 			case UPDATE:
-				String collaborators = requestMap.get("collaborators");
-				String colors = requestMap.get("colors");
 				docName = requestMap.get("docName");
 				if (currentDoc.getName().equals(docName)) {
+					String collaborators = requestMap.get("collaborators");
+					String colors = requestMap.get("colors");
 					currentDoc.updateCollaborators(collaborators, colors);
 				}
 				break;
