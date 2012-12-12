@@ -4,6 +4,10 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+/*
+ * Testing strategy -->
+ * This java file is required to test if LaTeX code is renderable as a LaTeX image
+ */
 public class LatexTest {
 
 	@Test

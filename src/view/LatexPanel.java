@@ -5,6 +5,11 @@ import java.awt.Image;
 
 import javax.swing.JPanel;
 
+
+/**
+ * This class contains code to display rendered LateX code
+ *
+ */
 @SuppressWarnings("serial")
 class LatexPanel extends JPanel{
 	private Image image = null;
@@ -13,6 +18,9 @@ class LatexPanel extends JPanel{
 		this.image = image;
 	}
 	
+	/**
+	 * Method that paints the LaTeX component
+	 */
 	@Override
 	public void paintComponent(Graphics g){
 		if(image != null){			

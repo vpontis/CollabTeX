@@ -168,7 +168,7 @@ public class DocEdit extends JFrame {
 					if (position > 0) {
 						position --;
 						int length = 1;
-						//TODO reformat all of the out.println
+
 						out.println("CHANGE&type=deletion&userName=" + userName + "&docName=" + docName + "&" +
 								"position=" + position + "&length=" + length + "&version=" + version + "&");
 					}					

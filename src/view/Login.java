@@ -144,10 +144,17 @@ public class Login extends JFrame{
 		userName.setText("");
 	}
 	
+	/**
+	 * Resets the message displayed in the login screen to the standard welcome message
+	 */
 	void resetMessage() {
 		messageLabel.setText("Hello there, enter a username and login.");
 	}
 	
+	/**
+	 * Resets the message displayed in the login screen to the specified message
+	 * @param message New message to be displayed on the login screen
+	 */
 	void resetMessage(String message) {
 		messageLabel.setText(message);
 	}
