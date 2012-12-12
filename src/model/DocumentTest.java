@@ -42,7 +42,7 @@ import org.junit.Test;
 public class DocumentTest {
 	
 	@Test 
-	public void quickChanges() {
+	public void quickChanges() throws InterruptedException {
 		final Document doc = new Document("Test", "ViccyPont");
 		
 		Thread changingThread = new Thread(new Runnable() {
@@ -65,10 +65,10 @@ public class DocumentTest {
 				
 		changingThread.start();
 		otherChangingThread.start();
+		Thread.sleep(200);
+		changingThread.join();
+		otherChangingThread.join();
 		
-		changingThread.yield();
-		
-		//
 		assertEquals(200, doc.toString().length());
 
 	}
