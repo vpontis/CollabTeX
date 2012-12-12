@@ -65,6 +65,11 @@ public class DocumentTest {
 				
 		changingThread.start();
 		otherChangingThread.start();
+		
+		changingThread.yield();
+		
+		//
+		assertEquals(200, doc.toString().length());
 
 	}
 	
