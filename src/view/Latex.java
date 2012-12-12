@@ -55,8 +55,6 @@ public class Latex {
 					.createTeXIcon(TeXConstants.STYLE_TEXT, (float) 20.,
 							TeXConstants.UNIT_CM, (float) 10.5, 0);
 		icon.setInsets(new Insets(5,5,5,5));
-		
-		//TODO figure out how to wrap the text
 		return icon;
 	}
 

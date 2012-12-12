@@ -140,9 +140,8 @@ public class Controller {
 				loginGUI.failedLogin();
 				break;
 			default:
-				System.out.println("Incorrect type found");
-				throw new RuntimeException("incorrect type found");
-//				continue;
+				System.out.println(request.getLine());
+				continue;
 			}
 		}
 	}
@@ -404,6 +403,7 @@ public class Controller {
 	 */
 	public static void main(final String[] args) {
 		final Controller main;
+		System.out.println("Beginning cleint...");
 		try {
 			if (args.length == 0){
 				main = new Controller();				

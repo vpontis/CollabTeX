@@ -267,12 +267,9 @@ public class DocEdit extends JFrame {
 		int cursorPosition = textArea.getCaretPosition();
 		//update the cursor position if the change comes before the cursor
 		cursorPosition = cursorPosition > position ? cursorPosition + length : cursorPosition;
-		//TODO Fix concurrency bug
-		
 		synchronized (textDocument) {
 			try {
 				Style style = textArea.addStyle("foreGround", null);
-				//TODO fix bug that the most recent character is the wrong color if multiple people are editing
 		        StyleConstants.setForeground(style, color);
 				textDocument.insertString(position, change , style);
 			} catch (BadLocationException e) {

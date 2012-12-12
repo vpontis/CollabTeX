@@ -1,8 +1,17 @@
 package model;
 
+/**
+ * This class represents a change to the document. 
+ * Each document has a list of such changes. 
+ * A change can be an insertion or deletion.
+ * Deletions are represented by negative
+ * characters inserted. We do not actually
+ * store the string that was inserted or deleted. 
+ */
 public class Change {
 	
 	private int position;
+	//number of characters inserted or deleted
 	private int charInserted;
 	private int version;
 	

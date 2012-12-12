@@ -448,8 +448,6 @@ public class Server {
     	Document newDoc = new Document(docName, userName);
 		currentDocuments.add(newDoc);
 		String date = newDoc.getDate();
-		
-		//TODO add color to this so when you open a doc you can see your color
 		String response =  "created&userName=" + userName + "&docName=" + docName + "&date=" + date + "&"; 
 		return response;
     }

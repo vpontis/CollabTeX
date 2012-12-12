@@ -76,16 +76,16 @@ public class ServerRequest {
 			return RequestType.CORRECT_ERROR;
 		} else if (input.startsWith("LOGOUT&")){
 			return RequestType.LOGOUT;			
-		} 
-		
-		else {
-			requestLine = "";
-			throw new RuntimeException(input);
-//			return RequestType.INVALID_REQUEST;
+		} else {
+			return RequestType.INVALID_REQUEST;
 		}
 	}
 	
-	
+	/**
+	 * Changes the request line into a dictionary
+	 * @param request with key values in the form of a get request
+	 * @return a dictionary which maps all keys to values
+	 */
 	public Map<String, String> parseRequest(String request){
 		int index = 0;
 		String regexPattern = "(?<=\\&)(.*?)(?=((?<![\\\\])\\=))";

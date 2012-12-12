@@ -70,9 +70,6 @@ import org.junit.Test;
  * from the thread-safety argument with a little testing as well. 
  */
 public class ServerTest {
-	//TODO Write tests
-	
-	
 	public String getField(String field, String input){
 		String regexPattern = "(?<=" + field + "\\=)(.*?)(?=((?<![\\\\])\\&))";
 		Pattern regex = Pattern.compile(regexPattern);
