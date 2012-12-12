@@ -64,6 +64,7 @@ public class Document {
 	/**
 	 * Inserts new content into the given position in the document
 	 * The content should be a letter that results from the user typing. 
+	 * The position should be less than the lenth of the text in the document
 	 * <p>
 	 * For example, insertion into the word "abcd" at position 1 with newLetter "e" will
 	 * result in the new string "aebcd". Insertion into the word "acd" at position 3 with
@@ -85,7 +86,12 @@ public class Document {
 	
 
 	/**
-	 * Deletes old content from the document at the given position
+	 * Deletes old content from the document at the given position. 
+	 * The position should be less than the length of the text in the document
+	 * <p>
+	 * For example, deletion from the word "abcd" at position 1  will
+	 * result in the new string "acd". Deletion from the word "acd" at
+	 * position 2 results in the new string "ac"
 	 * @param position Old content that is removed from the document
 	 * @param length Length of text that is being deleted from the document
 	 * @return New content of the document
