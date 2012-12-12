@@ -221,10 +221,12 @@ public class Server {
 			//TODO do we want to synchronize handling the request so that we do not handle multiple at once
 			String response = handleRequest(serverRequest);
 			
+			synchronized (outputStreamWriters) {
 			//propagate the response of the request to all of clients
-            for (PrintWriter outputStream : outputStreamWriters) {
-            	outputStream.println(response);
-            }
+	            for (PrintWriter outputStream : outputStreamWriters) {
+	            	outputStream.println(response);
+	            }
+			}
 		}
 	}
   
@@ -375,7 +377,8 @@ public class Server {
 		} 
 		
     	//otherwise, the user has a unique name
-		else {				
+		else {	
+			System.out.println(onlineUsers);
 			onlineUsers.add(userName);
 			
 			//if user does not already have a color mapping

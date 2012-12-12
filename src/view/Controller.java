@@ -141,8 +141,7 @@ public class Controller {
 				break;
 			default:
 				System.out.println("Incorrect type found");
-				throw new RuntimeException("incorrect type found");
-//				continue;
+				continue;
 			}
 		}
 	}
@@ -328,7 +327,7 @@ public class Controller {
 				}
 				break;
 			case CORRECTED:
-				String newContent = requestMap.get("newContent");
+				String newContent = requestMap.get("content");
 				userName = requestMap.get("userName");
 				docName = requestMap.get("docName");
 				newContent = newContent.replace("\t", "\n");
