@@ -63,6 +63,7 @@ public class Server {
 	
 	//this queue contains the requests from the various clients
 	private LinkedBlockingQueue<ServerRequest> queue;
+	private final Object lock = new Object(); 
 	
 	
 	/**
@@ -107,11 +108,12 @@ public class Server {
     	int ID = 0;
         while (true) {
             // block until a client connects
-        	//TODO we might want to synchronize this so if multiple clients connect at the same time we will not have interleaving problems
             Socket socket = serverSocket.accept();
-            ID++; //ID keeps track of the socket ID, to take care of users exiting
-            Thread socketThread = new Thread(new ConnectionHandler(socket, ID));
-            socketThread.start();
+            synchronized (lock) {
+	            ID++; //ID keeps track of the socket ID, to take care of users exiting
+	            Thread socketThread = new Thread(new ConnectionHandler(socket, ID));
+	            socketThread.start();
+            }
         }
     }
     
@@ -282,11 +284,17 @@ public class Server {
 
 	}
     
-    /**
-     * Makes a change to the document, as per the instructions of the client
-     * @param input which specifies the change as a client --> server message
-     * @return message to the clients about the document changed
-     */
+  /**
+   * Makes a change to the document, as per the instructions of the client
+   * This overload of the changeDoc method is used for insertion of the text into the document
+   * @param userName Username of the user making the change to the document
+   * @param docName Name of the document to which the change is being made
+   * @param position Position at which new text is inserted. Must be within the length of the text of the document
+   * @param change New text to be inserted into the document
+   * @param length Length of the new text to be inserted into the document
+   * @param version Version number to which original insertion was made
+   * @return message to the clients about the document changed
+   */
     private synchronized String changeDoc(String userName, String docName, int position, String change, int length, int version) {
     	Document currentDocument = getDoc(docName);
 		Color actualColor = userColorMappings.get(userName);
@@ -321,7 +329,12 @@ public class Server {
     
     /**
      * Makes a change to the document, as per the instructions of the client
-     * @param input which specifies the change as a client --> server message
+     * This overload of the changeDoc method is used for deletion of the text from the document
+     * @param userName Username of the user making the change to the document
+     * @param docName Name of the document to which the change is being made
+     * @param position Position at which new text is inserted. Must be within the length of the text of the document
+     * @param length Length of the new text to be inserted into the document
+     * @param version Version number to which original insertion was made
      * @return message to the clients about the document changed
      */
     private synchronized String changeDoc(String userName, String docName, int position, int length, int version) {		
