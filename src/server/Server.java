@@ -83,6 +83,7 @@ public class Server {
 	
 	//this queue contains the requests from the various clients
 	private LinkedBlockingQueue<ServerRequest> queue;
+	private final Object lock = new Object(); 
 	
 	
 	/**
@@ -127,11 +128,12 @@ public class Server {
     	int ID = 0;
         while (true) {
             // block until a client connects
-        	//TODO we might want to synchronize this so if multiple clients connect at the same time we will not have interleaving problems
             Socket socket = serverSocket.accept();
-            ID++; //ID keeps track of the socket ID, to take care of users exiting
-            Thread socketThread = new Thread(new ConnectionHandler(socket, ID));
-            socketThread.start();
+            synchronized (lock) {
+	            ID++; //ID keeps track of the socket ID, to take care of users exiting
+	            Thread socketThread = new Thread(new ConnectionHandler(socket, ID));
+	            socketThread.start();
+            }
         }
     }
     
@@ -218,7 +220,6 @@ public class Server {
 			ServerRequest serverRequest = queue.take();
 			
 			//handle the request 
-			//TODO do we want to synchronize handling the request so that we do not handle multiple at once
 			String response = handleRequest(serverRequest);
 			
 			synchronized (outputStreamWriters) {

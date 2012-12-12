@@ -16,8 +16,7 @@ import org.junit.Test;
  * 	3. Check that incorrect server requests are identified correctly
  */
 public class ServerRequestTest {
-	
-	//TODO Fix these tests to take into account new architecture
+	//TODO Fix these tests
 	
 	@Test
 	public void loginRequestTest() {
