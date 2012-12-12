@@ -327,7 +327,7 @@ public class Controller {
 				}
 				break;
 			case CORRECTED:
-				String newContent = requestMap.get("newContent");
+				String newContent = requestMap.get("content");
 				userName = requestMap.get("userName");
 				docName = requestMap.get("docName");
 				newContent = newContent.replace("\t", "\n");
