@@ -7,6 +7,10 @@ package model;
  * Deletions are represented by negative
  * characters inserted. We do not actually
  * store the string that was inserted or deleted. 
+ * 
+ * We do not need to worry about this class being modified
+ * because it has no leakage and only private primitive variables
+ * so we do not have to worry about rep leakage.
  */
 public class Change {
 	

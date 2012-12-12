@@ -70,44 +70,21 @@ import org.junit.Test;
  * from the thread-safety argument with a little testing as well. 
  */
 public class ServerTest {
-	public String getField(String field, String input){
-		String regexPattern = "(?<=" + field + "\\=)(.*?)(?=((?<![\\\\])\\&))";
-		Pattern regex = Pattern.compile(regexPattern);
-		Matcher matcher = regex.matcher(input);
-		matcher.find();
-		String response = matcher.group();
-		return response;
-	}
-	
-	public String escapeText(String text){
-		text.replaceAll("\\&", "\\\\\\&");
-		text.replaceAll("\\=", "\\\\\\=");
-		return text;
-	}
-	
-	@Test
-	public void regexTest(){
-		String input = "opendoc&docName=document&userName=vpontis&version=2\\&adf3&\n";
-		assertEquals("document", getField("docName", input));
-		assertEquals("vpontis", getField("userName", input));
-		assertEquals("2\\&adf3", getField("version", input));
-	}
-	
 	@Test
 	public void loginTest() throws IOException {
 		Server serverInstance = new Server(1111);
 		try {
 			String loginResponse = serverInstance.logIn("deepak", 2);
 			
-			String userName = getField("userName", loginResponse);
+			String userName = Regex.getField("userName", loginResponse);
 			assertEquals("deepak", userName);
 			
-			String ID = getField("id", loginResponse);
+			String ID = Regex.getField("id", loginResponse);
 			assertEquals("2", ID);
 			
 			loginResponse = serverInstance.logOut("deepak", "2");
 			
-			userName = getField("userName", loginResponse);
+			userName = Regex.getField("userName", loginResponse);
 			assertEquals("deepak", userName);
 		} finally {
 			serverInstance.shutDown();
@@ -121,15 +98,15 @@ public class ServerTest {
 		try {
 			String loginResponse = serverInstance.logIn("deepak", 2);
 			
-			String userName = getField("userName", loginResponse);
+			String userName = Regex.getField("userName", loginResponse);
 			assertEquals("deepak", userName);
 			
-			String ID = getField("id", loginResponse);
+			String ID = Regex.getField("id", loginResponse);
 			assertEquals("2", ID);
 			
 			loginResponse = serverInstance.logIn("deepak", 3);
 			
-			assertEquals("notloggedin", loginResponse);
+			assertTrue(loginResponse.startsWith("notloggedin"));
 		} finally {
 			serverInstance.shutDown();
 		}		
@@ -142,13 +119,13 @@ public class ServerTest {
 		try {
 			String loginResponse = serverInstance.newDoc("deepak", "doc1");
 			
-			String userName = getField("userName", loginResponse);
+			String userName = Regex.getField("userName", loginResponse);
 			assertEquals("deepak", userName);
 			
-			String docName = getField("docName", loginResponse);
+			String docName = Regex.getField("docName", loginResponse);
 			assertEquals("doc1", docName);
 			
-			String date = getField("date", loginResponse);
+			String date = Regex.getField("date", loginResponse);
 			System.out.println("This is a visual check to see if date works..." + date);
 
 		} finally {
@@ -163,7 +140,7 @@ public class ServerTest {
 			String loginResponse = serverInstance.newDoc("deepak", "doc1");
 			loginResponse = serverInstance.newDoc("victor", "doc1");
 			
-			assertEquals("notcreatedduplicate", loginResponse);
+			assertTrue(loginResponse.startsWith("notcreatedduplicate"));
 
 		} finally {
 			serverInstance.shutDown();

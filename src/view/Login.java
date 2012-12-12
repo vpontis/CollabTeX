@@ -10,6 +10,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import server.Regex;
+
 
 /**
  * Represents the Login GUI element. Allows the user to login to the
@@ -133,6 +135,8 @@ public class Login extends JFrame{
 			messageLabel.setText("Name cannot be empty string.");
 			return;
 		}
+		
+		name = Regex.escape(name);
 		String output = "LOGIN&userName=" + name + "&";
 		out.println(output);
 	}

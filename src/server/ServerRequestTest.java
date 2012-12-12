@@ -33,6 +33,16 @@ public class ServerRequestTest {
 
 	}
 	
+	@Test 
+	public void escapeTest() {
+		String input = "CHANGE&type=insertion&userName=vic&docName=df&position=0&change=\\&&length=1&version=0&";
+		ServerRequest request = new ServerRequest(0, input);
+		Map<String, String> map = request.getMap();
+		System.out.println(map.keySet());
+		System.out.println(map.values());
+
+	}
+	
 	@Test
 	public void newdocRequestTest() {
 		String inputRequest = "NEWDOC&userName=deepak&docName=doc1&";

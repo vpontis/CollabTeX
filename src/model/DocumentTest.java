@@ -36,8 +36,6 @@ import org.junit.Test;
  * 		a) Adding a collaborator who already exists
  * 		b) Removing a collaborator who doesn't exist
  * 		c) Adding / removing a new collaborator
- * 
- * 
  */
 public class DocumentTest {
 	

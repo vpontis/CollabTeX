@@ -196,7 +196,7 @@ public class Server {
 		//we only want one of these methods running at once
 		while (true) {
 			ServerRequest serverRequest = queue.take();
-			
+			System.out.println(serverRequest.getLine());
 			//handle the request 
 			String response = handleRequest(serverRequest);
 			
@@ -311,8 +311,9 @@ public class Server {
 		int versionNumber = currentDocument.getVersion();
 		
 		if (position != -1 && length != -1) {
-			return "changed&type=insertion&userName=" + userName + "&docName=" + docName + "&change=" + change + "&" +
-					"position=" + position + "&length=" + length + "&version=" + versionNumber + "&color=" + color + "&";
+			return "changed&type=insertion&userName=" + Regex.escape(userName) + "&docName=" + Regex.escape(docName) +  "&" +
+					"position=" + position + "&length=" + length + "&version=" + versionNumber + "&color=" + Regex.escape(color) + 
+					"&change=" + Regex.escape(change) + "&";
 		}
 		
 		return "Invalid request";
@@ -335,7 +336,7 @@ public class Server {
 		int versionNumber = currentDocument.getVersion();
 		
 		if (position != -1 && length != -1) {
-			return "changed&type=deletion&userName=" + userName + "&docName=" + docName + "&position=" + position + "&" +
+			return "changed&type=deletion&userName=" + Regex.escape(userName) + "&docName=" + Regex.escape(docName) + "&position=" + position + "&" +
 					"length=" + length + "&version=" + versionNumber + "&";
 		}
 		
@@ -352,7 +353,7 @@ public class Server {
     String logIn(String userName, int ID) {
 		//if the username already is logged in
     	if (onlineUsers.contains(userName)) {
-			return "notloggedin&id=" + String.valueOf(ID) + "&";
+			return "notloggedin&id=" + ID + "&";
 		} 
 		
     	//otherwise, the user has a unique name
@@ -374,7 +375,7 @@ public class Server {
 			
 			//this returns information about the user logged in 
 			//it then returns a list of documents and their corresponding names, dates, and collaborators
-			StringBuilder stringBuilder = new StringBuilder("loggedin&userName=" + userName + "&id=" + ID + "&");
+			StringBuilder stringBuilder = new StringBuilder("loggedin&userName=" + Regex.escape(userName) + "&id=" + ID + "&");
 			stringBuilder.append("\n");
 			
 			stringBuilder.append(getDocumentInfo(userName));
@@ -393,16 +394,16 @@ public class Server {
 		for (Document document : currentDocuments){
 			stringBuilder.append("docinfo&");
 			stringBuilder.append("docName=");
-			stringBuilder.append(document.getName());
+			stringBuilder.append(Regex.escape(document.getName()));
 			stringBuilder.append("&date=");
-			stringBuilder.append(document.getDate());
+			stringBuilder.append(Regex.escape(document.getDate()));
 			stringBuilder.append("&collab=");
-			stringBuilder.append(document.getCollab());
+			stringBuilder.append(Regex.escape(document.getCollab()));
 			stringBuilder.append("&userName=");
-			stringBuilder.append(userName);
+			stringBuilder.append(Regex.escape(userName));
 			stringBuilder.append("&\n");
 		}
-		stringBuilder.append("enddocinfo&userName=" + userName + "&");
+		stringBuilder.append("enddocinfo&userName=" + Regex.escape(userName) + "&");
 		return stringBuilder.toString();
     }
     
@@ -414,7 +415,7 @@ public class Server {
     String logOut(String userName, String ID) {
 		onlineUsers.remove(userName);
 		socketUserMappings.remove(ID);
-		return "loggedout&userName=" + userName + "&";
+		return "loggedout&userName=" + Regex.escape(userName) + "&";
     }
     
     /**
@@ -426,13 +427,13 @@ public class Server {
     synchronized String newDoc(String userName, String docName) {
     	for (Document doc : currentDocuments){
     		if(docName.equals(doc.getName())){
-    			return "notcreatedduplicate&userName=" + userName + "&";
+    			return "notcreatedduplicate&userName=" + Regex.escape(userName) + "&";
     		}
     	}
     	Document newDoc = new Document(docName, userName);
 		currentDocuments.add(newDoc);
 		String date = newDoc.getDate();
-		String response =  "created&userName=" + userName + "&docName=" + docName + "&date=" + date + "&"; 
+		String response =  "created&userName=" + Regex.escape(userName) + "&docName=" + Regex.escape(docName) + "&date=" + Regex.escape(date) + "&"; 
 		return response;
     }
     
@@ -467,16 +468,17 @@ public class Server {
 			System.out.println(user + "--->" + userColorMappings.get(user).toString());
 		}
 		//updates collaborators than opens the document
-		return "update&docName=" + docName + "&collaborators=" + collaborators + "&colors=" + colors + "&\n" +
-				"opened&userName=" + userName + "&docName=" + docName + "&docContent=" + docContent + 
-				"&collaborators=" + collaborators + "&version=" + version + "&colors=" + colors + "&"; 		
+		return "update&docName=" + Regex.escape(docName) + "&collaborators=" + Regex.escape(collaborators) + "&colors=" + Regex.escape(colors) + "&\n" +
+				"opened&userName=" + Regex.escape(userName) + "&docName=" + Regex.escape(docName) + 
+				"&collaborators=" + Regex.escape(collaborators) + "&version=" + version + "&colors=" + Regex.escape(colors) + "&"
+				 + "docContent=" + Regex.escape(docContent) + "&"; 		
     }
     
     private String correctError(String userName, String docName) {
     	Document currentDocument = getDoc(docName);
     	String content = currentDocument.toString();
     	content = content.replace("\n", "\t");
-    	return "corrected&userName=" + userName + "&docName=" + docName + "&content=" + content + "&";
+    	return "corrected&userName=" + Regex.escape(userName) + "&docName=" + Regex.escape(docName) + "&content=" + Regex.escape(content) + "&";
     }
     
     /**
@@ -486,7 +488,7 @@ public class Server {
      * @return Response from the server to the client
      */
     private String exitDoc(String userName, String docName) {
-		StringBuilder stringBuilder = new StringBuilder("exiteddoc&userName=" + userName + "&docName=" + docName + "&");
+		StringBuilder stringBuilder = new StringBuilder("exiteddoc&userName=" + Regex.escape(userName) + "&docName=" + Regex.escape(docName) + "&");
 		stringBuilder.append("\n");
 		
 		stringBuilder.append(getDocumentInfo(userName));

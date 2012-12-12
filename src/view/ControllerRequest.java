@@ -38,8 +38,9 @@ public class ControllerRequest {
 	 * @param requestLine
 	 */
 	public ControllerRequest(String requestLine) {
+		System.out.println(requestLine);
 		this.requestLine = requestLine;
-		this.requestMap = parseRequest(requestLine);
+		this.requestMap = Regex.parseRequest(requestLine);
 		this.requestType = getType(requestLine);
 	}
 	
@@ -101,21 +102,4 @@ public class ControllerRequest {
 	}
 	
 	
-	public Map<String, String> parseRequest(String request){
-		int index = 0;
-		String regexPattern = "(?<=\\&)(.*?)(?=((?<![\\\\])\\=))";
-		Pattern pattern = Pattern.compile(regexPattern);
-		Matcher matcher = pattern.matcher(request);
-		boolean found = matcher.find(index);
-		Map<String, String> map = new HashMap<String, String>();
-		
-		while(found){
-			String key = matcher.group();
-			map.put(key, Regex.getField(key, request));
-			
-			index = matcher.end();
-			found = matcher.find(index);
-		}
-		return map;
-	}
 }

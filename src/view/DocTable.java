@@ -16,6 +16,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
+import server.Regex;
+
 /**
  *  Represents the DocTable GUI element. Displays all documents available
  *  to edit by the user. Contains meta data about the documents.
@@ -179,7 +181,7 @@ public class DocTable extends JFrame{
 	 * @param docName Name of the new document. User-defined
 	 */
 	void openDocument(String docName) {
-		out.println("OPENDOC&userName=" + userName + "&docName=" + docName + "&");
+		out.println("OPENDOC&userName=" + Regex.escape(userName) + "&docName=" + Regex.escape(docName)+ "&");
 	}
 
 	/**
@@ -235,7 +237,7 @@ public class DocTable extends JFrame{
 	 * Method that publishes a request to the server to log the current user out
 	 */
 	private void logout() {
-		out.println("LOGOUT&userName=" + userName + "&");
+		out.println("LOGOUT&userName=" + Regex.escape(userName) + "&");
 	}
 
 	/**
@@ -249,7 +251,7 @@ public class DocTable extends JFrame{
 			return;
 		}
 		// setMessage("");
-		out.println("NEWDOC&userName=" + userName + "&docName=" + docName + "&");
+		out.println("NEWDOC&userName=" + Regex.escape(userName) + "&docName=" + Regex.escape(docName) + "&");
 	}
 	
 	/**

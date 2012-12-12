@@ -22,7 +22,7 @@ public class ServerRequest {
 	public ServerRequest(int ID, String requestLine) {
 		this.ID = ID;
 		this.requestLine = requestLine;
-		this.requestMap = parseRequest(requestLine);
+		this.requestMap = Regex.parseRequest(requestLine);
 		this.requestType = getType(requestLine);
 	}
 	
@@ -79,28 +79,5 @@ public class ServerRequest {
 		} else {
 			return RequestType.INVALID_REQUEST;
 		}
-	}
-	
-	/**
-	 * Changes the request line into a dictionary
-	 * @param request with key values in the form of a get request
-	 * @return a dictionary which maps all keys to values
-	 */
-	public Map<String, String> parseRequest(String request){
-		int index = 0;
-		String regexPattern = "(?<=\\&)(.*?)(?=((?<![\\\\])\\=))";
-		Pattern pattern = Pattern.compile(regexPattern);
-		Matcher matcher = pattern.matcher(request);
-		boolean found = matcher.find(index);
-		Map<String, String> map = new HashMap<String, String>();
-		
-		while(found){
-			String key = matcher.group();
-			map.put(key, Regex.getField(key, request));
-			
-			index = matcher.end();
-			found = matcher.find(index);
-		}
-		return map;
 	}
 }
