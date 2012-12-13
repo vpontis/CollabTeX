@@ -6,6 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -221,8 +222,8 @@ public class DocTable extends JFrame{
 	/**
 	 * Sets error message when a create request is sent to the server with an empty string document name 
 	 */
-	void setEmptyErrorMessage() {
-		setMessage("Document name cannot be an empty string");
+	void setErrorMessage() {
+		setMessage("Document name can only be composed of alphabets");
 	}
 	
 	/**
@@ -246,10 +247,12 @@ public class DocTable extends JFrame{
 	 */
 	private void newDocument(){
 		String docName = newDocumentName.getText();
-		if(docName.equals("")){
-			setEmptyErrorMessage();
+		String ALPHABET_REGEX = "[a-zA-z]+";
+		if (! Pattern.matches(ALPHABET_REGEX, docName)) {
+			setErrorMessage();
 			return;
 		}
+
 		// setMessage("");
 		out.println("NEWDOC&userName=" + Regex.escape(userName) + "&docName=" + Regex.escape(docName) + "&");
 	}
