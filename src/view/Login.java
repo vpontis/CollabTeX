@@ -131,6 +131,7 @@ public class Login extends JFrame{
 		String ALPHABET_REGEX = "[a-zA-z]+";
 		if (! Pattern.matches(ALPHABET_REGEX, name)) {
 			messageLabel.setText("Illegal username. Username must contain only alphabets, and cannot be empty.");
+			this.pack();
 			return ;
 		}
 		
