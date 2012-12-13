@@ -83,11 +83,14 @@ public class Document {
 	public void deleteContent(int position, int length, int version) {
 		synchronized(content) {
 			position = transformPosition(position, version);
-			position = Math.min(position, content.length());
-			int nextPosition = Math.min(position + length, content.length());
-			content = content.substring(0, position) + content.substring(nextPosition);
-			updateVersion();
-			changeList.add(new Change(position, -length, version));
+			try{
+				content = content.substring(0, position) + content.substring(position + length);
+				updateVersion();
+				changeList.add(new Change(position, -length, version));
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 	}
 	
