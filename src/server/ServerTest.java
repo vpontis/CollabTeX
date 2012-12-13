@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 
+import model.Document;
+
 import org.junit.Test;
 
 
@@ -66,6 +68,13 @@ import org.junit.Test;
  * documenting the results of each test case. We can tolerate small bugs in conditions where there are a lot of clients connecting
  * at the same time and these cases are very hard to test. So we will handle the condition where there are a lot of clients primarily
  * from the thread-safety argument with a little testing as well. 
+ */
+
+/*
+ * Testing strategy for the entire system -->
+ * Most testing in the end was carried out by running the GUI and server in an end-to-end system.
+ * This allowed us to observe the effect of concurrent edits easily. Using JUnit tests to test
+ * concurrency is a lot harder, and hence we did not pursue this path.
  */
 public class ServerTest {
 	@Test
@@ -145,6 +154,55 @@ public class ServerTest {
 		}
 	}
 	
+	
+	@Test
+	public void exitDocTest() throws IOException {
+		Server serverInstance = new Server(1111);
+		try {
+			String loginResponse = serverInstance.newDoc("deepak", "doc1");
+			loginResponse = serverInstance.exitDoc("deepak", "doc1");
+			
+			assertTrue(loginResponse.startsWith("exiteddoc"));
+			assertEquals("deepak", Regex.getField("userName", loginResponse));
+			assertEquals("doc1", Regex.getField("docName", loginResponse));
+			
+
+		} finally {
+			serverInstance.shutDown();
+		}
+	}
+	
+	@Test
+	public void correctErrorTest() throws IOException {
+		Server serverInstance = new Server(1111);
+		try {
+			String loginResponse = serverInstance.newDoc("deepak", "doc1");
+			loginResponse = serverInstance.correctError("deepak", "doc1");
+			
+			assertTrue(loginResponse.startsWith("corrected"));
+			assertEquals("deepak", Regex.getField("userName", loginResponse));
+			assertEquals("doc1", Regex.getField("docName", loginResponse));
+			
+
+		} finally {
+			serverInstance.shutDown();
+		}
+	}
+	
+	@Test
+	public void addDocumentTest() throws IOException {
+		Server serverInstance = new Server(1111);
+		try {
+			Document newDocument = new Document("doc1", "deepak");
+			serverInstance.addDocument(newDocument);
+			assertEquals(1, serverInstance.getDocuments().size());
+			assertEquals("doc1", serverInstance.getDoc("doc1").getName());
+			
+
+		} finally {
+			serverInstance.shutDown();
+		}
+	}
 }
 
 

@@ -14,8 +14,8 @@ import java.util.regex.Pattern;
 public class Regex {
 	/**
 	 * Returns a field of a regular expression
-	 * @param field 
-	 * @param input to find the field 
+	 * @param field Field to be found
+	 * @param input Input in which field needs to be found
 	 * @return the field from the input
 	 */
 	public static String getField(String field, String input){

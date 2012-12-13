@@ -35,6 +35,16 @@ import model.Document;
  * Rep Invariants:
  * 		onlineUsers is a list of unique names
  * 		Each document has a unique name
+ * 
+ * 
+ * Thread safety argument -->
+ * 
+ * All requests to the server are handled one after the other since the queue is thread safe.
+ * By synchronizing with a lock, we ensure that adding new connections to the server are
+ * concurrent.
+ * Attending to the different requests is made thread safe since attending requests is 
+ * synchronized with outputStreamWriters.
+ * 
  */
 public class Server {
 	//default port 
@@ -295,7 +305,7 @@ public class Server {
    * @param version Version number to which original insertion was made
    * @return message to the clients about the document changed
    */
-    private synchronized String changeDoc(String userName, String docName, int position, String change, int length, int version) {
+    synchronized String changeDoc(String userName, String docName, int position, String change, int length, int version) {
     	Document currentDocument = getDoc(docName);
 		Color actualColor = userColorMappings.get(userName);
 		
@@ -337,7 +347,7 @@ public class Server {
      * @param version Version number to which original insertion was made
      * @return message to the clients about the document changed
      */
-    private synchronized String changeDoc(String userName, String docName, int position, int length, int version) {		
+    synchronized String changeDoc(String userName, String docName, int position, int length, int version) {		
     	Document currentDocument = getDoc(docName);
     	
 		//update the model of the data
@@ -488,7 +498,13 @@ public class Server {
 				 + "docContent=" + Regex.escape(docContent) + "&"; 		
     }
     
-    private String correctError(String userName, String docName) {
+    /**
+     * Sends the corrected message back to all the clients
+     * @param userName Name of the user whose document needs to be corrected
+     * @param docName Name of the document that needs to be corrected
+     * @return Message to the client from the server while attending to a correction request
+     */
+    String correctError(String userName, String docName) {
     	Document currentDocument = getDoc(docName);
     	String content = currentDocument.toString();
     	content = content.replace("\n", "\t");
@@ -501,7 +517,7 @@ public class Server {
      * @param docName The name of the document that is being exited
      * @return Response from the server to the client
      */
-    private String exitDoc(String userName, String docName) {
+    String exitDoc(String userName, String docName) {
 		StringBuilder stringBuilder = new StringBuilder("exiteddoc&userName=" + Regex.escape(userName) + "&docName=" + Regex.escape(docName) + "&");
 		stringBuilder.append("\n");
 		
@@ -532,7 +548,7 @@ public class Server {
 	 * @param docName Name of the document object to be retrieved
 	 * @return An object of type Document
 	 */
-	private Document getDoc(String docName) {
+	Document getDoc(String docName) {
 		for (Document document: currentDocuments) {
 			String name = document.getName();
 			if (docName.equals(name)) {
