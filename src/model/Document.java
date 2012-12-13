@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import view.ErrorMessage;
+
 /**
  * Representation of the document.
  * Contains important meta data regarding the document.
@@ -83,14 +85,9 @@ public class Document {
 	public void deleteContent(int position, int length, int version) {
 		synchronized(content) {
 			position = transformPosition(position, version);
-			try{
 				content = content.substring(0, position) + content.substring(position + length);
 				updateVersion();
 				changeList.add(new Change(position, -length, version));
-			}
-			catch(Exception e){
-				e.printStackTrace();
-			}
 		}
 	}
 	

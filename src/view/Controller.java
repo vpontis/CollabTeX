@@ -366,7 +366,7 @@ public class Controller {
 						}
 					else if(type.equals("deletion")){
 						int length = Integer.valueOf(requestMap.get("length"));
-						if (! currentDoc.getName().equals(docName)) {
+						if (! this.userName.equals(requestUser)) {
 							currentDoc.deleteContent(position, length, version);
 						}						
 					}
