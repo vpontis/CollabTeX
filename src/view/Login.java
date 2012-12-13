@@ -32,7 +32,7 @@ public class Login extends JFrame{
 	private PrintWriter out;
 
 	/**
-	 * Contructor of the Login GUI element
+	 * Constructor of the Login GUI element
 	 * @param outputStream PrintWriter onto which the login screen published requests to the server
 	 */
 	public Login(PrintWriter outputStream) {
