@@ -42,7 +42,7 @@ import server.Regex;
  * Testing strategy -->
  * 
  * The aim of this class is to test parsing of the messages from the server to the client
- * Actual GUI performance is tested manually
+ * Actual GUI performance is tested manually; testing strategy for the GUI is as above.
  */
  
 
