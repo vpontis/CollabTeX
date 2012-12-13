@@ -294,7 +294,6 @@ public class DocEdit extends JFrame {
 		cursorPosition = cursorPosition >= position ? cursorPosition - length : cursorPosition;
 		synchronized(textDocument) {
 			try {
-				textArea.setCaretPosition(cursorPosition);
 				textDocument.remove(position, length);
 			} catch (BadLocationException e) {
 				System.out.println("Position: " + String.valueOf(position));
@@ -305,6 +304,8 @@ public class DocEdit extends JFrame {
 				messageLabel.setText("You have an error syncing. Please exit and reopen the doc");
 				e.printStackTrace();
 			}
+			
+			textArea.setCaretPosition(cursorPosition);
 		}
 	}
 	
