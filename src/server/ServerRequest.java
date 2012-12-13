@@ -1,9 +1,6 @@
 package server;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Represents a request made to the server. Contains all data pertaining to the particular server request.
@@ -16,8 +13,8 @@ public class ServerRequest {
 	
 	/**
 	 * Constructor for the ServerRequest class
-	 * @param ID
-	 * @param requestLine
+	 * @param ID ID of the client making the request to the server
+	 * @param requestLine Original request received from the client by the server
 	 */
 	public ServerRequest(int ID, String requestLine) {
 		this.ID = ID;

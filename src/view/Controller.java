@@ -46,8 +46,8 @@ public class Controller {
 	 * This is the constructor for the controller. A client runs an instance of controller
 	 * in order to connect to the server. At this point we assume that the client and
 	 * server are on the same machine and that the port is 4444. 
-	 * @throws UnknownHostException
-	 * @throws IOException
+	 * @throws UnknownHostException If the IP host address cannot be determined
+	 * @throws IOException  If an I/O error occurs when creating the socket
 	 */
 	public Controller() throws UnknownHostException, IOException {
 		this(4444);
@@ -56,9 +56,9 @@ public class Controller {
 	/**
 	 * This is pretty much the same as the constructor above except that we are specifying a port. 
 	 * If the port is not valid, the constructor will throw an exception.  
-	 * @param port the user specifies 
-	 * @throws UnknownHostException
-	 * @throws IOException
+	 * @param port port on which client establishes connections with the server
+	 * @throws UnknownHostException If the IP host address cannot be determined
+	 * @throws IOException  If an I/O error occurs when creating the socket
 	 */
 	public Controller(int port) throws UnknownHostException, IOException {
 		this("127.0.0.1", port);
@@ -67,10 +67,10 @@ public class Controller {
 	/**
 	 * This is pretty much the same as the two above except that you are also 
 	 * specifying an IP address in addition to a port. 
-	 * @param IP
-	 * @param port
-	 * @throws UnknownHostException
-	 * @throws IOException
+	 * @param IP IP address of the server to which the controller is connecting to
+	 * @param port port on which client establishes connections with the server
+	 * @throws UnknownHostException If the IP host address cannot be determined
+	 * @throws IOException  If an I/O error occurs when creating the socket
 	 */
 	public Controller(String IP, int port) throws UnknownHostException, IOException {
 		this.serverSocket = new Socket(IP, port);
@@ -386,6 +386,9 @@ public class Controller {
 		}
 	}
 	
+	/**
+	 * Method that manages the queue. Adds a message to the queue every time a message comes in from the server
+	 */
 	private void manageQueue() {		
 		try {
 			for (String line = serverInput.readLine(); line!=null; line=serverInput.readLine()) {

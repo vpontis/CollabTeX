@@ -19,6 +19,12 @@ public class Change {
 	private int charInserted;
 	private int version;
 	
+	/**
+	 * Constructor for Change class
+	 * @param position Position at which change is made
+	 * @param charInserted Number of characters inserted/deleted in the change
+	 * @param version Version number of document to which change is made
+	 */
 	public Change(int position, int charInserted, int version){
 		this.position = position;
 		this.charInserted = charInserted;
