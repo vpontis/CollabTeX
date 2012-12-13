@@ -345,6 +345,8 @@ public class DocEdit extends JFrame {
 	 * @param collors list of hex colors that corresponds to each collaborator
 	 */
 	public void updateCollaborators(String collaboratorNames, String colors) {
+		if (collaboratorNames == null)
+			return;
 		String[] users = collaboratorNames.split(" ");
 		//colors is a list of hex values where the hex values are integers
 		String[] userColorList = colors.split(" ");

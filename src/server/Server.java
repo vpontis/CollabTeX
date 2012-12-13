@@ -468,14 +468,15 @@ public class Server {
 		String color;
 		for (String username : currentDocument.getCollabList()){
 			Color actualColor = userColorMappings.get(username);
-			
-			int colorRed = actualColor.getRed();
-			int colorBlue = actualColor.getBlue();
-			int colorGreen = actualColor.getGreen();
-			
-			color = String.valueOf(colorRed) + "," + String.valueOf(colorGreen) + "," + String.valueOf(colorBlue) + " ";
-
-			colors += color;
+			if (actualColor != null){
+				int colorRed = actualColor.getRed();
+				int colorBlue = actualColor.getBlue();
+				int colorGreen = actualColor.getGreen();
+				
+				color = String.valueOf(colorRed) + "," + String.valueOf(colorGreen) + "," + String.valueOf(colorBlue) + " ";
+	
+				colors += color;
+			}
 		}
 		for (String user : userColorMappings.keySet()){
 			System.out.println(user + "--->" + userColorMappings.get(user).toString());
