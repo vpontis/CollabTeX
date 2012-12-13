@@ -85,9 +85,16 @@ public class Document {
 	public void deleteContent(int position, int length, int version) {
 		synchronized(content) {
 			position = transformPosition(position, version);
+			//we want to catch an exception in case somebody accidentally copy pastes
+			//we want the server to still be working
+			try{
 				content = content.substring(0, position) + content.substring(position + length);
 				updateVersion();
 				changeList.add(new Change(position, -length, version));
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
 		}
 	}
 	
