@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import view.ErrorMessage;
-
 /**
  * Representation of the document.
  * Contains important meta data regarding the document.

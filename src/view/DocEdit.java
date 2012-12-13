@@ -295,7 +295,8 @@ public class DocEdit extends JFrame {
 		cursorPosition = cursorPosition >= position ? cursorPosition - length : cursorPosition;
 		synchronized(textDocument) {
 			try {
-				textArea.setCaretPosition(cursorPosition);
+				if(cursorPosition >= 0)
+					textArea.setCaretPosition(cursorPosition);
 				textDocument.remove(position, length);
 			} catch (BadLocationException e) {
 				System.out.println("Position: " + String.valueOf(position));
