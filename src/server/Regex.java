@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import view.ErrorMessage;
-
 
 /**
  * This file contains the regexes used by both the ServerRequest and

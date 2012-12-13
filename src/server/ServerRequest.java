@@ -1,9 +1,6 @@
 package server;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Represents a request made to the server. Contains all data pertaining to the particular server request.
