@@ -3,6 +3,7 @@ package view;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintWriter;
+import java.util.regex.Pattern;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -127,13 +128,10 @@ public class Login extends JFrame{
 	private void login() {
 		String name = userName.getText().trim();
 		resetName();
-		if (name.contains(" ")){
-			messageLabel.setText("Your login cannot have spaces");
-			return;
-		}
-		if(name.equals("")){
-			messageLabel.setText("Name cannot be empty string.");
-			return;
+		String ALPHABET_REGEX = "[a-zA-z]+";
+		if (! Pattern.matches(ALPHABET_REGEX, name)) {
+			messageLabel.setText("Illegal username. Username must contain only alphabets, and cannot be empty.");
+			return ;
 		}
 		
 		name = Regex.escape(name);
