@@ -272,7 +272,6 @@ public class DocEdit extends JFrame {
 			try {
 				Style style = textArea.addStyle("foreGround", null);
 		        StyleConstants.setForeground(style, color);
-		        position = position >= textDocument.getLength() ? textDocument.getLength() : position;
 				textDocument.insertString(position, change , style);
 			} catch (BadLocationException e) {
 				out.println("CORRECTERROR&userName=" + Regex.escape(userName) + "&docName=" + Regex.escape(docName) + "&");
