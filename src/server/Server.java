@@ -208,7 +208,6 @@ public class Server {
 		//we only want one of these methods running at once
 		while (true) {
 			ServerRequest serverRequest = queue.take();
-			System.out.println(serverRequest.getLine());
 			//handle the request 
 			String response = handleRequest(serverRequest);
 			
@@ -381,7 +380,6 @@ public class Server {
 		
     	//otherwise, the user has a unique name
 		else {	
-			System.out.println(onlineUsers);
 			onlineUsers.add(userName);
 			
 			//if user does not already have a color mapping
@@ -392,7 +390,6 @@ public class Server {
 				
 				//assign that color
 				userColorMappings.put(userName, color);
-				System.out.println(userName + "-->" + color.toString());
 			}	
 			socketUserMappings.put(ID, userName);
 			
@@ -488,9 +485,7 @@ public class Server {
 				colors += color;
 			}
 		}
-		for (String user : userColorMappings.keySet()){
-			System.out.println(user + "--->" + userColorMappings.get(user).toString());
-		}
+
 		//updates collaborators than opens the document
 		return "update&docName=" + Regex.escape(docName) + "&collaborators=" + Regex.escape(collaborators) + "&colors=" + Regex.escape(colors) + "&\n" +
 				"opened&userName=" + Regex.escape(userName) + "&docName=" + Regex.escape(docName) + 

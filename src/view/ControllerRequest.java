@@ -35,7 +35,6 @@ public class ControllerRequest {
 	 * @param requestLine
 	 */
 	public ControllerRequest(String requestLine) {
-		System.out.println(requestLine);
 		this.requestLine = requestLine;
 		this.requestMap = Regex.parseRequest(requestLine);
 		this.requestType = getType(requestLine);

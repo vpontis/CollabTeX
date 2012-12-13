@@ -143,7 +143,6 @@ public class Controller {
 					loginGUI.failedLogin();
 				break;
 			default:	
-				System.out.println(request.getLine());
 				continue;
 			}
 		}
@@ -225,7 +224,6 @@ public class Controller {
 			String docName;
 			String date;
 			int version;
-			System.out.println(request.getLine());
 			switch(request.getType()){
 			case CREATED:
 				docName = requestMap.get("docName");
